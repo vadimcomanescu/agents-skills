@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.7.0 — 2026-05-01
+
+- **Add `README.md`** — public-facing front page. Quickstart per runtime, agent-driven install procedure ("For agents" section), methodology grounded in named engineering practices, and acknowledgments. Replaces the prior absence: the repo had `AGENTS.md` (agent canon) but no human-facing README. All quotes verified against primary sources; one fabricated Beck quote was caught and replaced with a verified Kernighan citation, and "trust, but verify" was re-attributed to the Russian proverb (popularized in English by Reagan at the INF Treaty signing, 1987) rather than to Reagan alone.
+- **Add `scripts/check-consistency.sh`** — cross-file consistency lint with 7 checks. Each guards a class of drift observed in this repo:
+  - **A:** `npx skills add` invocations in markdown require `-a`, forbid `--all` (the global CLAUDE.md "no dead agent dirs" rule).
+  - **B:** Claude marketplace catalog plugin versions match `plugins/<theme>/.claude-plugin/plugin.json` versions.
+  - **C:** Codex marketplace plugin paths exist and plugin names match the manifest.
+  - **D:** Every `skills/<name>/` on disk is registered in some plugin's `skills[]`.
+  - **E:** Every entry in `skills[]` points at an existing `SKILL.md`.
+  - **F:** Every skill on disk is mentioned in `README.md`.
+  - **G:** Markdown link targets in `README.md` and `AGENTS.md` resolve to existing files.
+- **CI: new `consistency` job** in `.github/workflows/validate.yml` runs `check-consistency.sh` on every PR. Same script runs locally pre-push.
+- **Delete `scripts/install.sh`** — duplicated what `npx skills add` and the native `/plugin marketplace add` commands already do; modern marketplaces (obra, addyosmani, mattpocock) ship no shell installers. Drift was already observed within one session: the README claimed the script "detected runtimes" while it unconditionally `mkdir -p`'d all four config dirs. Dead alternative install path, exactly the *No shadow canon* failure mode. Removed instead of patched.
+- **`AGENTS.md` updates** to match the new enforcement and removed installer:
+  - Layout: `scripts/install.sh` line replaced with `scripts/check-consistency.sh`.
+  - Install: dropped the plain-clone shell-installer line; added explicit note that `-a` is mandatory on `npx skills add` and CI rejects PRs without it.
+  - Adding a new skill: step 3 now correctly states the Codex catalog discovers skills by scanning the plugin source dir (no separate `skills[]` registration); step 4 requires bumping the version in three places (Claude plugin manifest, Codex plugin manifest, and the matching catalog entry); step 6 directs contributors to run the lint locally.
+- **Methodology: enforcement before fix.** Local instance of the global rule. Each drift was caught by a class-level lint before fixing the specific instance: README's missing `-a` flags (Class A, 2 hits), AGENTS.md's wrong "register in both" instruction (downstream of Class B+E once registration is single-sourced), `install.sh` doc-vs-reality drift (the whole file deleted instead of patched).
+
 ## 0.6.0 — 2026-05-01
 
 - **`systematic-debugging` Phase 1 expanded with 4 surgical edits sourced from addyosmani/agent-skills' `debugging-and-error-recovery` skill.** All edits inline in `SKILL.md`; no new reference files; 4-phase Iron-Law structure preserved. ~14 lines added on a 296-line skill.

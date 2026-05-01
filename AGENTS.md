@@ -10,8 +10,8 @@ Public skill collection for Claude Code, Codex, Gemini CLI, and OpenCode.
 plugins/<theme>/                   Per-theme plugin manifests (Claude + Codex)
 skills/<name>/SKILL.md             Canonical skill content
 template/SKILL.md                  Starter template for new skills
-scripts/install.sh                 Linux/macOS plain-clone installer
-.github/workflows/validate.yml     CI: JSON schema + frontmatter checks
+scripts/check-consistency.sh       Cross-file consistency lint (runs in CI)
+.github/workflows/validate.yml     CI: schema + frontmatter + consistency
 ```
 
 ## Install
@@ -27,18 +27,22 @@ codex plugins install meta@vadim-loadout
 
 # Gemini CLI / OpenCode (via npx skills)
 npx skills add vadimcomanescu/agents-skills -a gemini-cli opencode
-
-# Plain clone (Linux/macOS)
-git clone https://github.com/vadimcomanescu/agents-skills && ./scripts/install.sh
 ```
+
+The `-a` flag is mandatory on `npx skills add` calls. Without it, `npx skills` creates skill directories for every runtime it knows about, including ones not in use. CI rejects PRs with `npx skills add` invocations missing `-a`; see `scripts/check-consistency.sh` check A.
 
 ## Adding a new skill
 
 1. Copy `template/SKILL.md` to `skills/<your-skill>/SKILL.md`.
 2. Fill in frontmatter `name` and `description`.
-3. Reference `./skills/<your-skill>` in the appropriate themed plugin's `skills` array in `.claude-plugin/marketplace.json`.
-4. Bump the plugin `version` in `plugins/<theme>/.claude-plugin/plugin.json` and `plugins/<theme>/.codex-plugin/plugin.json`.
+3. Reference `./skills/<your-skill>` in the appropriate themed plugin's `skills` array in `.claude-plugin/marketplace.json`. The Codex catalog discovers skills by scanning the plugin source dir; no separate registration is needed there.
+4. Bump the `version` in three places, all to the same value:
+   - `plugins/<theme>/.claude-plugin/plugin.json`
+   - `plugins/<theme>/.codex-plugin/plugin.json`
+   - the matching plugin entry in `.claude-plugin/marketplace.json`
+   CI rejects mismatches; see `scripts/check-consistency.sh` check B.
 5. Add an entry to `CHANGELOG.md`.
+6. Run `bash scripts/check-consistency.sh` locally before opening a PR.
 
 ## Themes
 

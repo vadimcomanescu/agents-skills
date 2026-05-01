@@ -29,6 +29,13 @@ jobs:
           done
           exit $fail
 
+  consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: cross-file consistency checks
+        run: bash scripts/check-consistency.sh
+
   claude-validate:
     runs-on: ubuntu-latest
     continue-on-error: true

@@ -1,0 +1,20 @@
+{
+  "name": "vadim-loadout",
+  "interface": {
+    "displayName": "Vadim's Loadout"
+  },
+  "plugins": [
+    {
+      "name": "meta",
+      "source": {
+        "source": "local",
+        "path": "./plugins/meta"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "NONE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

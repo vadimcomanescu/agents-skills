@@ -1,0 +1,22 @@
+{
+  "name": "vadim-loadout",
+  "owner": {
+    "name": "Vadim Comanescu",
+    "email": "vadim984@gmail.com",
+    "url": "https://github.com/vadimcomanescu"
+  },
+  "metadata": {
+    "description": "Vadim's personal skill collection for Claude Code, Codex, Gemini CLI, and OpenCode.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "meta",
+      "source": "./",
+      "version": "0.1.0",
+      "description": "Skill authoring and agent meta-tooling.",
+      "keywords": ["agents", "skills", "authoring"],
+      "skills": ["./skills/example-skill"]
+    }
+  ]
+}

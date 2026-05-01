@@ -1,0 +1,40 @@
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: marketplace.json files are valid JSON
+        run: |
+          jq empty .claude-plugin/marketplace.json
+          jq empty .agents/plugins/marketplace.json
+
+      - name: plugin.json files are valid JSON
+        run: |
+          find plugins -name 'plugin.json' -print0 | xargs -0 -I{} jq empty {}
+
+      - name: SKILL.md frontmatter has name + description
+        run: |
+          fail=0
+          for skill in skills/*/SKILL.md; do
+            head -n 20 "$skill" | grep -qE '^name:[[:space:]]*\S' || { echo "$skill: missing name"; fail=1; }
+            head -n 20 "$skill" | grep -qE '^description:[[:space:]]*\S' || { echo "$skill: missing description"; fail=1; }
+          done
+          exit $fail
+
+  claude-validate:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: install claude code
+        run: npm install -g @anthropic-ai/claude-code
+      - name: validate
+        run: claude plugin validate .

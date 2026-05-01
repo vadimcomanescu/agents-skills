@@ -16,7 +16,15 @@
       "version": "0.1.0",
       "description": "Skill authoring and agent meta-tooling.",
       "keywords": ["agents", "skills", "authoring"],
-      "skills": ["./skills/example-skill"]
+      "skills": ["./skills/writing-skills"]
+    },
+    {
+      "name": "engineering",
+      "source": "./",
+      "version": "0.1.0",
+      "description": "Engineering practice skills: TDD, code review, refactoring discipline.",
+      "keywords": ["engineering", "tdd", "testing", "refactoring", "mutation-testing"],
+      "skills": ["./skills/test-driven-development", "./skills/systematic-debugging", "./skills/verification-before-completion"]
     }
   ]
 }

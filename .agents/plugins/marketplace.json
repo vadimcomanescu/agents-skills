@@ -15,6 +15,18 @@
         "authentication": "NONE"
       },
       "category": "Productivity"
+    },
+    {
+      "name": "engineering",
+      "source": {
+        "source": "local",
+        "path": "./plugins/engineering"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "NONE"
+      },
+      "category": "Engineering"
     }
   ]
 }

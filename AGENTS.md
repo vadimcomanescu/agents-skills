@@ -45,8 +45,24 @@ git clone https://github.com/vadimcomanescu/agents-skills && ./scripts/install.s
 Current:
 
 - `meta` — agent and skill authoring.
+- `engineering` — TDD, systematic debugging, verification before completion.
 
 Add new themed plugins by creating `plugins/<theme>/.claude-plugin/plugin.json` and `plugins/<theme>/.codex-plugin/plugin.json`, then declaring them in both marketplace catalogs.
+
+## No shadow canon, no legacy weight
+
+When replacing or removing **anything** from this marketplace — a skill, a plugin theme, a cross-reference, a convention, a scaffold, an example — the old surface MUST be removed entirely. The active marketplace teaches and enforces only what is currently true.
+
+MUST NOT keep:
+- Dead skills retained "just in case" (e.g. the original scaffold `example-skill` after real skills exist).
+- Dangling cross-references with "marked inactive" annotations — either the target skill is imported and the link resolves, or the line is removed.
+- Deprecated marketplace entries pointing at deleted directories.
+- Legacy versions of a renamed skill kept under the old name as an alias.
+- Negative compatibility tests / "old behavior" fixtures unless the user explicitly asks for a supported compatibility window.
+
+When replacing a skill (e.g. an updated version of an obra-vendored skill), the old version MUST be deleted, not kept under a `*-old` name. Use git history if you need to recover.
+
+This rule is the local instance of Vadim's global *No shadow canon* rule (see `~/.claude/CLAUDE.md`). It exists because additive bias — keeping old things "just in case" — is how marketplaces accumulate dead weight that confuses both agents and contributors.
 
 ## Naming
 

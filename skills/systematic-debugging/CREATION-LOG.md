@@ -2,6 +2,8 @@
 
 Reference example of extracting, structuring, and bulletproofing a critical skill.
 
+> **Historical record.** Originally created in obra/superpowers (2025-10-03) and imported into this marketplace ad literam per ADR 0003. Internal namespace references below (`skills/debugging/…`, `skills/testing/…`, `skills/meta/…`, `/Users/jesse/…`) describe obra's environment and are preserved as historical context. The active namespace handle in this marketplace is `engineering:systematic-debugging`.
+
 ## Source Material
 
 Extracted debugging framework from `/Users/jesse/.claude/CLAUDE.md`:
@@ -117,3 +119,35 @@ When encountering a bug:
 
 *Created: 2025-10-03*
 *Purpose: Reference example for skill extraction and bulletproofing*
+
+---
+
+## Revision: 2026-05-01 — addyosmani surgical additions
+
+Phase 1 of `SKILL.md` expanded with 4 inline edits sourced from addyosmani/agent-skills' `debugging-and-error-recovery` skill. No restructuring; 4-phase Iron Law preserved.
+
+**Edits:**
+- Phase 1 Step 1 rewritten: "Capture before re-running" + "errors are clues, not testimony" — replaces the prior misleading line *"errors often contain the exact solution"*.
+- Phase 1 Step 3: appended `git bisect` guidance for wide regression ranges.
+- Phase 1 Step 4: appended instrumentation lifecycle paragraph (temporary / permanent / unsafe; default temporary).
+
+**Methodology — RED-GREEN-REFACTOR per writing-skills:**
+
+4 pressure scenarios authored as test fixtures (`test-evidence-preservation.md`, `test-error-as-data.md`, `test-bisection.md`, `test-instrumentation-lifecycle.md`). Baseline runs across opus / sonnet / haiku (12 subagent invocations, n=1 per cell):
+
+| Scenario | Opus baseline | Sonnet baseline | Haiku baseline |
+|---|---|---|---|
+| Evidence preservation | A ✓ | A ✓ | A ✓ |
+| Errors as data | C ✓ | C ✓ | C ✓ |
+| Bisection | C (rollback) | A ✓ | **B ✗ (manual diff)** |
+| Instrumentation lifecycle | A ✓ | A ✓ | A ✓ |
+
+**Single confirmed baseline failure: haiku on bisection** picked the cargo-cult "manual diff reading" option, rationalizing *"Old-school tools work under pressure"* and *"234 commits is too many to read manually. (It's not — filtering to dashboard files drops that to ~50.)"*
+
+GREEN verification (haiku × 4 with edited skill loaded) — all four passed. The bisection scenario flipped from B→A with explicit citation of the new Phase 1 Step 3 line. The other three remained A/C as in baseline, but verification agents reported *"would have picked B/C without it; the skill changed/reinforced my answer"*.
+
+Academic regression (`test-academic.md`) re-run with edited skill: 4-phase frame intact, all 6 questions answered with verbatim quotes. Iron Law unchanged.
+
+**Why all 4 ship despite only 1 confirmed baseline failure:** addyosmani's commit history shows the original skill was iterated post-launch on real production agent failures (Mar 28 commit added the security/untrusted-data section after observed failures). Pressure-test format produces careful one-shot reasoning, not the rapid interactive flow where these disciplines actually earn their place. Verification consistently shows skill text changes the decision under pressure even when baseline picked correctly.
+
+See [`../../docs/adr/0005-systematic-debugging-osmani-additions.md`](../../docs/adr/0005-systematic-debugging-osmani-additions.md).

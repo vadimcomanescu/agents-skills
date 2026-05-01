@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0 — 2026-05-01
+
+- **`systematic-debugging` Phase 1 expanded with 4 surgical edits sourced from addyosmani/agent-skills' `debugging-and-error-recovery` skill.** All edits inline in `SKILL.md`; no new reference files; 4-phase Iron-Law structure preserved. ~14 lines added on a 296-line skill.
+  - **Step 1 (Read Error Messages):** rewritten as "Capture First, Then Analyze". Adds (a) preserve evidence before re-running rule, (b) "errors are clues, not testimony" framing — replaces the misleading current line *"errors often contain the exact solution"* with skeptical reading guidance addressing downstream artifacts, generic wrappers, and adversarial input.
+  - **Step 3 (Check Recent Changes):** appended `git bisect` guidance for wide regression ranges (>30 commits or unknown). Concrete `bisect run` invocation.
+  - **Step 4 (Gather Evidence):** appended instrumentation lifecycle paragraph (temporary / permanent / unsafe; default temporary; never commit unmarked debug output).
+- **Pressure-test methodology applied per writing-skills (RED-GREEN-REFACTOR on edits).** 4 new pressure scenarios shipped as test fixtures (`test-evidence-preservation.md`, `test-error-as-data.md`, `test-bisection.md`, `test-instrumentation-lifecycle.md`). Baselines run across opus / sonnet / haiku (12 invocations); GREEN verification with edited skill on haiku × 4 scenarios + opus academic regression. **Findings:** haiku failed bisection scenario at baseline (picked manual diff-reading), passed with edit loaded — only confirmed RED→GREEN transition. The other 3 scenarios saw no baseline failure across all model strengths, but verification agents reported the skill text *changed or reinforced* their answer ("would have picked B/C without it"). All 4 edits earned their place; documented in ADR 0005.
+- **Namespace bug fixes** in systematic-debugging fixtures: stale `skills/debugging/systematic-debugging` references in `test-pressure-1/2/3.md` and `test-academic.md` ported to `engineering:systematic-debugging` per ADR 0004. `CREATION-LOG.md` annotated with historical-record note acknowledging obra-internal namespace references in body text.
+- **Marketplace catalog drift fixed.** `.claude-plugin/marketplace.json` engineering description was missing "systematic debugging" and version was 0.1.0 vs plugin manifest 0.2.0 (caught by hand before `scripts/check-consistency.sh` was wired). Synced to 0.3.0 alongside this release.
+- **`engineering` plugin bumped to 0.3.0** in all three places (Claude plugin manifest, Codex plugin manifest, Claude marketplace catalog).
+
 ## 0.5.0 — 2026-05-01
 
 - **Delete `skills/example-skill/`** — initial scaffold, dead weight after real skills exist. Removed from `meta` plugin's marketplace entry.

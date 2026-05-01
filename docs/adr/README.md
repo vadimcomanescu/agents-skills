@@ -10,6 +10,7 @@ Significant decisions about this skill marketplace, captured in [ADR](https://ad
 | [0002](0002-writing-skills-from-obra.md) | Writing-skills: obra backbone with surgical Anthropic / Codex / Pocock additions | Accepted |
 | [0003](0003-systematic-debugging-imported.md) | Importing obra's systematic-debugging skill | Accepted |
 | [0004](0004-namespace-and-cross-skill-refs.md) | Namespace convention for cross-skill references | Accepted |
+| [0005](0005-systematic-debugging-osmani-additions.md) | Systematic-debugging: surgical Phase 1 additions from addyosmani | Accepted |
 
 ## Why ADRs
 

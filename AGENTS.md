@@ -15,6 +15,7 @@ skills/<name>/    # Per-skill bundle (SKILL.md + supporting files)
 
 - `writing-skills` — TDD-for-documentation. Authoring and revision discipline for skills.
 - `test-driven-development` — Iron Law, Three Laws, vertical slicing, mutation testing.
+- `tdd-mutation` — Single-file unified TDD + mutation testing skill. Iron Law, Three Laws, vertical slicing, mutation as a core completion gate (not an optional reference).
 - `systematic-debugging` — Phase 1 reproduce, Phase 2 root cause, Phase 3 fix + verify.
 - `verification-before-completion` — No "done" / "fixed" / "passing" claims without output.
 

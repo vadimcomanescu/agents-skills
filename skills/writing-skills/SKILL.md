@@ -15,7 +15,7 @@ You write test cases (pressure scenarios with subagents), watch them fail (basel
 
 **Core principle:** If you didn't watch an agent fail without the skill, you don't know if the skill teaches the right thing.
 
-**REQUIRED BACKGROUND:** You MUST understand engineering:test-driven-development before using this skill. That skill defines the fundamental RED-GREEN-REFACTOR cycle. This skill adapts TDD to documentation.
+**REQUIRED BACKGROUND:** You MUST understand agents-skills:test-driven-development before using this skill. That skill defines the fundamental RED-GREEN-REFACTOR cycle. This skill adapts TDD to documentation.
 
 **Official guidance:** For Anthropic's official skill authoring best practices, see anthropic-best-practices.md. This document provides additional patterns and guidelines that complement the TDD-focused approach in this skill.
 
@@ -93,10 +93,9 @@ skills/
 ## SKILL.md Structure
 
 **Frontmatter (YAML):**
-- Two required fields: `name` and `description` (see [agentskills.io/specification](https://agentskills.io/specification) for all supported fields)
-- Max 1024 characters total
-- `name`: Use letters, numbers, and hyphens only (no parentheses, special chars)
-- `description`: Third-person. **Capability sentence + trigger sentence.** Never workflow.
+- Two required fields: `name` and `description` (see [agentskills.io/specification](https://agentskills.io/specification#frontmatter) for the full field list).
+- `name`: 1-64 chars, lowercase alphanumerics and hyphens only, no leading/trailing/consecutive hyphens, **must match the parent directory name**.
+- `description`: max 1024 chars. Third-person. **Capability sentence + trigger sentence.** Never workflow.
   - **Capability:** one short sentence stating what the skill *enables* (NOT workflow steps).
   - **Triggers:** "Use when…" naming concrete symptoms, contexts, file types, user phrases.
   - **NEVER summarize the workflow** — see CSO section for the documented failure mode.
@@ -105,7 +104,7 @@ skills/
 
 ```markdown
 ---
-name: Skill-Name-With-Hyphens
+name: skill-name-with-hyphens
 description: Use when [specific triggering conditions and symptoms]
 ---
 
@@ -283,17 +282,44 @@ wc -w skills/path/SKILL.md
 - `creating-skills`, `testing-skills`, `debugging-with-logs`
 - Active, describes the action you're taking
 
-### 4. Cross-Referencing Other Skills
+### 4. Referencing files and other skills
 
-**When writing documentation that references other skills:**
+Two cases. Different rules.
 
-Use skill name only, with explicit requirement markers:
-- ✅ Good: `**REQUIRED SUB-SKILL:** Use engineering:test-driven-development`
-- ✅ Good: `**REQUIRED BACKGROUND:** You MUST understand engineering:systematic-debugging`
-- ❌ Bad: `See skills/testing/test-driven-development` (unclear if required)
-- ❌ Bad: `@skills/testing/test-driven-development/SKILL.md` (force-loads, burns context)
+#### Same-bundle file references
 
-**Why no @ links:** `@` syntax force-loads files immediately, consuming 200k+ context before you need them.
+When `SKILL.md` points at a file in its own directory (`references/`, `examples/`, `scripts/`, `assets/`), follow the [Agent Skills spec](https://agentskills.io/specification#file-references): **relative paths from the skill root, no `@` prefix**.
+
+Three valid forms (all in the spec):
+
+````markdown
+See [the reference guide](references/REFERENCE.md) for details.
+
+For pressure scenarios, see `references/testing-with-subagents.md`.
+
+Run the validator:
+```bash
+bash scripts/validate.sh "$INPUT_FILE"
+```
+````
+
+Rules:
+- Paths are **relative to the skill root** — never absolute, never `@`-prefixed.
+- Keep references **one level deep** (`references/foo.md`, not `references/topic/sub/foo.md`).
+- Tell the agent **when to load each file**, not just that it exists. Bad: "see `references/`". Good: "Read `references/api-errors.md` when the API returns a non-200."
+
+#### Cross-skill references
+
+When a skill points at another skill, use `<plugin>:<skill>` with an explicit requirement marker:
+
+- ✅ `**REQUIRED SUB-SKILL:** Use agents-skills:test-driven-development`
+- ✅ `**REQUIRED BACKGROUND:** You MUST understand agents-skills:systematic-debugging`
+- ❌ `See skills/testing/test-driven-development` — looks like a path, unclear if required
+- ❌ `@skills/testing/test-driven-development/SKILL.md` — not a spec-defined syntax
+
+#### Why no `@` prefix
+
+The spec's file-reference syntax is relative paths (markdown links or plain). `@` is reserved for CLAUDE.md auto-imports, where it eagerly loads files at session start — the opposite of [progressive disclosure](https://agentskills.io/specification#progressive-disclosure). Mixing the two surfaces in `SKILL.md` is non-standard at best and risks unintended eager loading at worst. Use the spec syntax.
 
 ## Codex compatibility (cross-agent)
 
@@ -332,7 +358,7 @@ digraph when_flowchart {
 - Linear instructions → Numbered lists
 - Labels without semantic meaning (step1, helper2)
 
-See @graphviz-conventions.dot for graphviz style rules.
+See `graphviz-conventions.dot` for graphviz style rules.
 
 **Visualizing for your human partner:** Use `render-graphs.js` in this directory to render a skill's flowcharts to SVG:
 ```bash
@@ -409,7 +435,7 @@ Edit skill without testing? Same violation.
 - Don't "adapt" while running tests
 - Delete means delete
 
-**REQUIRED BACKGROUND:** The engineering:test-driven-development skill explains why this matters. Same principles apply to documentation.
+**REQUIRED BACKGROUND:** The agents-skills:test-driven-development skill explains why this matters. Same principles apply to documentation.
 
 ## Testing All Skill Types
 
@@ -572,7 +598,7 @@ Run same scenarios WITH skill. Agent should now comply.
 
 Agent found new rationalization? Add explicit counter. Re-test until bulletproof.
 
-**Testing methodology:** See @testing-skills-with-subagents.md for the complete testing methodology:
+**Testing methodology:** See `testing-skills-with-subagents.md` for the complete testing methodology:
 - How to write pressure scenarios
 - Pressure types (time, sunk cost, authority, exhaustion)
 - Plugging holes systematically

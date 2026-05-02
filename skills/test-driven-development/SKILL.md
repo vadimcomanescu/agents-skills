@@ -21,7 +21,7 @@ These are the canon. Everything below is how to apply them under real conditions
 
 **Always:**
 - Implementing any new feature, logic, or behavior
-- Fixing any bug — see `@references/bug-fix-pattern.md` (Prove-It Pattern)
+- Fixing any bug — see `references/bug-fix-pattern.md` (Prove-It Pattern)
 - Refactoring code that has tests (run them; they ARE the safety net)
 - Adding edge case handling
 - Any change that could alter observable behavior
@@ -31,7 +31,7 @@ These are the canon. Everything below is how to apply them under real conditions
 - Pure configuration (no behavior implied)
 - Spike code that you commit to **delete** before merge
 
-If you find yourself thinking *"skip TDD just this once"* — stop. That is the rationalization the Iron Law exists to defeat. See `@references/rationalizations.md`.
+If you find yourself thinking *"skip TDD just this once"* — stop. That is the rationalization the Iron Law exists to defeat. See `references/rationalizations.md`.
 
 ## The cycle
 
@@ -46,7 +46,7 @@ test     reason           pass         pristine         (Tidy First)
 
 ### RED — write a failing test
 
-One behavior. One test. Clear, behavioral name. Real code, not mocks-of-mocks. Test names read like specifications. See `@references/test-design.md` for AAA, DAMP, sizes, and naming.
+One behavior. One test. Clear, behavioral name. Real code, not mocks-of-mocks. Test names read like specifications. See `references/test-design.md` for AAA, DAMP, sizes, and naming.
 
 ### Verify RED — watch it fail (MANDATORY)
 
@@ -61,7 +61,7 @@ If it passes, you are testing existing behavior — fix the test. If it errors o
 
 ### GREEN — minimal code to pass
 
-Write the simplest code that makes the test pass. Not the most general. Not the most "future-proof". The smallest delta that turns the bar green. See `@references/red-green-refactor.md`.
+Write the simplest code that makes the test pass. Not the most general. Not the most "future-proof". The smallest delta that turns the bar green. See `references/red-green-refactor.md`.
 
 ### Verify GREEN — all tests pass, output pristine
 
@@ -73,13 +73,13 @@ Write the simplest code that makes the test pass. Not the most general. Not the 
 
 ### REFACTOR — clean up, never while red
 
-Refactor only with green tests. Improve names, extract duplication, deepen modules. **Do not add behavior here.** See `@references/tidy-first.md` — structural changes (tidyings) and behavioral changes never share a commit.
+Refactor only with green tests. Improve names, extract duplication, deepen modules. **Do not add behavior here.** See `references/tidy-first.md` — structural changes (tidyings) and behavioral changes never share a commit.
 
 ## Vertical slicing — one test, one impl, repeat
 
 **Anti-pattern: horizontal slicing.** Writing all tests first, then all implementation. This produces tests of *imagined* behavior, not *observed* behavior. Tests written in bulk drift from reality before the code catches up.
 
-**Rule: vertical slices via tracer bullets.** ONE test → ONE implementation → repeat. Each cycle responds to what the previous cycle taught you. See `@references/vertical-slicing.md`.
+**Rule: vertical slices via tracer bullets.** ONE test → ONE implementation → repeat. Each cycle responds to what the previous cycle taught you. See `references/vertical-slicing.md`.
 
 ```
 WRONG (horizontal):                  RIGHT (vertical):
@@ -95,7 +95,7 @@ Bug report → write a test that reproduces it → test FAILS (bug confirmed)
           → fix the code → test PASSES → run full suite (no regressions)
 ```
 
-A bug fix without a reproduction test is not a fix; it is a hope. See `@references/bug-fix-pattern.md`.
+A bug fix without a reproduction test is not a fix; it is a hope. See `references/bug-fix-pattern.md`.
 
 ## Per-cycle checklist
 
@@ -119,11 +119,11 @@ Green is the floor, not the ceiling. The full quality stack:
 | Gate | What it answers | Where |
 |---|---|---|
 | **Cycle discipline** | Did I actually write the test first? | this file |
-| **Test design** | Are the tests behavioral, isolated, fast? | `@references/test-design.md` |
-| **State vs interaction** | Am I asserting outcomes, not call shapes? | `@references/state-vs-interaction.md` |
-| **Mocking discipline** | Am I using the cheapest test double, not faking everything? | `@references/mocking-and-fakes.md` |
-| **Mutation score** | Do my tests actually detect bugs, or just execute lines? | `@references/mutation-testing.md` |
-| **Testability of design** | Is this code hard to test because it is hard to use? | `@references/testability-via-design.md` |
+| **Test design** | Are the tests behavioral, isolated, fast? | `references/test-design.md` |
+| **State vs interaction** | Am I asserting outcomes, not call shapes? | `references/state-vs-interaction.md` |
+| **Mocking discipline** | Am I using the cheapest test double, not faking everything? | `references/mocking-and-fakes.md` |
+| **Mutation score** | Do my tests actually detect bugs, or just execute lines? | `references/mutation-testing.md` |
+| **Testability of design** | Is this code hard to test because it is hard to use? | `references/testability-via-design.md` |
 
 Coverage % alone is theatre — it tells you which lines ran, not whether your tests would catch a bug. Mutation testing closes that loop.
 
@@ -138,7 +138,7 @@ Coverage % alone is theatre — it tells you which lines ran, not whether your t
 | "Keep this code as a reference while I write tests" | You will adapt to it. That is testing-after. Delete means delete. |
 | "Tests-after achieve the same goal" | Tests-after answer "what does this do?". Tests-first answer "what should this do?". |
 
-Full table with reasoning: `@references/rationalizations.md`.
+Full table with reasoning: `references/rationalizations.md`.
 
 ## Red flags — STOP and start over
 
@@ -151,7 +151,7 @@ Full table with reasoning: `@references/rationalizations.md`.
 - Asserting on a `*-mock` element
 - Test fails when refactoring with no behavior change
 
-When any of these appear: see `@references/anti-patterns.md`. The fix is almost always *delete and start over with TDD*.
+When any of these appear: see `references/anti-patterns.md`. The fix is almost always *delete and start over with TDD*.
 
 ## Planning before the first RED
 
@@ -159,7 +159,7 @@ For non-trivial features, run a brief planning step:
 
 1. Confirm with the human partner what interface changes are needed.
 2. List the **behaviors** to test (not implementation steps), prioritized.
-3. Identify deep-module opportunities (small interface, deep implementation) — see `@references/testability-via-design.md`.
+3. Identify deep-module opportunities (small interface, deep implementation) — see `references/testability-via-design.md`.
 4. Pick the first **tracer-bullet** test — the smallest end-to-end behavior that proves the path.
 5. Get explicit human approval on the list before writing the first test.
 
@@ -177,25 +177,25 @@ You cannot test everything. Confirm what matters.
 
 ## References (load on demand)
 
-- `@references/three-laws.md` — Uncle Bob's canon, full text + commentary
-- `@references/red-green-refactor.md` — The cycle in detail, watch-it-fail ritual
-- `@references/vertical-slicing.md` — Tracer bullets; horizontal-slicing anti-pattern
-- `@references/test-design.md` — Pyramid, sizes, AAA, DAMP, naming
-- `@references/state-vs-interaction.md` — Why state-based assertions survive refactors
-- `@references/mocking-and-fakes.md` — Real > Fake > Stub > Mock; gate functions
-- `@references/testability-via-design.md` — POEEA seams, deep modules, DI
-- `@references/tidy-first.md` — Structural vs behavioral changes; commit discipline
-- `@references/mutation-testing.md` — Stryker / mutmut / cargo-mutants / gremlins; kill-rate gate; legacy-triage note
-- `@references/rationalizations.md` — Full excuse-to-reality table
-- `@references/anti-patterns.md` — Mock-behavior, test-only-methods, incomplete-mocks, horizontal-slicing
-- `@references/bug-fix-pattern.md` — Prove-It Pattern in full
+- `references/three-laws.md` — Uncle Bob's canon, full text + commentary
+- `references/red-green-refactor.md` — The cycle in detail, watch-it-fail ritual
+- `references/vertical-slicing.md` — Tracer bullets; horizontal-slicing anti-pattern
+- `references/test-design.md` — Pyramid, sizes, AAA, DAMP, naming
+- `references/state-vs-interaction.md` — Why state-based assertions survive refactors
+- `references/mocking-and-fakes.md` — Real > Fake > Stub > Mock; gate functions
+- `references/testability-via-design.md` — POEEA seams, deep modules, DI
+- `references/tidy-first.md` — Structural vs behavioral changes; commit discipline
+- `references/mutation-testing.md` — Stryker / mutmut / cargo-mutants / gremlins; kill-rate gate; legacy-triage note
+- `references/rationalizations.md` — Full excuse-to-reality table
+- `references/anti-patterns.md` — Mock-behavior, test-only-methods, incomplete-mocks, horizontal-slicing
+- `references/bug-fix-pattern.md` — Prove-It Pattern in full
 
 ## Examples
 
-- `@examples/typescript-vitest.md`
-- `@examples/python-pytest.md`
-- `@examples/rust-cargo.md`
-- `@examples/go-testing.md`
+- `examples/typescript-vitest.md`
+- `examples/python-pytest.md`
+- `examples/rust-cargo.md`
+- `examples/go-testing.md`
 
 ## The bottom line
 

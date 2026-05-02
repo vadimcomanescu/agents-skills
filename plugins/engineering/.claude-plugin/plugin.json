@@ -1,9 +1,0 @@
-{
-  "name": "engineering",
-  "version": "0.3.0",
-  "description": "Engineering practice skills: TDD, systematic debugging, code review, refactoring discipline.",
-  "author": {
-    "name": "Vadim Comanescu",
-    "email": "vadim984@gmail.com"
-  }
-}

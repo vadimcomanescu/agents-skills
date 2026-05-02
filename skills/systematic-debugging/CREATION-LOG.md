@@ -2,7 +2,7 @@
 
 Reference example of extracting, structuring, and bulletproofing a critical skill.
 
-> **Historical record.** Originally created in obra/superpowers (2025-10-03) and imported into this marketplace ad literam per ADR 0003. Internal namespace references below (`skills/debugging/…`, `skills/testing/…`, `skills/meta/…`, `/Users/jesse/…`) describe obra's environment and are preserved as historical context. The active namespace handle in this marketplace is `engineering:systematic-debugging`.
+> **Historical record.** Originally created in obra/superpowers (2025-10-03) and vendored into this marketplace verbatim. Internal namespace references below (`skills/debugging/…`, `skills/testing/…`, `skills/meta/…`, `/Users/jesse/…`) describe obra's environment and are preserved as historical context. The active namespace handle in this marketplace is `agents-skills:systematic-debugging`.
 
 ## Source Material
 
@@ -149,5 +149,3 @@ GREEN verification (haiku × 4 with edited skill loaded) — all four passed. Th
 Academic regression (`test-academic.md`) re-run with edited skill: 4-phase frame intact, all 6 questions answered with verbatim quotes. Iron Law unchanged.
 
 **Why all 4 ship despite only 1 confirmed baseline failure:** addyosmani's commit history shows the original skill was iterated post-launch on real production agent failures (Mar 28 commit added the security/untrusted-data section after observed failures). Pressure-test format produces careful one-shot reasoning, not the rapid interactive flow where these disciplines actually earn their place. Verification consistently shows skill text changes the decision under pressure even when baseline picked correctly.
-
-See [`../../docs/adr/0005-systematic-debugging-osmani-additions.md`](../../docs/adr/0005-systematic-debugging-osmani-additions.md).

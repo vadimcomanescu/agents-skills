@@ -1,6 +1,6 @@
 # Academic Test: Systematic Debugging Skill
 
-You have access to the engineering:systematic-debugging skill
+You have access to the agents-skills:systematic-debugging skill
 
 Read the skill and answer these questions based SOLELY on what the skill says:
 

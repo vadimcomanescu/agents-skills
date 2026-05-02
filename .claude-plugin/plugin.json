@@ -1,0 +1,11 @@
+{
+  "name": "agents-skills",
+  "description": "Skills for skill authoring, TDD, systematic debugging, and verification.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Vadim Comanescu"
+  },
+  "homepage": "https://github.com/vadimcomanescu/agents-skills",
+  "repository": "https://github.com/vadimcomanescu/agents-skills",
+  "license": "MIT"
+}

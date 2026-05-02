@@ -5,22 +5,10 @@
   },
   "plugins": [
     {
-      "name": "meta",
+      "name": "agents-skills",
       "source": {
         "source": "local",
-        "path": "./plugins/meta"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "NONE"
-      },
-      "category": "Productivity"
-    },
-    {
-      "name": "engineering",
-      "source": {
-        "source": "local",
-        "path": "./plugins/engineering"
+        "path": "./"
       },
       "policy": {
         "installation": "AVAILABLE",

@@ -1,9 +1,0 @@
-{
-  "name": "meta",
-  "version": "0.2.1",
-  "description": "Skill authoring and agent meta-tooling.",
-  "author": {
-    "name": "Vadim Comanescu",
-    "email": "vadim984@gmail.com"
-  }
-}

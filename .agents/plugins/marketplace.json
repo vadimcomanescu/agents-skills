@@ -1,7 +1,7 @@
 {
-  "name": "vadim-loadout",
+  "name": "agents-skills",
   "interface": {
-    "displayName": "Vadim's Loadout"
+    "displayName": "agents-skills"
   },
   "plugins": [
     {

@@ -1,5 +1,5 @@
 {
-  "name": "vadim-loadout",
+  "name": "agents-skills",
   "owner": {
     "name": "Vadim Comanescu",
     "email": "vadim984@gmail.com",
@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "Vadim's personal skill collection for Claude Code, Codex, Gemini CLI, and OpenCode.",
-    "version": "0.1.0"
+    "version": "0.7.0"
   },
   "plugins": [
     {

@@ -6,7 +6,7 @@ Accepted (2026-05-01).
 
 ## Context
 
-We needed a world-class Test-Driven Development skill for `vadim-loadout`, the agent-skill marketplace this repo ships. Three open-source TDD skills were candidates as the canonical backbone:
+We needed a world-class Test-Driven Development skill for `agents-skills`, the agent-skill marketplace this repo ships. Three open-source TDD skills were candidates as the canonical backbone:
 
 - **obra/superpowers** — purist, Iron-Law framing, mandatory watch-it-fail, comprehensive anti-patterns.
 - **addyosmani/agent-skills** — pragmatic, theory-rich (test pyramid, Google sizes, DAMP, AAA), Prove-It bug-fix pattern.

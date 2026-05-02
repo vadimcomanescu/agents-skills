@@ -1,10 +1,10 @@
-# vadim-loadout
+# agents-skills
 
 **Opinionated agent skills for engineers who ship.**
 
 A small, hand-curated marketplace of skills for Claude Code, Codex CLI, Gemini CLI, and OpenCode. Every skill in here is one I personally use, pressure-test against adversarial subagents, and revise when an agent finds a way around it. Nothing is here for completeness. If a skill stops earning its place, it is deleted, not archived.
 
-This is the same loadout I run on my own machine.
+This is the same set of skills I run on my own machine.
 
 ---
 
@@ -16,8 +16,8 @@ Pick your runtime and run two commands. If you're an AI agent reading this on be
 
 ```bash
 /plugin marketplace add vadimcomanescu/agents-skills
-/plugin install meta@vadim-loadout
-/plugin install engineering@vadim-loadout
+/plugin install meta@agents-skills
+/plugin install engineering@agents-skills
 ```
 
 > **SSH error on `marketplace add`?** Claude Code clones the marketplace via SSH. If you don't have GitHub SSH keys set up, either [add a key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or rewrite GitHub fetches to HTTPS once:
@@ -29,8 +29,8 @@ Pick your runtime and run two commands. If you're an AI agent reading this on be
 
 ```bash
 codex plugins marketplace add github:vadimcomanescu/agents-skills
-codex plugins install meta@vadim-loadout
-codex plugins install engineering@vadim-loadout
+codex plugins install meta@agents-skills
+codex plugins install engineering@agents-skills
 ```
 
 ### Gemini CLI / OpenCode
@@ -45,7 +45,7 @@ The `-a` flag is required: without it, `npx skills` creates skill directories fo
 
 ## For agents
 
-If you are an AI coding agent and a user asked you to install this loadout, follow this procedure exactly:
+If you are an AI coding agent and a user asked you to install this marketplace, follow this procedure exactly:
 
 1. **You already know which runtime you are.** Don't ask the user. Use the matching block in [Quickstart](#quickstart) verbatim.
 2. **Use only the documented install commands.** Do not hand-edit `~/.claude/skills/`, `~/.codex/skills/`, `~/.gemini/skills/`, or `~/.config/opencode/skills/`. The marketplace `add` and `install` commands are the supported install path.
@@ -77,7 +77,7 @@ If you are an agent reading this for any other reason (browsing, summarizing), t
 
 ## Why I built this
 
-I built this loadout because I kept watching agents fail in the same four ways. Each skill is a fix for one of those failures, and each fix is grounded in something an engineer who is not me already wrote down.
+I built this marketplace because I kept watching agents fail in the same four ways. Each skill is a fix for one of those failures, and each fix is grounded in something an engineer who is not me already wrote down.
 
 ### 1. Agents skip the failing test
 
@@ -161,12 +161,12 @@ The full procedure is in [AGENTS.md → Adding a new skill](AGENTS.md#adding-a-n
 
 ```bash
 # Claude Code
-/plugin update meta@vadim-loadout
-/plugin update engineering@vadim-loadout
+/plugin update meta@agents-skills
+/plugin update engineering@agents-skills
 
 # Codex CLI
-codex plugins update meta@vadim-loadout
-codex plugins update engineering@vadim-loadout
+codex plugins update meta@agents-skills
+codex plugins update engineering@agents-skills
 
 # Gemini CLI / OpenCode
 npx skills@latest add vadimcomanescu/agents-skills -a gemini-cli opencode
@@ -176,7 +176,7 @@ npx skills@latest add vadimcomanescu/agents-skills -a gemini-cli opencode
 
 ## Acknowledgments
 
-This loadout exists because I borrowed shamelessly from people who got there first. The curation and pressure-testing here are mine; the foundations are not. The debt is real and explicit.
+This marketplace exists because I borrowed shamelessly from people who got there first. The curation and pressure-testing here are mine; the foundations are not. The debt is real and explicit.
 
 ### Skill marketplace prior art
 
@@ -208,7 +208,7 @@ If your work is referenced here and you'd like the attribution adjusted, [open a
 
 ## Community
 
-This is primarily my personal loadout. I accept issues and PRs, but the bar for new skills is high: a new skill must (a) solve a failure mode I have personally hit, (b) come with at least one adversarial subagent scenario showing the with-skill agent succeeding where the without-skill agent fails, and (c) not duplicate a skill that already exists upstream in `obra/superpowers`, `addyosmani/agent-skills`, or `mattpocock/skills`. If yours does duplicate, send a PR to the upstream instead. I will be happier and so will they.
+This is primarily my personal skill collection. I accept issues and PRs, but the bar for new skills is high: a new skill must (a) solve a failure mode I have personally hit, (b) come with at least one adversarial subagent scenario showing the with-skill agent succeeding where the without-skill agent fails, and (c) not duplicate a skill that already exists upstream in `obra/superpowers`, `addyosmani/agent-skills`, or `mattpocock/skills`. If yours does duplicate, send a PR to the upstream instead. I will be happier and so will they.
 
 - Issues: <https://github.com/vadimcomanescu/agents-skills/issues>
 - Author: [Vadim Comanescu](https://github.com/vadimcomanescu)

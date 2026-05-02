@@ -19,17 +19,23 @@ scripts/check-consistency.sh       Cross-file consistency lint (runs in CI)
 ```bash
 # Claude Code
 /plugin marketplace add vadimcomanescu/agents-skills
-/plugin install meta@vadim-loadout
+/plugin install meta@agents-skills
+/plugin install engineering@agents-skills
 
 # Codex CLI
 codex plugins marketplace add github:vadimcomanescu/agents-skills
-codex plugins install meta@vadim-loadout
+codex plugins install meta@agents-skills
+codex plugins install engineering@agents-skills
 
 # Gemini CLI / OpenCode (via npx skills)
-npx skills add vadimcomanescu/agents-skills -a gemini-cli opencode
+npx skills@latest add vadimcomanescu/agents-skills -a gemini-cli opencode
 ```
 
 The `-a` flag is mandatory on `npx skills add` calls. Without it, `npx skills` creates skill directories for every runtime it knows about, including ones not in use. CI rejects PRs with `npx skills add` invocations missing `-a`; see `scripts/check-consistency.sh` check A.
+
+## Before pushing
+
+Run `bash scripts/check-consistency.sh` before pushing to `main`. Consumers `add` the marketplace by pulling from `main`, so a broken state on `main` is a broken state for users. CI runs the same checks; local first catches drift before the gate.
 
 ## Adding a new skill
 
@@ -53,12 +59,23 @@ Current:
 
 Add new themed plugins by creating `plugins/<theme>/.claude-plugin/plugin.json` and `plugins/<theme>/.codex-plugin/plugin.json`, then declaring them in both marketplace catalogs.
 
+## Contract for delivering work
+
+The following are explicitly defined as a breach of contract, not a courtesy:
+
+- **MUST finish the work in the same turn.** No "v0", "v1 to follow", "next step for you", "future-self note", or TODO deferred to the user. If a task is genuinely multi-turn (the user must approve a destructive action, the user must provide missing input), MUST say so explicitly and name what is blocking — never leave silently.
+- **MUST test the work before claiming completion.** Run the relevant verification (`bash scripts/check-consistency.sh`, the test suite, the type-check, the build, a manual reproduction) and MUST include the output. "Should pass" is not "passes". Same rule as the `engineering:verification-before-completion` skill, applied at every handoff in this repo.
+- **MUST NOT ask "want me to do X?" on the obvious finishing move.** When X is the next obvious step of work in progress, just do it. Reserve the offer pattern for genuinely optional follow-ups or for actions with significant blast radius (publishing a release, force-pushing, sending external communications).
+- **MUST NOT ship partial work as a deliverable.** If `check-consistency.sh` is failing, the change is not done. If a related drift was created (a new ADR without an index entry, a new plugin without install-doc updates), the change is not done.
+
+This contract is non-negotiable and applies to every task in this repo, regardless of size.
+
 ## No shadow canon, no legacy weight
 
 When replacing or removing **anything** from this marketplace — a skill, a plugin theme, a cross-reference, a convention, a scaffold, an example — the old surface MUST be removed entirely. The active marketplace teaches and enforces only what is currently true.
 
 MUST NOT keep:
-- Dead skills retained "just in case" (e.g. the original scaffold `example-skill` after real skills exist).
+- Dead skills retained "just in case" (placeholder or scaffold skills kept after real skills land).
 - Dangling cross-references with "marked inactive" annotations — either the target skill is imported and the link resolves, or the line is removed.
 - Deprecated marketplace entries pointing at deleted directories.
 - Legacy versions of a renamed skill kept under the old name as an alias.
@@ -67,10 +84,6 @@ MUST NOT keep:
 When replacing a skill (e.g. an updated version of an obra-vendored skill), the old version MUST be deleted, not kept under a `*-old` name. Use git history if you need to recover.
 
 This rule is the local instance of Vadim's global *No shadow canon* rule (see `~/.claude/CLAUDE.md`). It exists because additive bias — keeping old things "just in case" — is how marketplaces accumulate dead weight that confuses both agents and contributors.
-
-## Naming
-
-The marketplace name is `vadim-loadout` (in `.claude-plugin/marketplace.json` and `.agents/plugins/marketplace.json`). The GitHub repo name is `agents-skills`. They are intentionally different: the repo path is what users `add`; the marketplace name is what users install plugins `@`.
 
 ## License
 

@@ -46,7 +46,7 @@ while IFS= read -r line; do
   elif ! grep -qE -- '-a [a-z]' <<<"$line"; then
     fail "(missing -a)     $line"
   fi
-done < <(grep -rEn 'npx skills(@[a-zA-Z0-9._-]+)? add ' --include='*.md' . 2>/dev/null || true)
+done < <(grep -rEn 'npx skills(@[a-zA-Z0-9._-]+)? add ' --include='*.md' --exclude='CHANGELOG.md' . 2>/dev/null || true)
 end
 
 # ----- B. Claude catalog plugin versions match plugin manifest versions -----
@@ -155,6 +155,124 @@ for doc in README.md AGENTS.md; do
   done < <(extract_paths "$doc" | sort -u)
 done
 end
+
+# ----- H. marketplace metadata.version is at least the max plugin version -----
+# Why: .claude-plugin/marketplace.json carries a top-level .metadata.version
+# alongside per-plugin versions. The two are easy to bump independently and
+# easy to forget; this check fails if the top-level metadata is older than the
+# highest plugin version.
+start "H. .claude-plugin/marketplace.json metadata.version >= max plugin version"
+meta_v=$(jq -r '.metadata.version' .claude-plugin/marketplace.json)
+max_plugin_v=$(jq -r '.plugins[].version' .claude-plugin/marketplace.json | sort -V | tail -1)
+lowest=$(printf '%s\n%s\n' "$meta_v" "$max_plugin_v" | sort -V | head -1)
+if [[ "$lowest" != "$max_plugin_v" ]]; then
+  fail "metadata.version=$meta_v is older than max plugin version=$max_plugin_v"
+fi
+end
+
+# ----- I. <plugin>:<skill> cross-references in docs resolve to live skills -----
+# Why: ADR 0004 established <plugin>:<skill> as the cross-reference format.
+# A reference whose target is no longer registered under that plugin is dead
+# canon, which the "no shadow canon" rule in AGENTS.md forbids.
+# Scope: any .md file under the repo, excluding CHANGELOG.md (legitimate history).
+start "I. <plugin>:<skill> cross-references in docs resolve"
+plugin_names=$(jq -r '.plugins[].name' .claude-plugin/marketplace.json)
+plugin_alt=$(echo "$plugin_names" | tr '\n' '|' | sed 's/|$//')
+ref_pattern="\b(${plugin_alt}):[a-z][a-z0-9-]*\b"
+while IFS= read -r match; do
+  [[ -z "$match" ]] && continue
+  file=$(cut -d: -f1 <<<"$match")
+  line=$(cut -d: -f2 <<<"$match")
+  ref=$(cut -d: -f3- <<<"$match" | grep -oE "$ref_pattern" | head -1)
+  [[ -z "$ref" ]] && continue
+  plugin="${ref%%:*}"
+  skill="${ref##*:}"
+  if ! jq -e --arg p "$plugin" --arg s "./skills/$skill" \
+      '.plugins[] | select(.name == $p) | .skills[] | select(. == $s)' \
+      .claude-plugin/marketplace.json > /dev/null; then
+    fail "$file:$line references '$ref' but skill is not registered under plugin '$plugin'"
+  fi
+done < <(grep -rEn "$ref_pattern" --include='*.md' --exclude='CHANGELOG.md' . 2>/dev/null || true)
+end
+
+# ----- J. every ADR file is linked from the ADR index -----
+# Why: docs/adr/README.md is the index for the ADR set. Adding an ADR without
+# updating the index leaves the ADR invisible to anyone reading the index;
+# adding an index entry that points at a missing file is dead canon. This
+# check enforces the disk-side direction (file exists -> index entry exists).
+start "J. every docs/adr/NNNN-*.md is linked from docs/adr/README.md"
+if [[ -f docs/adr/README.md ]]; then
+  index="$(cat docs/adr/README.md)"
+  for adr in docs/adr/[0-9]*.md; do
+    [[ -f "$adr" ]] || continue
+    base=$(basename "$adr")
+    if ! grep -qF "$base" <<<"$index"; then
+      fail "$adr exists but is not linked from docs/adr/README.md"
+    fi
+  done
+else
+  fail "docs/adr/README.md missing"
+fi
+end
+
+# ----- K. every plugin in catalog appears in install commands in both docs -----
+# Why: the canonical install command shape is <plugin>@agents-skills. Both
+# AGENTS.md and README.md document install commands; neither is the sole
+# source of truth, so they drift independently. Every plugin in the catalog
+# must appear in the install block of both docs.
+start "K. every plugin has install commands in both AGENTS.md and README.md"
+for doc in AGENTS.md README.md; do
+  [[ -f "$doc" ]] || { fail "$doc missing"; continue; }
+  while IFS= read -r p; do
+    [[ -z "$p" ]] && continue
+    if ! grep -qF "$p@agents-skills" "$doc"; then
+      fail "$doc does not contain install command for plugin '$p' (expected '$p@agents-skills')"
+    fi
+  done <<<"$plugin_names"
+done
+end
+
+# ----- L. npx skills invocation form is identical in AGENTS.md and README.md -----
+# Why: the same npx invocation is documented in both docs. Drift between two
+# copy-pasteable commands is invisible to the eye and erodes user trust the
+# moment one of them stops working.
+start "L. npx skills invocation form matches across AGENTS.md and README.md"
+agents_npx=$(grep -oE 'npx skills(@[a-zA-Z0-9._-]+)? add [^[:space:]`]*( -a [^`]+)?' AGENTS.md 2>/dev/null | head -1 | xargs)
+readme_npx=$(grep -oE 'npx skills(@[a-zA-Z0-9._-]+)? add [^[:space:]`]*( -a [^`]+)?' README.md 2>/dev/null | head -1 | xargs)
+if [[ -n "$agents_npx" && -n "$readme_npx" && "$agents_npx" != "$readme_npx" ]]; then
+  fail "AGENTS.md uses '$agents_npx' but README.md uses '$readme_npx'"
+fi
+end
+
+# ----- M. Claude and Codex catalogs declare the same plugin set -----
+# Why: the two catalogs are mirror images for two runtimes. A plugin present
+# in one but not the other means a runtime where the plugin is silently
+# unavailable. Catch the asymmetry at PR time.
+start "M. Claude and Codex catalogs declare the same plugin set"
+claude_set=$(jq -r '.plugins[].name' .claude-plugin/marketplace.json | sort)
+codex_set=$(jq -r '.plugins[].name' .agents/plugins/marketplace.json | sort)
+if [[ "$claude_set" != "$codex_set" ]]; then
+  while IFS= read -r p; do
+    [[ -z "$p" ]] && continue
+    grep -qx "$p" <<<"$codex_set" || fail "plugin '$p' in Claude catalog but not in Codex catalog"
+  done <<<"$claude_set"
+  while IFS= read -r p; do
+    [[ -z "$p" ]] && continue
+    grep -qx "$p" <<<"$claude_set" || fail "plugin '$p' in Codex catalog but not in Claude catalog"
+  done <<<"$codex_set"
+fi
+end
+
+# ----- Not automated (deliberately) -----
+# - ADR file-count snapshots ("12-file skill"). ADRs SHOULD NOT contain live
+#   counts; convention only, not enforceable without overfitting.
+# - THIRD_PARTY_NOTICES.md per-file inventory of vendored skill directories.
+#   Requires content review (which file came from which upstream); cannot be
+#   recovered mechanically. Enforce on every ADR that imports files: update
+#   THIRD_PARTY_NOTICES in the same PR.
+# - "Adding a new skill" prose-procedure parity between AGENTS.md and README.md.
+#   Step counts and wording differ legitimately (README is fuller); a strict
+#   diff would be brittle. Single source of truth fixes this; pick one.
 
 echo
 if [[ $total_failures -gt 0 ]]; then

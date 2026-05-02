@@ -13,7 +13,7 @@ obra/superpowers uses `superpowers:test-driven-development` — `<plugin-namespa
 Three options were on the table when we ported obra into our marketplace:
 
 1. **Strip the namespace** — `test-driven-development`. Bare skill name only.
-2. **Replace with our marketplace name** — `vadim-loadout:test-driven-development`.
+2. **Replace with our marketplace name** — `agents-skills:test-driven-development`.
 3. **Replace with our plugin name** — `engineering:test-driven-development`, `meta:writing-skills`.
 
 The user's directive: *"make sure we use namespace"*.
@@ -25,12 +25,12 @@ The user's directive: *"make sure we use namespace"*.
 Mapping for our marketplace:
 - `engineering:test-driven-development`
 - `engineering:systematic-debugging`
+- `engineering:verification-before-completion`
 - `meta:writing-skills`
-- `meta:example-skill`
 
 This applies in skill bodies (`SKILL.md` and reference files) and in any documentation that names a skill.
 
-The marketplace name (`vadim-loadout`) is **not** used in cross-references — it's only relevant at install time (`/plugin install meta@vadim-loadout`).
+The marketplace name (`agents-skills`) is **not** used in cross-references — it's only relevant at install time (`/plugin install meta@agents-skills`).
 
 ## Consequences
 
@@ -46,7 +46,7 @@ The marketplace name (`vadim-loadout`) is **not** used in cross-references — i
 ## Alternatives considered
 
 - **Bare skill name (option 1).** Rejected — no disambiguation. Two plugins could ship `code-review`; agents would have no way to tell which one a reference points at.
-- **Marketplace prefix (option 2).** Rejected — `vadim-loadout:` is verbose and conflates the install surface with the cross-reference surface. Plugin name is the right granularity for cross-references; marketplace name is the right granularity for installs.
+- **Marketplace prefix (option 2).** Rejected — `agents-skills:` is verbose and conflates the install surface with the cross-reference surface. Plugin name is the right granularity for cross-references; marketplace name is the right granularity for installs.
 - **No prefix; rely on file paths.** Rejected — file paths force-load when read with `@` syntax (200k context burn), and bare paths break when skills move. obra's CSO section explicitly bans `@`-style file references for this reason. Plugin-prefixed skill names give the agent a logical handle without forcing a load.
 
 ## Sources

@@ -2,6 +2,13 @@
 
 All notable changes to this marketplace are documented here. Format follows [Common Changelog](https://common-changelog.org/) and [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/). Rationale for non-trivial decisions lives in [`docs/adr/`](docs/adr/), not here.
 
+## 0.8.1 — 2026-05-02
+
+### Changed
+
+- `meta:writing-skills` frontmatter `description` reverted to obra's verbatim. Empirical A/B test across opus / sonnet / haiku × 11 prompts: 33/33 trials matched, zero observed triggering benefit from the longer self-applied form. CSO body rule (capability + triggers) retained for general guidance. See ADR 0002 *Subsequent revisions*.
+- `meta` plugin → 0.2.1 (Claude manifest, Codex manifest, Claude catalog).
+
 ## 0.8.0 — 2026-05-02
 
 ### Added

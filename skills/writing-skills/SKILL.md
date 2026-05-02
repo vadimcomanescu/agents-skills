@@ -1,6 +1,6 @@
 ---
 name: writing-skills
-description: Authors and revises agent skills using TDD-for-documentation discipline. Use when creating a new skill, editing an existing skill, or verifying a skill before deployment. Also use when the user mentions "skill", "SKILL.md", or asks to write, refactor, audit, or test a skill.
+description: Use when creating new skills, editing existing skills, or verifying skills work before deployment
 ---
 
 # Writing Skills

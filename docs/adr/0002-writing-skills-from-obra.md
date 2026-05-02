@@ -42,6 +42,10 @@ Every other line of obra's content is untouched.
 
 **Lesson worth preserving:** the previous over-correction (collapsing obra's 4-file structure) came from a wrong-blanket-rule moment — applying "no overbloat" to obra's deliberate references when the rule was meant for *additions*. Backbone fidelity means structure too, not just content.
 
+## Subsequent revisions
+
+- **Frontmatter description reverted to obra's verbatim** (2026-05-02). Decision point 5 (self-applied capability + triggers) was tested against obra's triggers-only across opus / sonnet / haiku with 11 prompts (5 clear positives, 3 borderline, 3 negatives). All 33 trials matched: zero cases where the longer "ours" description triggered writing-skills and obra's missed. The added 185 characters carried real catalog-metadata cost across every conversation with no measurable triggering benefit at any model strength. Reverted per YAGNI applied to actual data. The CSO rule change in the body (capability + triggers, never workflow) is *retained* — the rule is sourced from the agentskills.io spec and applies to other skills; it just didn't earn its place on writing-skills' own description, where the obra trigger keywords already cover the surface. This creates a deliberate asymmetry: the skill teaches "capability + triggers is correct" while its own description is triggers-only, justified empirically rather than rhetorically. If a future test surfaces a case where the longer form earns its keep, revisit.
+
 ## Alternatives considered
 
 - **Single-file SKILL.md.** Tried, rejected. Lost the testing methodology's worked examples (~5 bullets vs obra's full pressure-scenario template). User flagged it.

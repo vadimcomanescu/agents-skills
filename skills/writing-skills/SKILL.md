@@ -15,7 +15,7 @@ You write test cases (pressure scenarios with subagents), watch them fail (basel
 
 **Core principle:** If you didn't watch an agent fail without the skill, you don't know if the skill teaches the right thing.
 
-**REQUIRED BACKGROUND:** You MUST understand agents-skills:test-driven-development before using this skill. That skill defines the fundamental RED-GREEN-REFACTOR cycle. This skill adapts TDD to documentation.
+**REQUIRED BACKGROUND:** You MUST understand agents-skills:tdd-mutation before using this skill. That skill defines the fundamental RED-GREEN-REFACTOR cycle. This skill adapts TDD to documentation.
 
 **Official guidance:** For Anthropic's official skill authoring best practices, see anthropic-best-practices.md. This document provides additional patterns and guidelines that complement the TDD-focused approach in this skill.
 
@@ -312,10 +312,10 @@ Rules:
 
 When a skill points at another skill, use `<plugin>:<skill>` with an explicit requirement marker:
 
-- ✅ `**REQUIRED SUB-SKILL:** Use agents-skills:test-driven-development`
+- ✅ `**REQUIRED SUB-SKILL:** Use agents-skills:tdd-mutation`
 - ✅ `**REQUIRED BACKGROUND:** You MUST understand agents-skills:systematic-debugging`
-- ❌ `See skills/testing/test-driven-development` — looks like a path, unclear if required
-- ❌ `@skills/testing/test-driven-development/SKILL.md` — not a spec-defined syntax
+- ❌ `See skills/testing/tdd-mutation` — looks like a path, unclear if required
+- ❌ `@skills/testing/tdd-mutation/SKILL.md` — not a spec-defined syntax
 
 #### Why no `@` prefix
 
@@ -435,7 +435,7 @@ Edit skill without testing? Same violation.
 - Don't "adapt" while running tests
 - Delete means delete
 
-**REQUIRED BACKGROUND:** The agents-skills:test-driven-development skill explains why this matters. Same principles apply to documentation.
+**REQUIRED BACKGROUND:** The agents-skills:tdd-mutation skill explains why this matters. Same principles apply to documentation.
 
 ## Testing All Skill Types
 

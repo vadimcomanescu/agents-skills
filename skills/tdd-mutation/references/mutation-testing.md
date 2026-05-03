@@ -39,6 +39,93 @@ Each is a TDD signal. Mutation testing finds the test gaps the cycle missed.
 
 `go-mutesting` is widely cited but its `golang.org/x/tools` dep is from 2019 and crashes on modern Go toolchains — use **gremlins**.
 
+## Per-tool gotchas
+
+Validated traps that survive a strict TDD cycle and silently let mutants through. Each is a thing the model gets wrong from training alone.
+
+### Python — `pytest.raises(match=...)` is `re.search`, not equality
+
+```python
+# WRONG — `match` is regex; dots are wildcards; pattern is unanchored.
+with pytest.raises(ValueError, match="amount must be 0..100"):
+    apply_discount(-1)
+```
+
+mutmut will swap the literal `"amount must be 0..100"` to `"XXamount must be 0..100XX"` and the test still passes — `re.search` finds the substring. The literal-mutation survivor is **not** equivalent; the assertion is too weak.
+
+Two fixes that kill the survivor:
+
+```python
+# Fix 1 — exact equality on the message (preferred for fixed strings).
+with pytest.raises(ValueError) as exc_info:
+    apply_discount(-1)
+assert str(exc_info.value) == "amount must be 0..100"
+
+# Fix 2 — anchor and escape the regex (when you want a regex elsewhere).
+with pytest.raises(ValueError, match=r"^amount must be 0\.\.100$"):
+    apply_discount(-1)
+```
+
+`mutmut show <id>` is the inspect command (not `mutmut diff` or `mutmut apply`). Mutant ids look like `pricing.discount.x_apply_discount__mutmut_4`.
+
+### Rust — `cargo-mutants` is a subcommand, not a dev-dep
+
+```toml
+# WRONG — cargo-mutants is NOT a crate; do not put it in Cargo.toml.
+[dev-dependencies]
+cargo-mutants = "*"
+```
+
+It's installed once with `cargo install cargo-mutants` and invoked as `cargo mutants`. Survivors land in `mutants.out/` (not `target/mutants/`).
+
+Useful flags the table doesn't repeat:
+
+| Flag | When |
+|---|---|
+| `--file src/<path>.rs` | Single-file scope. Faster than full repo for per-cycle runs. |
+| `--in-diff origin/main` | PR-level scope. Requires `git fetch` of the base ref. |
+| `--jobs N` | Parallelism. |
+
+**Rust-specific operator: removed `?`.** If `let x = thing()?;` becomes `let x = thing();` and no test fails, the error path is unasserted (Law 3 violation). Add a test that exercises the failure case.
+
+### Go — `gremlins` requires a single package path
+
+```bash
+# WRONG — gremlins' coverage step does not match through `./...`.
+gremlins unleash ./pkg/...
+
+# RIGHT — single package per invocation.
+gremlins unleash ./pkg
+```
+
+Output line shape (parse for survivors in CI):
+
+```
+KILLED  CONDITIONALS_BOUNDARY at discount.go:14:13
+LIVED   ARITHMETIC_BASE       at discount.go:17:36
+Killed: 9, Lived: 1, Test efficacy: 90.00%
+```
+
+Operator names that show up in reports: `CONDITIONALS_BOUNDARY` (`<` ↔ `<=`), `ARITHMETIC_BASE` (`+` ↔ `-`, `*` ↔ `/`), `CONDITIONALS_NEGATION` (`<` ↔ `>=`, `==` ↔ `!=`), `INVERT_NEGATIVES` (`-x` ↔ `x`).
+
+**No `--in-diff` equivalent.** Diff scoping is a CI shell step:
+
+```bash
+pkg=$(git diff --name-only "origin/${BASE:-main}"...HEAD | xargs -n1 dirname | sort -u | head -1)
+gremlins unleash "./$pkg"
+```
+
+Race-detector + table-driven tests are the default Go shape, but **introduce table-driven tests in REFACTOR, not during early cycles** — collapsing tests prematurely hides the per-cycle thinking.
+
+### TypeScript — Stryker needs the runner package separately
+
+```bash
+# Both packages required; the runner adapter is not bundled in `core`.
+npm install --save-dev @stryker-mutator/core @stryker-mutator/vitest-runner
+```
+
+Threshold field names are `{ high, low, break }` (not `failureThreshold`). Use `--incremental` with `incrementalFile` for PR-diff caching.
+
 ## Mutation operators (priority order)
 
 | Priority | Operator | Example | A surviving mutant means... |

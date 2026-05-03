@@ -14,7 +14,6 @@ skills/<name>/    # Per-skill bundle (SKILL.md + supporting files)
 ## Skills
 
 - `writing-skills` — TDD-for-documentation. Authoring and revision discipline for skills.
-- `test-driven-development` — Iron Law, Three Laws, vertical slicing, mutation testing.
 - `tdd-mutation` — Single-file unified TDD + mutation testing skill. Iron Law, Three Laws, vertical slicing, mutation as a core completion gate (not an optional reference).
 - `systematic-debugging` — Phase 1 reproduce, Phase 2 root cause, Phase 3 fix + verify.
 - `verification-before-completion` — No "done" / "fixed" / "passing" claims without output.
@@ -23,7 +22,7 @@ skills/<name>/    # Per-skill bundle (SKILL.md + supporting files)
 
 - Every skill is a directory under `skills/` with a `SKILL.md` at its root.
 - `SKILL.md` frontmatter requires `name` (lowercase alphanumerics + hyphens, must match parent dir) and `description` (max 1024 chars, capability + triggers, never workflow).
-- Cross-skill references use `agents-skills:<skill>` with an explicit requirement marker (e.g. `**REQUIRED SUB-SKILL:** Use agents-skills:test-driven-development`).
+- Cross-skill references use `agents-skills:<skill>` with an explicit requirement marker (e.g. `**REQUIRED SUB-SKILL:** Use agents-skills:tdd-mutation`).
 - File references inside a skill use relative paths from the skill root, no `@` prefix. See [agentskills.io/specification#file-references](https://agentskills.io/specification#file-references).
 - Skills are pressure-tested with adversarial subagents before they ship and after every revision (see `agents-skills:writing-skills`).
 

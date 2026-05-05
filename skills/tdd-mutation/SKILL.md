@@ -20,7 +20,7 @@ Mutation testing closes the loop. Tools (or you, by hand) introduce small bugs i
 1. RED → GREEN → REFACTOR (you wrote the right code).
 2. Mutate → kill → strengthen (your tests would catch it if you didn't).
 
-## Uncle Bob's Three Laws (canon, verbatim)
+## The Three Laws
 
 1. You may not write production code until you have written a failing unit test.
 2. You may not write more of a unit test than is sufficient to fail (compilation failures count).

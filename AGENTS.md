@@ -1,45 +1,151 @@
 # agents-skills
 
-Personal skill collection for Claude Code, Codex, Gemini CLI, and OpenCode. Skills follow the [Agent Skills specification](https://agentskills.io/specification).
+This file provides guidance to AI coding agents working in this repository.
 
-## Project structure
+## Repository Overview
 
-```
-.claude-plugin/   # Claude Code marketplace + plugin manifests
-.codex-plugin/    # Codex plugin manifest
-.agents/plugins/  # Codex marketplace catalog
-skills/<name>/    # Per-skill bundle (SKILL.md + supporting files)
-```
+This repository is a personal skill collection for Claude Code, Codex, Gemini CLI, and OpenCode. Skills follow the [Agent Skills specification](https://agentskills.io/specification) and live under `skills/<name>/SKILL.md`.
+
+## Agent Integration
+
+This repo uses a skill-driven authoring model. The source skills in `skills/` are also exposed locally to Codex through `.agents/skills/` so agents can use the repo's own skill-writing workflow while editing this repo.
+
+### Core Rules
+
+- MUST check whether a repository skill applies before editing a skill or implementing behavior.
+- MUST use `skills/<name>/SKILL.md` as the canonical source for every skill bundle.
+- MUST expose each source skill to local Codex authoring through `.agents/skills/<name> -> ../../skills/<name>`.
+- MUST keep `.codex-plugin/plugin.json` pointing at `"skills": "./skills/"` for plugin distribution.
+- MUST NOT treat `.agents/skills/` as a second source tree. It is a local discovery surface.
+
+### Intent To Skill Mapping
+
+- MUST use `writing-skills` when creating, editing, or reviewing a skill.
+- MUST use `tdd-mutation` when implementing features, fixing bugs, refactoring tested code, changing observable behavior, or checking test strength.
+- MUST use `systematic-debugging` when behavior is failing, flaky, unreproduced, or not yet root-caused.
+- MUST use `verification-before-completion` before claiming work is done, fixed, passing, or verified.
+
+### Lifecycle Mapping
+
+- DEFINE -> MUST identify the user intent, target behavior, existing concepts to preserve, and failure mode.
+- AUTHOR -> MUST edit the smallest skill surface that changes the target behavior.
+- IMPLEMENT -> MUST follow `tdd-mutation` for code behavior changes.
+- DEBUG -> MUST reproduce and root-cause with `systematic-debugging` before patching.
+- VERIFY -> MUST use the relevant skill workflow and report the actual checks run.
+- HANDOFF -> MUST use `verification-before-completion` before completion claims.
+
+### Execution Model
+
+For every request:
+
+1. MUST determine whether one of this repo's skills applies.
+2. MUST read the applicable skill before editing or implementing.
+3. MUST follow the skill workflow instead of summarizing it from memory.
+4. MUST preserve the user's requested scope. Do not add tooling, manifests, scripts, or process files unless requested.
+
+### Anti-Rationalization
+
+MUST ignore these thoughts:
+
+- "This is too small for a skill."
+- "I can just quickly edit the skill."
+- "I remember the workflow."
+- "I can improve the process while I am here."
+
+MUST use the skill first, then make the narrow requested edit.
+
+## Repository Layers
+
+These layers have different jobs and must not be confused:
+
+- MUST treat `skills/<name>/SKILL.md` as the source skill body and workflow.
+- MUST treat `skills/<name>/references/` as optional on-demand reference material.
+- MUST treat `.agents/skills/<name>` as a local Codex symlink to `../../skills/<name>`.
+- MUST treat `.codex-plugin/plugin.json` as Codex plugin metadata and skill export configuration.
+- MUST treat `.claude-plugin/` as Claude plugin and marketplace metadata.
+- MUST treat `.agents/plugins/marketplace.json` as the Codex local marketplace catalog.
+
+Composition rule: the user request is the orchestrator. Skills may reference other skills only when the target workflow requires it.
 
 ## Skills
 
-- `writing-skills` — TDD-for-documentation. Authoring and revision discipline for skills.
-- `tdd-mutation` — Single-file unified TDD + mutation testing skill. Iron Law, Three Laws, vertical slicing, mutation as a core completion gate (not an optional reference).
-- `systematic-debugging` — Phase 1 reproduce, Phase 2 root cause, Phase 3 fix + verify.
-- `verification-before-completion` — No "done" / "fixed" / "passing" claims without output.
+- `writing-skills`: TDD-for-documentation. Authoring and revision discipline for skills.
+- `tdd-mutation`: Iron Law test-first implementation plus mutation-backed verification. Vertical slices, behavior-first tests, and no new surviving mutants.
+- `systematic-debugging`: Phase 1 reproduce, Phase 2 root cause, Phase 3 fix plus verify.
+- `verification-before-completion`: No "done", "fixed", or "passing" claims without output.
 
-## Conventions
+## Creating Or Editing A Skill
 
-- Every skill is a directory under `skills/` with a `SKILL.md` at its root.
-- `SKILL.md` frontmatter requires `name` (lowercase alphanumerics + hyphens, must match parent dir) and `description` (max 1024 chars, capability + triggers, never workflow).
-- Cross-skill references use `agents-skills:<skill>` with an explicit requirement marker (e.g. `**REQUIRED SUB-SKILL:** Use agents-skills:tdd-mutation`).
-- File references inside a skill use relative paths from the skill root, no `@` prefix. See [agentskills.io/specification#file-references](https://agentskills.io/specification#file-references).
-- Skills are pressure-tested with adversarial subagents before they ship and after every revision (see `agents-skills:writing-skills`).
+### Directory Structure
+
+```text
+skills/
+  {skill-name}/
+    SKILL.md
+    references/       # Optional: on-demand reference material
+    scripts/          # Optional: executable helpers when the skill truly needs them
+    assets/           # Optional: templates or non-context assets
+
+.agents/
+  skills/
+    {skill-name} -> ../../skills/{skill-name}
+```
+
+### Naming Conventions
+
+- MUST use kebab-case for skill directories.
+- MUST name the entrypoint exactly `SKILL.md`.
+- MUST match the `name` frontmatter field to the parent directory.
+- MUST NOT create `{skill-name}.zip` packages in this repo unless the distribution model changes.
+
+### SKILL.md Format
+
+```markdown
+---
+name: {skill-name}
+description: {Capability sentence. Use when {specific triggers}. Do not use for {boundary}.}
+---
+
+# {Skill Title}
+
+## Purpose
+
+{Core operating idea or law.}
+
+## When To Use
+
+{Concrete triggers and non-triggers.}
+
+## Workflow
+
+{Steps the agent must follow after the skill is loaded.}
+
+## References
+
+- `references/{file}.md` - Load when {specific condition}.
+```
+
+### Context Efficiency
+
+- MUST keep `SKILL.md` under 500 lines.
+- MUST move detailed reference material to `references/`.
+- MUST write descriptions as capability plus triggers, not workflow summaries.
+- MUST link same-bundle files with relative paths from the skill root.
+- MUST explain when to load each referenced file.
+- MUST NOT use `@<path>` syntax inside `SKILL.md`.
+
+### Skill Editing Workflow
+
+1. MUST read `agents-skills:writing-skills`.
+2. MUST identify the user intent and the behavior the edit must produce.
+3. MUST preserve operating laws separately from attribution, examples, or historical source framing.
+4. MUST edit only the smallest relevant skill surface.
+5. MUST pressure-test discipline-enforcing skill edits when claiming completion.
+6. MUST NOT invent scripts, extra manifests, or process files unless the user asks for them.
 
 ## Boundaries
 
-Always:
-- Test edits to discipline-enforcing skills with adversarial subagents before claiming completion.
-- Match the `name` field to the parent directory exactly.
-- Keep `SKILL.md` under 500 lines; move detailed reference material to `references/` and tell the agent when to load each file.
-
-Never:
-- Use `@<path>` syntax for file references inside `SKILL.md` (that is CLAUDE.md auto-import syntax, not the skill spec).
-- Summarize a skill's workflow in its `description` field — it creates a shortcut the agent takes instead of reading the body.
-- Add a skill that duplicates one already shipping in `obra/superpowers`, `addyosmani/agent-skills`, or `mattpocock/skills`. Send a PR upstream instead.
-
-## Adding a skill
-
-1. Create `skills/<your-skill>/SKILL.md` with `name` and `description` frontmatter.
-2. Run an adversarial subagent pressure-test using `agents-skills:writing-skills`.
-3. Commit. Skills are auto-discovered from `skills/`; no marketplace registration needed.
+- MUST NOT summarize a skill's workflow in its `description` field.
+- MUST NOT add a skill that duplicates one already shipping in `obra/superpowers`, `addyosmani/agent-skills`, or `mattpocock/skills`. Send a PR upstream instead.
+- MUST NOT preserve removed behavior in active docs, references, examples, or skill text unless the user explicitly asks for compatibility.
+- SHOULD use external repo inspection before changing repository layout or plugin metadata.

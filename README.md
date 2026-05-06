@@ -4,18 +4,70 @@ Personal skill collection for Claude Code, Codex, Gemini CLI, and OpenCode. Pres
 
 ## Install
 
+`npx skills` works for every supported agent. Claude Code and Codex also have native marketplace flows — pick whichever you prefer.
+
+### Claude Code
+
 ```bash
-# Claude Code
+# Native
 /plugin marketplace add vadimcomanescu/agents-skills
 /plugin install agents-skills@vadim-agents-skills
 
-# Codex CLI
+# Or via npx
+npx skills@latest add vadimcomanescu/agents-skills -g -a claude-code
+```
+
+### Codex CLI
+
+```bash
+# Native
 codex plugins marketplace add github:vadimcomanescu/agents-skills
 codex plugins install agents-skills@vadim-agents-skills
 
-# Gemini CLI / OpenCode
-npx skills@latest add vadimcomanescu/agents-skills -a gemini-cli opencode
+# Or via npx
+npx skills@latest add vadimcomanescu/agents-skills -g -a codex
 ```
+
+### Gemini CLI
+
+```bash
+npx skills@latest add vadimcomanescu/agents-skills -g -a gemini-cli
+```
+
+### OpenCode
+
+```bash
+npx skills@latest add vadimcomanescu/agents-skills -g -a opencode
+```
+
+### Several agents at once
+
+```bash
+npx skills@latest add vadimcomanescu/agents-skills -g -a claude-code codex gemini-cli opencode
+```
+
+`-a` takes a space-separated list. `-g` installs to the user-level scope; drop it to install into the current project. Do **not** use `--all` — it targets every agent the CLI knows about (50+) and creates skill directories for tools you don't run.
+
+### Picking specific skills
+
+Add `-s <skill> [<skill>...]`:
+
+```bash
+npx skills@latest add vadimcomanescu/agents-skills -g -a claude-code -s tdd-mutation systematic-debugging
+```
+
+### If you are an agent installing this for the user
+
+Run non-interactively, into user scope, targeting only agents the user actually has:
+
+```bash
+npx skills@latest add vadimcomanescu/agents-skills -g -y -a <agent>...
+```
+
+- Recognized `-a` values for this repo: `claude-code`, `codex`, `gemini-cli`, `opencode`.
+- Detect which to pass by checking config dirs: `~/.claude`, `~/.codex`, `~/.gemini`, `~/.opencode`. Don't pass agents whose dir is absent.
+- Skills shipped here: `tdd-mutation`, `systematic-debugging`, `verification-before-completion`, `writing-skills`. Use `-s <skill>...` to install a subset; omit `-s` to install all four.
+- MUST NOT use `--all` (alias for `-s '*' -a '*' -y`) — it pollutes the user's setup with dirs for unused agents.
 
 > **SSH error on `marketplace add`?** Claude Code clones via SSH. If you don't have GitHub SSH keys set up, [add a key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or rewrite GitHub fetches to HTTPS once: `git config --global url."https://github.com/".insteadOf "git@github.com:"`.
 

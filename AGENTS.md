@@ -146,6 +146,6 @@ description: {Capability sentence. Use when {specific triggers}. Do not use for 
 ## Boundaries
 
 - MUST NOT summarize a skill's workflow in its `description` field.
-- MUST NOT add a skill that duplicates one already shipping in `obra/superpowers`, `addyosmani/agent-skills`, or `mattpocock/skills`. Send a PR upstream instead.
+- MUST NOT add a skill that duplicates one already in `skills/` in this repository. Update or extend the existing skill instead.
 - MUST NOT preserve removed behavior in active docs, references, examples, or skill text unless the user explicitly asks for compatibility.
 - SHOULD use external repo inspection before changing repository layout or plugin metadata.

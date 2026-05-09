@@ -3,7 +3,8 @@ node_modules/
 *.log
 plans/
 .claude/
+__pycache__/
+*.pyc
 
-# Scratch eval/playground HTML produced during skill-creator development.
-combined-skill-creator-review.html
+# Scratch eval/playground HTML produced during skill-development sessions.
 skill-eval-*.html

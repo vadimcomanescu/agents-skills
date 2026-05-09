@@ -3,3 +3,7 @@ node_modules/
 *.log
 plans/
 .claude/
+
+# Scratch eval/playground HTML produced during skill-creator development.
+combined-skill-creator-review.html
+skill-eval-*.html

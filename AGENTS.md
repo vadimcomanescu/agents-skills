@@ -20,7 +20,7 @@ This repo uses a skill-driven authoring model. The source skills in `skills/` ar
 
 ### Intent To Skill Mapping
 
-- MUST use `writing-skills` when creating, editing, or reviewing a skill.
+- MUST use `creating-skills` when creating, editing, or reviewing a skill.
 - MUST use `tdd-mutation` when implementing features, fixing bugs, refactoring tested code, changing observable behavior, or checking test strength.
 - MUST use `systematic-debugging` when behavior is failing, flaky, unreproduced, or not yet root-caused.
 - MUST use `verification-before-completion` before claiming work is done, fixed, passing, or verified.
@@ -69,7 +69,7 @@ Composition rule: the user request is the orchestrator. Skills may reference oth
 
 ## Skills
 
-- `writing-skills`: TDD-for-documentation. Authoring and revision discipline for skills.
+- `creating-skills`: Creates, edits, evaluates, and optimizes agent skills. Combined Anthropic + Codex creating-skills with eval pipeline, description optimization, and graphviz dot conventions.
 - `tdd-mutation`: Iron Law test-first implementation plus mutation-backed verification. Vertical slices, behavior-first tests, and no new surviving mutants.
 - `systematic-debugging`: Phase 1 reproduce, Phase 2 root cause, Phase 3 fix plus verify.
 - `verification-before-completion`: No "done", "fixed", or "passing" claims without output.
@@ -136,7 +136,7 @@ description: {Capability sentence. Use when {specific triggers}. Do not use for 
 
 ### Skill Editing Workflow
 
-1. MUST read `agents-skills:writing-skills`.
+1. MUST read `agents-skills:creating-skills`.
 2. MUST identify the user intent and the behavior the edit must produce.
 3. MUST preserve operating laws separately from attribution, examples, or historical source framing.
 4. MUST edit only the smallest relevant skill surface.

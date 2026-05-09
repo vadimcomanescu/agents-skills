@@ -21,7 +21,7 @@ npx skills@latest add vadimcomanescu/agents-skills -g -a claude-code
 
 ```bash
 npx skills@latest add vadimcomanescu/agents-skills -g -a codex
-for s in tdd-mutation systematic-debugging verification-before-completion writing-skills; do
+for s in tdd-mutation systematic-debugging verification-before-completion creating-skills; do
   ln -sfn ../../.agents/skills/$s ~/.codex/skills/$s
 done
 ```
@@ -32,7 +32,7 @@ The `npx` step writes `~/.agents/skills/<name>` (canonical). The codex CLI reads
 
 ```bash
 npx skills@latest add vadimcomanescu/agents-skills -g -a gemini-cli
-for s in tdd-mutation systematic-debugging verification-before-completion writing-skills; do
+for s in tdd-mutation systematic-debugging verification-before-completion creating-skills; do
   ln -sfn ../../.agents/skills/$s ~/.gemini/skills/$s
 done
 ```
@@ -41,7 +41,7 @@ done
 
 ```bash
 npx skills@latest add vadimcomanescu/agents-skills -g -a opencode
-for s in tdd-mutation systematic-debugging verification-before-completion writing-skills; do
+for s in tdd-mutation systematic-debugging verification-before-completion creating-skills; do
   ln -sfn ../../.agents/skills/$s ~/.opencode/skills/$s
 done
 ```
@@ -77,7 +77,7 @@ done
 
 - Detect agents from their config dirs (`~/.claude`, `~/.codex`, `~/.gemini`, `~/.opencode`); don't pass agents whose dir is absent.
 - Recognized `-a` values for this repo: `claude-code`, `codex`, `gemini-cli`, `opencode`.
-- Skills shipped here: `tdd-mutation`, `systematic-debugging`, `verification-before-completion`, `writing-skills`. Use `-s` to install a subset; omit it for all four.
+- Skills shipped here: `tdd-mutation`, `systematic-debugging`, `verification-before-completion`, `creating-skills`. Use `-s` to install a subset; omit it for all four.
 - The npx CLI auto-symlinks for `claude-code` only. For `codex`, `gemini-cli`, and `opencode`, the install lands in `~/.agents/skills/<name>` and the agent will not see it without the `ln -s` step.
 - MUST NOT use `--all` (alias for `-s '*' -a '*' -y`) — it creates dirs for every agent the CLI knows about.
 
@@ -87,7 +87,7 @@ done
 
 | Skill | What it does |
 |---|---|
-| [`writing-skills`](skills/writing-skills/SKILL.md) | Authors and revises agent skills using TDD-for-documentation discipline. |
+| [`creating-skills`](skills/creating-skills/SKILL.md) | Creates, edits, evaluates, and optimizes agent skills. Combined Anthropic + Codex creating-skills with eval pipeline, description optimization, and graphviz dot conventions. |
 | [`tdd-mutation`](skills/tdd-mutation/SKILL.md) | Iron Law test-first implementation plus mutation-backed verification. Vertical slices, behavior-first tests, and no new surviving mutants. |
 | [`systematic-debugging`](skills/systematic-debugging/SKILL.md) | Phase 1 reproduce, Phase 2 root cause, Phase 3 fix + verify. No symptom patches. |
 | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) | Forbids "done"/"fixed"/"passing" claims without verification output. |
@@ -102,6 +102,8 @@ done
 
 ## Attribution
 
-`writing-skills`, `systematic-debugging`, and `verification-before-completion` are vendored from [obra/superpowers](https://github.com/obra/superpowers) (MIT, Copyright (c) 2025 Jesse Vincent), modified for this marketplace. `systematic-debugging` additionally incorporates surgical edits paraphrased from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) (MIT, Copyright (c) 2025 Addy Osmani). The MIT terms in the upstream LICENSE files apply to vendored content.
+`systematic-debugging` and `verification-before-completion` are vendored from [obra/superpowers](https://github.com/obra/superpowers) (MIT, Copyright (c) 2025 Jesse Vincent), modified for this marketplace. `systematic-debugging` additionally incorporates surgical edits paraphrased from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) (MIT, Copyright (c) 2025 Addy Osmani). The MIT terms in the upstream LICENSE files apply to vendored content.
+
+`creating-skills` merges the [anthropics/skills](https://github.com/anthropics/skills) creating-skills (Apache-2.0, Copyright (c) Anthropic) and the [openai/skills](https://github.com/openai/skills) Codex creating-skills (Apache-2.0, Copyright (c) OpenAI), with surgical edits and a graphviz dot diagram convention. The Apache-2.0 LICENSE files from each upstream are preserved at `skills/creating-skills/LICENSE-anthropic.txt` and `skills/creating-skills/LICENSE-openai.txt`; their terms apply to the vendored content.
 
 `tdd-mutation` is maintained here as a workflow-first skill for test-first implementation and mutation-backed verification.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Creating Skills"
+  short_description: "Create, edit, and evaluate agent skills for Codex and Claude Code"
+  default_prompt: "Help me create a new skill for my repository, or refactor and evaluate an existing one."

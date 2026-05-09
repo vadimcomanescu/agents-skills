@@ -1,0 +1,23 @@
+{
+  "skill_name": "creating-skills",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to make a skill that turns rough commit messages into proper conventional commit format. It should pull from staged changes and rewrite the message in place.",
+      "expected_output": "A new skill bundle under skills/conventional-commits/ with SKILL.md, optionally a scripts/rewrite.py helper. Description follows capability + triggers shape.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Update my existing pdf-extract skill — it's too verbose and the description doesn't trigger when users say 'pull text out of this doc'. Tighten it.",
+      "expected_output": "Edited SKILL.md with shorter body and an updated description that covers the 'pull text out of' phrasing. May propose a description-optimization run.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Run evals on my new spreadsheet-formatter skill. I have 3 test prompts in mind. Let's see how it does with vs without.",
+      "expected_output": "Spawns subagent pairs (with-skill / baseline) for each prompt, captures timing, drafts assertions, runs the grader, generates the review viewer.",
+      "files": []
+    }
+  ]
+}

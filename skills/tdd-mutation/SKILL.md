@@ -379,7 +379,7 @@ No exceptions without explicit human approval, captured in writing.
 
 ## Related skills
 
-- **Background:** `agents-skills:writing-skills` — TDD applied to documentation.
+- **Companion:** `agents-skills:creating-skills` — for authoring or revising agent skills (including this one) with eval-driven iteration.
 - **Companion:** `agents-skills:systematic-debugging` — when the bug is hard to reproduce, debug first, then write the failing test, then resume the cycle.
 - **Companion:** `agents-skills:verification-before-completion` — never claim "done" / "fixed" / "passing" without showing the output.
 - **Browser runtime verification:** `webapp-testing` (Playwright) for scripted browser interaction + screenshots; `agent-browser` for live navigation, form-fill, click, scrape; Chrome DevTools MCP for console / network / performance / DOM inspection. Use these to satisfy the VERIFY-IN-BROWSER step on any UI work.

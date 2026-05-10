@@ -83,6 +83,28 @@ done
 
 > **SSH error on `marketplace add`?** Claude Code clones via SSH. If you don't have GitHub SSH keys set up, [add a key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or rewrite GitHub fetches to HTTPS once: `git config --global url."https://github.com/".insteadOf "git@github.com:"`.
 
+## Update
+
+Update all four skills from this repo in one go:
+
+```bash
+npx skills update -g tdd-mutation systematic-debugging verification-before-completion creating-skills
+```
+
+The `npx skills` CLI updates by skill name (not by source repo), so the four skills are listed explicitly. The CLI fetches the latest from the source recorded in `~/.agents/.skill-lock.json` and overwrites the canonical bundle at `~/.agents/skills/<name>/`. The per-agent symlinks (`~/.claude/skills/<name>`, `~/.codex/skills/<name>`, etc.) keep working — no re-symlinking needed.
+
+To update every globally-installed skill regardless of source:
+
+```bash
+npx skills update -g
+```
+
+To refetch from `vadimcomanescu/agents-skills` by re-running the install (equivalent end state):
+
+```bash
+npx skills@latest add vadimcomanescu/agents-skills -g -y -a claude-code codex gemini-cli opencode
+```
+
 ## Skills
 
 | Skill | What it does |

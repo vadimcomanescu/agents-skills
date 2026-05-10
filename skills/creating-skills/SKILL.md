@@ -190,6 +190,8 @@ scripts/quick_validate.py <path/to/skill-folder>
 
 Checks YAML frontmatter, required fields, naming rules. Fix and rerun until clean.
 
+Packaging-only. If you reached here without doing Steps 4–7 (test prompts, grade, iterate), the skill isn't done — only the bundle shape is. Go back unless the user said "no evals."
+
 ## Description Optimization (optional)
 
 The description is the entire triggering surface. After the skill is otherwise stable, offer to tune it.

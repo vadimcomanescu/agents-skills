@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>arianna-magic — {{ project_title }}</title>
+<style>
+  :root {
+    /* Colors — Birchline (verbatim) */
+    --ivory:    #FAF9F5;
+    --white:    #FFFFFF;
+    --slate:    #141413;
+    --gray-700: #3D3D3A;
+    --gray-500: #87867F;
+    --gray-300: #D1CFC5;
+    --gray-150: #F0EEE6;
+    --oat:      #E3DACC;
+    --clay:     #D97757;  /* primary accent */
+    --olive:    #788C5D;  /* success */
+    --rust:     #B04A4A;  /* danger */
+    --info:     #5C7CA3;
+
+    /* Type — system fonts only */
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans:  system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+    /* Scale: 4, 8, 12, 16, 24, 32, 48, 64 */
+    --s-1: 4px;
+    --s-2: 8px;
+    --s-3: 12px;
+    --s-4: 16px;
+    --s-5: 24px;
+    --s-6: 32px;
+    --s-7: 48px;
+    --s-8: 64px;
+
+    /* Radius: 4, 8, 12, 20, 999 */
+    --r-1: 4px;
+    --r-2: 8px;
+    --r-3: 12px;
+    --r-4: 20px;
+    --r-pill: 999px;
+
+    /* Borders: 1.5px solid var(--gray-300) — NOT 1px (signature) */
+    --border: 1.5px solid var(--gray-300);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ivory);
+    color: var(--slate);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding: 56px 24px 120px;
+  }
+
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  /* ---------- Header ---------- */
+  header.page-header { margin-bottom: 48px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+  h1.page-title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 38px;
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
+  }
+  .lead {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--gray-500);
+    max-width: 720px;
+  }
+  .header-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .auto-pill {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500);
+    background: var(--gray-150);
+    border: var(--border);
+    border-radius: var(--r-pill);
+    padding: 5px 11px;
+    white-space: nowrap;
+  }
+
+  /* ---------- Main / Aside split ---------- */
+  .main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 32px;
+    align-items: start;
+  }
+  @media (max-width: 980px) {
+    .main-grid { grid-template-columns: 1fr; }
+    aside.dag-aside { position: static; }
+  }
+
+  /* ---------- Section ---------- */
+  section.phase-section { margin-bottom: 56px; }
+  h2.section-title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 24px;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+  }
+  hr.rule {
+    border: none;
+    border-top: 1px solid var(--gray-300);
+    margin: 0 0 22px;
+  }
+
+  /* ---------- Phase strip (stat-card pattern) ---------- */
+  .phase-strip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+    margin-bottom: 48px;
+  }
+  @media (max-width: 980px) {
+    .phase-strip { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .phase-strip { grid-template-columns: repeat(2, 1fr); }
+  }
+  .stat-card {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--r-3);
+    padding: 20px 22px 18px;
+    cursor: pointer;
+    transition: background 120ms ease, border-color 120ms ease;
+  }
+  .stat-card:hover {
+    background: var(--gray-150);
+    border-color: var(--gray-500);
+  }
+  .stat-card.current  { border-left: 4px solid var(--clay);  padding-left: 19px; }
+  .stat-card.done     { border-left: 3px solid var(--olive); padding-left: 20px; }
+  .stat-card.blocked  { border-left: 4px solid var(--rust);  padding-left: 19px; }
+  .stat-card.pending  { border-left: 3px solid var(--gray-300); padding-left: 20px; }
+  .stat-card .eyebrow {
+    margin-bottom: 6px;
+  }
+  .stat-num {
+    font-family: var(--serif);
+    font-size: 44px;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--slate);
+    margin-bottom: 8px;
+  }
+  .stat-label {
+    font-family: var(--sans);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gray-500);
+  }
+  .stat-delta {
+    font-family: var(--mono);
+    font-size: 11px;
+    margin-top: 6px;
+  }
+  .stat-delta.up   { color: var(--olive); }
+  .stat-delta.flat { color: var(--gray-500); }
+  .stat-delta.bad  { color: var(--rust); }
+
+  /* Hidden detail panel revealed by click on phase card */
+  .phase-detail {
+    margin-top: 24px;
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--r-3);
+    padding: 24px 28px;
+    display: none;
+  }
+  .phase-detail.open { display: block; }
+  .phase-detail h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+  .phase-detail pre {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.55;
+    background: var(--gray-150);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--r-2);
+    padding: 12px 14px;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+  .phase-detail .body {
+    font-size: 14.5px;
+    color: var(--gray-700);
+  }
+
+  /* ---------- Decision buttons (gate phases) ---------- */
+  .decision-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  button.decision {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    border: var(--border);
+    border-radius: var(--r-2);
+    padding: 10px 18px;
+    cursor: pointer;
+    background: var(--white);
+    color: var(--slate);
+    transition: background 120ms ease, border-color 120ms ease;
+  }
+  button.decision:hover {
+    background: var(--gray-150);
+    border-color: var(--gray-500);
+  }
+  button.decision.approve { background: var(--olive); color: var(--white); border-color: var(--olive); }
+  button.decision.approve:hover { background: #6a7d50; border-color: #6a7d50; }
+  button.decision.revise  { background: var(--clay);  color: var(--white); border-color: var(--clay); }
+  button.decision.revise:hover { background: #c5664a; border-color: #c5664a; }
+  .decision-hint {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--gray-500);
+    margin-top: 12px;
+  }
+
+  /* ---------- Task DAG canvas ---------- */
+  .canvas {
+    border: var(--border);
+    border-radius: var(--r-3);
+    background: var(--white);
+    padding: 28px;
+    overflow-x: auto;
+  }
+  svg.flow { display: block; width: 100%; height: auto; }
+  .flow text {
+    font-family: var(--mono);
+    font-size: 12px;
+    fill: var(--slate);
+    pointer-events: none;
+  }
+  .flow .sub { font-size: 10px; fill: var(--gray-500); }
+  .flow .lbl { font-size: 10px; fill: var(--gray-500); }
+  .node rect      { fill: var(--white); stroke: var(--gray-300); stroke-width: 1.5; rx: 8; }
+  .node.term rect { fill: var(--gray-150); rx: 22; }
+  .node.gate path { fill: var(--white); stroke: var(--gray-300); stroke-width: 1.5; }
+  .node.ok rect   { fill: rgba(120,140,93,0.12); stroke: var(--olive); }
+  .node.bad rect  { fill: rgba(176,74,74,0.10); stroke: var(--rust); }
+  .node { cursor: pointer; transition: transform 120ms ease; }
+  .node:hover { transform: translateY(-1px); }
+  .node.active rect, .node.active path { stroke: var(--clay); stroke-width: 2; }
+  .edge        { stroke: var(--gray-500); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+  .edge.no     { stroke: var(--rust); stroke-dasharray: 4 4; marker-end: url(#arrow-rust); }
+  .edge.yes    { stroke: var(--olive); marker-end: url(#arrow-olive); }
+
+  /* ---------- Sticky aside (DAG legend / current task) ---------- */
+  aside.dag-aside {
+    position: sticky;
+    top: 24px;
+    border: var(--border);
+    border-radius: var(--r-3);
+    background: var(--white);
+    padding: 20px 20px 22px;
+  }
+  aside.dag-aside .hint {
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-bottom: 14px;
+  }
+  aside.dag-aside h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 19px;
+    margin-bottom: 6px;
+  }
+  aside.dag-aside .meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-bottom: 14px;
+  }
+  aside.dag-aside p {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--gray-700);
+    margin-bottom: 12px;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--gray-700);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .chip { width: 22px; height: 14px; border: var(--border); border-radius: 4px; background: var(--white); }
+  .chip.gate { transform: rotate(45deg); width: 12px; height: 12px; border-radius: 2px; }
+  .chip.ok   { background: rgba(120,140,93,0.12); border-color: var(--olive); }
+  .chip.bad  { background: rgba(176,74,74,0.10); border-color: var(--rust); }
+
+  /* ---------- Design prototype slot ---------- */
+  .design-stage {
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 24px;
+  }
+  @media (max-width: 920px) { .design-stage { grid-template-columns: 1fr; } }
+  .stage {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--r-3);
+    height: 360px;
+    overflow: hidden;
+    position: relative;
+  }
+  .dialkit-rail {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--r-3);
+    padding: 18px 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gray-700);
+  }
+  .dialkit-rail .rail-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500);
+    margin-bottom: 12px;
+  }
+
+  /* ---------- Evidence wall (.mock frame) ---------- */
+  .mocks {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+  }
+  @media (max-width: 900px) { .mocks { grid-template-columns: 1fr; } }
+  .mock {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--r-3);
+    overflow: hidden;
+  }
+  .mock .mock-label {
+    padding: 12px 18px;
+    border-bottom: var(--border);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500);
+    background: var(--gray-150);
+  }
+  .mock .mock-body { padding: 22px; }
+  .mock .mock-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-top: 10px;
+  }
+
+  /* ---------- Review reports ---------- */
+  .review-card {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--r-3);
+    padding: 24px 28px;
+    margin-bottom: 16px;
+  }
+  .review-card .num {
+    display: inline-block;
+    background: var(--oat);
+    color: var(--slate);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-radius: var(--r-1);
+    padding: 3px 8px;
+    margin-right: 8px;
+  }
+  .review-card h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+  .review-card .review-lead {
+    color: var(--gray-500);
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+  .risk-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-700);
+    background: var(--gray-150);
+    border: var(--border);
+    border-radius: var(--r-pill);
+    padding: 5px 11px;
+    margin-right: 6px;
+    height: 22px;
+  }
+  .risk-pill .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--gray-500);
+  }
+  .risk-pill.pass .dot { background: var(--olive); }
+  .risk-pill.fail .dot { background: var(--rust);  }
+  .risk-pill.warn .dot { background: var(--clay);  }
+
+  /* ---------- Footer ---------- */
+  footer.page-footer {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--gray-300);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gray-500);
+  }
+
+  /* ---------- Utility ---------- */
+  code, .mono { font-family: var(--mono); font-size: 13px; }
+  .muted { color: var(--gray-500); }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <div class="eyebrow">arianna-magic · long-running build</div>
+    <div class="header-row">
+      <h1 class="page-title">{{ project_title }}</h1>
+      <span class="auto-pill">{{ intent_class }}</span>
+    </div>
+    <p class="lead">{{ project_lead }}</p>
+  </header>
+
+  <!-- ====== Phase strip (clickable cards) ====== -->
+  <section class="phase-section">
+    <div class="phase-strip">
+
+      <div class="stat-card {{ phase0_status }}" data-phase="0" onclick="togglePhase(0)">
+        <div class="eyebrow">PHASE 00</div>
+        <div class="stat-num">{{ phase0_metric }}</div>
+        <div class="stat-label">Research</div>
+        <div class="stat-delta {{ phase0_delta_class }}">{{ phase0_delta }}</div>
+      </div>
+
+      <div class="stat-card {{ phase1_status }}" data-phase="1" onclick="togglePhase(1)">
+        <div class="eyebrow">PHASE 01</div>
+        <div class="stat-num">{{ phase1_metric }}</div>
+        <div class="stat-label">Discover (Goal)</div>
+        <div class="stat-delta {{ phase1_delta_class }}">{{ phase1_delta }}</div>
+      </div>
+
+      <div class="stat-card {{ phase2_status }}" data-phase="2" onclick="togglePhase(2)">
+        <div class="eyebrow">PHASE 02</div>
+        <div class="stat-num">{{ phase2_metric }}</div>
+        <div class="stat-label">Spec</div>
+        <div class="stat-delta {{ phase2_delta_class }}">{{ phase2_delta }}</div>
+      </div>
+
+      <div class="stat-card {{ phase3_status }}" data-phase="3" onclick="togglePhase(3)">
+        <div class="eyebrow">PHASE 03</div>
+        <div class="stat-num">{{ phase3_metric }}</div>
+        <div class="stat-label">Design</div>
+        <div class="stat-delta {{ phase3_delta_class }}">{{ phase3_delta }}</div>
+      </div>
+
+      <div class="stat-card {{ phase4_status }}" data-phase="4" onclick="togglePhase(4)">
+        <div class="eyebrow">PHASE 04</div>
+        <div class="stat-num">{{ phase4_metric }}</div>
+        <div class="stat-label">Plan</div>
+        <div class="stat-delta {{ phase4_delta_class }}">{{ phase4_delta }}</div>
+      </div>
+
+      <div class="stat-card {{ phase56_status }}" data-phase="56" onclick="togglePhase(56)">
+        <div class="eyebrow">PHASE 05-06</div>
+        <div class="stat-num">{{ phase56_metric }}</div>
+        <div class="stat-label">Build &amp; Review</div>
+        <div class="stat-delta {{ phase56_delta_class }}">{{ phase56_delta }}</div>
+      </div>
+
+    </div>
+
+    <!-- ====== Per-phase detail panels (click-to-expand) ====== -->
+
+    <div class="phase-detail" id="phase-detail-0">
+      <h3>Phase 0 — Research</h3>
+      <div class="body">{{ research_html }}</div>
+      {{ phase0_gate_html }}
+    </div>
+
+    <div class="phase-detail" id="phase-detail-1">
+      <h3>Phase 1 — Discover (Goal)</h3>
+      <div class="body">{{ goal_html }}</div>
+      {{ phase1_gate_html }}
+    </div>
+
+    <div class="phase-detail" id="phase-detail-2">
+      <h3>Phase 2 — Spec</h3>
+      <div class="body">{{ spec_html }}</div>
+      {{ phase2_gate_html }}
+    </div>
+
+    <div class="phase-detail" id="phase-detail-3">
+      <h3>Phase 3 — Design</h3>
+      <div class="body">{{ design_summary_html }}</div>
+      <div class="design-stage" style="margin-top: 18px;">
+        <div class="stage">{{ design_stage_html }}</div>
+        <div class="dialkit-rail">
+          <div class="rail-title">DialKit</div>
+          {{ design_dialkit_html }}
+        </div>
+      </div>
+      {{ phase3_gate_html }}
+    </div>
+
+    <div class="phase-detail" id="phase-detail-4">
+      <h3>Phase 4 — Plan</h3>
+      <div class="body">{{ plan_html }}</div>
+      {{ phase4_gate_html }}
+    </div>
+
+    <div class="phase-detail" id="phase-detail-56">
+      <h3>Phase 5-6 — Build &amp; Review (autonomous)</h3>
+      <div class="body">{{ build_summary_html }}</div>
+      <div class="decision-hint">No user gate after handoff. The orchestrator runs to completion; this section refreshes per task.</div>
+    </div>
+
+  </section>
+
+  <!-- ====== Task DAG + sticky aside ====== -->
+  <section class="phase-section">
+    <h2 class="section-title">Task graph</h2>
+    <hr class="rule">
+
+    <div class="main-grid">
+      <div class="canvas">
+        {{ task_dag_svg }}
+      </div>
+
+      <aside class="dag-aside">
+        <div class="hint">Current focus</div>
+        <h3>{{ current_task_title }}</h3>
+        <div class="meta">{{ current_task_meta }}</div>
+        <p>{{ current_task_body }}</p>
+        <div class="legend">
+          <span><span class="chip"></span>task</span>
+          <span><span class="chip gate"></span>gate</span>
+          <span><span class="chip ok"></span>passed</span>
+          <span><span class="chip bad"></span>blocked</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ====== Design prototype slot ====== -->
+  <section class="phase-section" id="design-prototype-section">
+    <h2 class="section-title">Design prototype</h2>
+    <hr class="rule">
+    <div class="design-stage">
+      <div class="stage">{{ design_prototype_html }}</div>
+      <div class="dialkit-rail">
+        <div class="rail-title">DialKit</div>
+        {{ design_prototype_dialkit_html }}
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Evidence wall ====== -->
+  <section class="phase-section" id="evidence-wall-section">
+    <h2 class="section-title">Evidence wall</h2>
+    <hr class="rule">
+    <div class="mocks">
+      {{ evidence_wall_html }}
+    </div>
+  </section>
+
+  <!-- ====== Review reports ====== -->
+  <section class="phase-section" id="review-reports-section">
+    <h2 class="section-title">Review reports</h2>
+    <hr class="rule">
+    {{ review_reports_html }}
+  </section>
+
+  <footer class="page-footer">
+    Generated by <code>scripts/render_dashboard.py</code> ·
+    state in <code>.agent/</code> ·
+    current phase: <code>{{ current_phase }}</code> ·
+    {{ generated_at }}
+  </footer>
+
+</div>
+
+<script>
+  // Click-to-detail: toggle phase-detail panel under the strip
+  function togglePhase(id) {
+    var panel = document.getElementById('phase-detail-' + id);
+    if (!panel) return;
+    var openOne = panel.classList.contains('open');
+    document.querySelectorAll('.phase-detail.open').forEach(function (p) {
+      p.classList.remove('open');
+    });
+    if (!openOne) panel.classList.add('open');
+  }
+
+  // Decision-button download: emit <phase>.decision.json the user moves to .agent/gates/
+  function saveDecision(phase, verdict, btn) {
+    var payload = {
+      phase: phase,
+      verdict: verdict,
+      timestamp: new Date().toISOString()
+    };
+    var note = btn && btn.getAttribute('data-note');
+    if (note) payload.note = note;
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = phase + '.decision.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  // Copy-to-clipboard for any <pre data-copy>
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('[data-copy]');
+    if (!t) return;
+    var text = t.textContent || '';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text);
+    }
+  });
+
+  // Auto-open the current phase on load
+  (function () {
+    var current = "{{ current_phase }}";
+    var map = { research: 0, discover: 1, goal: 1, spec: 2, design: 3, plan: 4, build: 56, review: 56 };
+    if (map.hasOwnProperty(current)) togglePhase(map[current]);
+  })();
+</script>
+
+</body>
+</html>

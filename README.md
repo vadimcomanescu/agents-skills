@@ -113,7 +113,6 @@ npx skills@latest add vadimcomanescu/agents-skills -g -y -a claude-code codex ge
 | [`tdd-mutation`](skills/tdd-mutation/SKILL.md) | Iron Law test-first implementation plus mutation-backed verification. Vertical slices, behavior-first tests, and no new surviving mutants. |
 | [`systematic-debugging`](skills/systematic-debugging/SKILL.md) | Phase 1 reproduce, Phase 2 root cause, Phase 3 fix + verify. No symptom patches. |
 | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) | Forbids "done"/"fixed"/"passing" claims without verification output. |
-| [`arianna-loop`](skills/arianna-loop/SKILL.md) (+ 8 role skills) | Long-running autonomous build pipeline. Slash-command entry `/arianna-loop <goal>` classifies intent, dispatches role-specialist subagents (`arianna-research`, `arianna-spec`, `arianna-design`, `arianna-plan`, `arianna-implement`, `arianna-review`, `arianna-critique`, `arianna-grill`), and renders a Birchline-styled dashboard at `.agent/dashboard.html`. |
 
 ## Development
 

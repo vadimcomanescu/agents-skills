@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Long-Running Skill Pipeline — Design Review v2</title>
+<style>
+:root {
+  --bg: #faf9f5;
+  --fg: #1a1a1a;
+  --mute: #6b6b6b;
+  --line: #d8d6cf;
+  --card: #ffffff;
+  --accent: #1a1a1a;
+  --pull: #f4f1ea;
+  --quote: #5a5a5a;
+  --tag-claude: #c97f3a;
+  --tag-codex: #4a6f5a;
+  --tag-judge: #8c4f70;
+  --tag-coord: #5b6b8a;
+  --gate: #b67a3a;
+  --cut: #b54a4a;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font: 14px/1.55 ui-sans-serif, system-ui, -apple-system, sans-serif; }
+.wrap { max-width: 920px; margin: 0 auto; padding: 32px 36px 96px; }
+
+/* Header */
+header.top { border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 28px; }
+header.top h1 { margin: 0 0 6px; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+header.top .sub { margin: 0 0 16px; color: var(--mute); font-size: 13px; }
+.principles { display: grid; gap: 8px; margin-top: 8px; }
+.principle { background: var(--pull); border-left: 3px solid var(--accent); padding: 10px 14px; font-size: 12.5px; line-height: 1.5; }
+.principle b { font-weight: 600; }
+.principle .cite { color: var(--mute); font-size: 11px; margin-top: 2px; display: block; }
+
+/* Style note */
+.note { font-size: 12px; color: var(--mute); margin: 20px 0 32px; padding: 12px 14px; border: 1px dashed var(--line); border-radius: 3px; line-height: 1.5; }
+.note b { color: var(--fg); font-weight: 600; }
+
+/* Strip nav */
+h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mute); margin: 32px 0 12px; font-weight: 600; }
+.strip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-bottom: 32px; }
+.strip a { background: var(--card); border: 1px solid var(--line); border-radius: 3px; padding: 10px 8px; text-decoration: none; color: var(--fg); font-size: 11.5px; transition: border-color 0.1s; }
+.strip a:hover { border-color: var(--accent); }
+.strip a .n { font-size: 9.5px; color: var(--mute); display: block; margin-bottom: 2px; }
+.strip a .nm { font-weight: 600; font-size: 12px; display: block; }
+.strip a .out { font-size: 10px; color: var(--mute); margin-top: 3px; font-family: ui-monospace, Menlo, monospace; }
+
+/* Phase block */
+.phase { background: var(--card); border: 1px solid var(--line); border-radius: 4px; margin-bottom: 28px; padding: 24px 28px; scroll-margin-top: 16px; }
+.phase .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.phase .top .id { font-size: 11px; color: var(--mute); font-variant-numeric: tabular-nums; }
+.phase h3 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.005em; }
+.phase .lead { font-size: 13.5px; color: var(--quote); margin: 8px 0 18px; line-height: 1.55; font-style: italic; }
+.phase .lead b { font-style: normal; font-weight: 600; color: var(--fg); }
+
+.tags { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+.tag { font-size: 10.5px; padding: 2px 7px; border-radius: 2px; color: white; font-weight: 500; }
+.tag-claude { background: var(--tag-claude); }
+.tag-codex { background: var(--tag-codex); }
+.tag-judge { background: var(--tag-judge); }
+.tag-coord { background: var(--tag-coord); }
+.tag-gate { background: var(--gate); }
+
+.phase .row { display: grid; grid-template-columns: 110px 1fr; gap: 14px; padding: 8px 0; border-top: 1px solid #f0eee6; align-items: start; font-size: 13px; }
+.phase .row:first-of-type { border-top: 0; padding-top: 0; }
+.phase .row .k { color: var(--mute); font-size: 11.5px; padding-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+.phase .row .v { font-size: 13px; line-height: 1.55; }
+.phase .row .v code { background: var(--pull); padding: 1px 4px; border-radius: 2px; font-size: 12px; }
+.phase .row .v ol, .phase .row .v ul { margin: 0; padding-left: 18px; }
+.phase .row .v ol li, .phase .row .v ul li { padding: 2px 0; }
+
+.phase .why { margin-top: 16px; padding: 12px 14px; background: var(--pull); border-radius: 3px; font-size: 12.5px; line-height: 1.55; }
+.phase .why .q { color: var(--quote); font-style: italic; display: block; margin-bottom: 4px; }
+.phase .why .src { color: var(--mute); font-size: 11px; }
+.phase .why .gloss { margin-top: 8px; font-size: 12.5px; }
+
+.phase .delete { margin-top: 12px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 3px; font-size: 12px; line-height: 1.5; background: var(--bg); }
+.phase .delete b { color: var(--fg); }
+
+/* Cuts section */
+.cuts { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 20px 24px; }
+.cuts table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cuts th, .cuts td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #f0eee6; vertical-align: top; }
+.cuts th { color: var(--mute); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+.cuts td:first-child { font-weight: 600; color: var(--cut); width: 200px; }
+.cuts td:last-child { color: var(--mute); font-size: 12px; }
+
+/* State tree */
+.tree { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 16px 20px; font: 12px/1.5 ui-monospace, Menlo, monospace; white-space: pre; overflow-x: auto; }
+.tree .c { color: var(--mute); }
+
+/* Sources */
+.sources { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 16px 20px; font-size: 12px; line-height: 1.55; }
+.sources .row { padding: 4px 0; }
+.sources b { color: var(--fg); font-weight: 600; }
+.sources .src { color: var(--mute); font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; }
+
+/* Loops */
+.loops { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 16px 20px; font-size: 13px; }
+.loops .loop { padding: 10px 0; border-top: 1px solid #f0eee6; }
+.loops .loop:first-child { border-top: 0; padding-top: 0; }
+.loops .loop h4 { margin: 0 0 4px; font-size: 13px; font-weight: 600; }
+.loops .loop p { margin: 0; font-size: 12px; color: var(--mute); }
+
+/* Actions */
+.actions { margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; gap: 8px; flex-wrap: wrap; }
+.actions button { border: 1px solid var(--line); background: var(--card); color: var(--fg); padding: 8px 14px; border-radius: 3px; cursor: pointer; font: inherit; font-size: 13px; }
+.actions button:hover { border-color: var(--accent); }
+.actions button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+textarea#export { width: 100%; min-height: 120px; margin-top: 12px; border: 1px solid var(--line); border-radius: 3px; padding: 10px; font: 12px/1.5 ui-monospace, Menlo, monospace; background: var(--card); display: none; }
+textarea#export.show { display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Long-Running Skill Pipeline — Design Review v3</h1>
+  <p class="sub">Seven phases, none of which survive the deletion test if cut. Backbone: jarrodwatts long-running-agent. Loops: trycycle. Style: Mat Pocock principle-first. v3 changes: Design re-added; Spec uses Pocock's LANGUAGE vocabulary (module / interface / seam / depth — what survived from DDD); reviewer prompt structure surfaced verbatim.</p>
+  <div class="principles">
+    <div class="principle">
+      <b>Sessions are durable event logs, not the model's context window.</b>
+      <span class="cite">Anthropic, Scaling Managed Agents, Apr 8 2026 — anthropic.com/engineering/managed-agents</span>
+    </div>
+    <div class="principle">
+      <b>Generation must be separated from evaluation — models grade themselves too generously.</b>
+      <span class="cite">Addy Osmani, Long-running Agents, Apr 28 2026 — addyosmani.com/blog/long-running-agents</span>
+    </div>
+    <div class="principle">
+      <b>Specs first, then implementation — separate ralphs. If specs are bad, results are meh.</b>
+      <span class="cite">HumanLayer, A Brief History of Ralph, Aug 2025 — humanlayer.dev/blog/brief-history-of-ralph</span>
+    </div>
+  </div>
+</header>
+
+<div class="note">
+  <b>Style.</b> Pocock principle-first: each phase leads with one italicized sentence stating the rule, then unpacks. <b>Deletion test</b> (Pocock, LANGUAGE.md): every phase ends with the answer to "if I delete this phase, what complexity vanishes?" If the answer is "nothing meaningful", it gets cut. Five phases were cut from v1 — see the cuts section below for what and why.
+</div>
+
+<h2>Pipeline (7 phases)</h2>
+<nav class="strip" style="grid-template-columns: repeat(7, 1fr);">
+  <a href="#p0"><span class="n">phase 0</span><span class="nm">Research</span><span class="out">research.md</span></a>
+  <a href="#p1"><span class="n">phase 1</span><span class="nm">Discover</span><span class="out">goal.md</span></a>
+  <a href="#p2"><span class="n">phase 2</span><span class="nm">Spec</span><span class="out">spec.md</span></a>
+  <a href="#p3"><span class="n">phase 3</span><span class="nm">Design</span><span class="out">design/</span></a>
+  <a href="#p4"><span class="n">phase 4</span><span class="nm">Plan</span><span class="out">tasks.json</span></a>
+  <a href="#p5"><span class="n">phase 5</span><span class="nm">Build</span><span class="out">commits</span></a>
+  <a href="#p6"><span class="n">phase 6</span><span class="nm">Review</span><span class="out">evidence/</span></a>
+</nav>
+
+<!-- PHASE 0 -->
+<section class="phase" id="p0">
+  <div class="top"><div><h3>Research</h3></div><div class="id">phase 0</div></div>
+  <p class="lead"><b>The orchestrator coordinates research; it never researches itself.</b> Parallel subagents go and look — externally first (best practices, prior art, pitfalls), then at the codebase, then a cross-reference pass to find gaps. The output is a contract for downstream phases.</p>
+  <div class="tags">
+    <span class="tag tag-coord">Coordinator (host model)</span>
+    <span class="tag tag-claude">Research-analyst × N (Claude, web)</span>
+    <span class="tag tag-codex">Explore × N (Haiku, codebase)</span>
+    <span class="tag tag-gate">User approval gate</span>
+  </div>
+  <div class="row"><div class="k">Trigger</div><div class="v">User states a goal in natural language.</div></div>
+  <div class="row"><div class="k">Workflow</div><div class="v"><ol>
+    <li><b>Classify intent.</b> TRIVIAL / REFACTOR / GREENFIELD / MID_SIZED / BUG_FIX. Drives question count and downstream rigor (smart-ralph). TRIVIAL skips this phase entirely.</li>
+    <li><b>Decompose into research topics.</b> One topic per subagent. No topic touches both web and codebase — separate concerns.</li>
+    <li><b>Dispatch in one message.</b> Parallel subagents: <code>research-analyst</code> for each external topic, <code>Explore</code> for each codebase concern.</li>
+    <li><b>Cross-reference pass.</b> Compare external best practices against current codebase. Flag gaps and deviations. <i>This is the architectural-shift mechanism.</i></li>
+    <li><b>Synthesize</b> partial files into one <code>research.md</code>. Approval gate: user reviews recommendations + open questions before phase 1 opens.</li>
+  </ol></div></div>
+  <div class="row"><div class="k">Output</div><div class="v"><code>.agent/research.md</code> — sections: Executive Summary, External Research (Best Practices / Prior Art / Pitfalls), Codebase Analysis, Quality Commands (lint/test/build), Verification Tooling, Feasibility, Recommendations, Open Questions, Sources. Quality Commands and Verification Tooling tables are <i>consumed by Plan and Review</i>.</div></div>
+  <div class="row"><div class="k">Boundary</div><div class="v">Coordinator never writes research content. Never makes architectural decisions here — those go in Spec. Research only surfaces options + evidence.</div></div>
+  <div class="why">
+    <span class="q">"The research command is a coordinator, not a researcher. It MUST delegate ALL research work to subagents... The coordinator never performs web searches, codebase analysis, or writes research.md content itself."</span>
+    <span class="src">smart-ralph references/parallel-research.md</span>
+    <div class="gloss">External-first cross-reference is what shifts architectural decisions. Without it, the build perpetuates whatever pattern the codebase already has — even when the industry has moved past it.</div>
+  </div>
+  <div class="delete"><b>Deletion test:</b> Cut Research and the Spec phase invents architectural decisions from training-data priors instead of from current best practice. The Beck "make change easy first" rule (gstack) cannot fire because the agent doesn't know what "easy" looks like in the current ecosystem. <b>Verdict: keep.</b></div>
+</section>
+
+<!-- PHASE 1 -->
+<section class="phase" id="p1">
+  <div class="top"><div><h3>Discover</h3></div><div class="id">phase 1</div></div>
+  <p class="lead"><b>The goal must be small enough to bound the build.</b> Research surfaced options; Discover narrows to one. The output is the only document that says what "done" means.</p>
+  <div class="tags">
+    <span class="tag tag-claude">Claude (conversation)</span>
+    <span class="tag tag-gate">User approval gate</span>
+  </div>
+  <div class="row"><div class="k">Trigger</div><div class="v">After Research is approved.</div></div>
+  <div class="row"><div class="k">Workflow</div><div class="v"><ol>
+    <li><b>Read research.md.</b> Don't re-ask anything research already answered.</li>
+    <li><b>Ask only what's ambiguous.</b> Question count gated by intent class from phase 0 (TRIVIAL: 0-1, GREENFIELD: 5-10).</li>
+    <li><b>Write goal.md.</b> Problem / Outcome / Acceptance Criteria (measurable) / Non-Goals.</li>
+    <li><b>Approval gate.</b> User edits or approves. After this, the orchestrator goes autonomous.</li>
+  </ol></div></div>
+  <div class="row"><div class="k">Output</div><div class="v"><code>.agent/goal.md</code>. Pocock cut: no Tech Stack here, that's a spec-level decision; no "Vision" or "Mission" sections.</div></div>
+  <div class="row"><div class="k">Boundary</div><div class="v">No design here. No tasks. Discover is the smallest possible artifact that bounds the build.</div></div>
+  <div class="why">
+    <span class="q">"ask the model to make incremental progress towards its goal while also leaving the environment in a clean state... the agent tended to try to do too much at once — essentially to attempt to one-shot the app."</span>
+    <span class="src">Anthropic, Effective harnesses for long-running agents, Nov 26 2025</span>
+    <div class="gloss">A bounded goal is the only thing that prevents one-shotting. "Build me a SaaS" fails; "build the auth flow with email + Google OAuth, Postgres-backed sessions, no MFA" succeeds.</div>
+  </div>
+  <div class="delete"><b>Deletion test:</b> Cut Discover and acceptance criteria live in someone's head. Review (phase 5) has nothing to verify against; subagent reports become "I implemented something" with no falsifier. <b>Verdict: keep.</b></div>
+</section>
+
+<!-- PHASE 2 -->
+<section class="phase" id="p2">
+  <div class="top"><div><h3>Spec</h3></div><div class="id">phase 2</div></div>
+  <p class="lead"><b>Specs and implementation are separate ralphs.</b> Spec writes user stories (extensive), decisions (paragraphs, not formal ADR ceremony), and the module list using Pocock's vocabulary. Critic reviews independently before the human gate opens.</p>
+  <div class="tags">
+    <span class="tag tag-claude">Claude (writer)</span>
+    <span class="tag tag-codex">Codex (critic)</span>
+    <span class="tag tag-gate">User approval gate (HTML)</span>
+  </div>
+  <div class="row"><div class="k">Trigger</div><div class="v">After goal.md is approved.</div></div>
+  <div class="row"><div class="k">Workflow</div><div class="v"><ol>
+    <li><b>Writer drafts spec.md.</b> Sections in order: <b>Concepts</b> (the words this system uses — see vocab below), <b>User Stories</b> (extensive — Pocock keeps this long), <b>Decisions</b> (each: one paragraph stating decision + why + alternative rejected), <b>Modules</b> (name + interface + what it hides + deletion-test answer).</li>
+    <li><b>Critic reviews independently.</b> Different model. Reads research.md + goal.md + draft spec. Returns: agreed / disagreed-on-X / missing-Y.</li>
+    <li><b>Resolve.</b> Writer addresses critic feedback. If critic and writer can't agree, surface to user.</li>
+    <li><b>HTML gate.</b> Human sees: decision diff (writer's choices side-by-side with critic's flags), module table with interface-vs-depth assessment, user story list, concepts table. Approve or edit.</li>
+  </ol></div></div>
+  <div class="row"><div class="k">Output</div><div class="v"><code>.agent/spec.md</code> — single file. No <code>adrs/</code> directory. Pocock: <i>"An ADR can be a single paragraph. Most ADRs won't need Status / Considered Options / Consequences sections."</i></div></div>
+  <div class="row"><div class="k">Boundary</div><div class="v">No tasks here. No file paths in the spec (Pocock: <i>"they may end up being outdated very quickly"</i>) except where a schema or state machine IS the decision.</div></div>
+  <div class="row"><div class="k">Vocab (what survived from DDD)</div><div class="v" style="font-size: 12.5px;"><b>Pocock retired</b> his <code>ubiquitous-language</code> skill and <i>"aggregate"</i> as a load-bearing artifact. He <b>kept</b> the substance under precise vocabulary in his <code>improve-codebase-architecture/LANGUAGE.md</code>:
+  <ul style="margin-top: 6px;">
+    <li><b>Module</b> — anything with an interface + implementation. Scale-agnostic. <i>Avoid</i>: unit, component, service.</li>
+    <li><b>Interface</b> — everything a caller must know to use the module correctly: signature + invariants + ordering + error modes + perf. <i>Avoid</i>: API, signature (too narrow).</li>
+    <li><b>Depth</b> — leverage at the interface. Behavior exercised per unit of interface learned. Deep = lots of behavior behind small interface.</li>
+    <li><b>Seam</b> (Feathers) — a place to alter behavior without editing in place. <i>Avoid</i>: boundary (overloaded with DDD's bounded context).</li>
+    <li><b>Adapter</b> — concrete thing that satisfies an interface at a seam. Role, not substance.</li>
+    <li><b>Context</b> — a slice of the system with its own language. (Pocock kept the concept; renamed from "bounded context".)</li>
+    <li><b>Deletion test</b> — imagine deleting the module. If complexity vanishes, it wasn't hiding anything. If complexity reappears across N callers, the module was earning its keep.</li>
+    <li><b>One adapter = hypothetical seam. Two adapters = real seam.</b> Don't introduce a seam unless something actually varies across it.</li>
+  </ul>
+  <p style="margin-top: 8px; color: var(--mute); font-size: 12px;">Spec phase uses these words. The "Modules" section of spec.md applies the deletion test to every proposed module — that's the bar.</p></div></div>
+  <div class="why">
+    <span class="q">"I had ralph write the specs from that, and I had another ralph build the implementation from the specs... if the specs are bad, the results will be meh."</span>
+    <span class="src">HumanLayer, A Brief History of Ralph, Aug 2025</span>
+    <div class="gloss">Two-phase spec/build is the cheapest way to get planning rigor without orchestration overhead. The critic role is Osmani's "separate generation from evaluation" applied at spec time — different model catches different blind spots.</div>
+  </div>
+  <div class="delete"><b>Deletion test:</b> Cut Spec and Plan (phase 4) writes tasks against an ambient understanding of what to build. Deep-module extraction doesn't happen, so Plan emits shallow modules with chatty interfaces — merge-conflict hell when phase 5 parallelizes. <b>Verdict: keep.</b></div>
+</section>
+
+<!-- PHASE 3 — DESIGN (re-added) -->
+<section class="phase" id="p3">
+  <div class="top"><div><h3>Design</h3></div><div class="id">phase 3</div></div>
+  <p class="lead"><b>Motion and interaction can't be described, only felt.</b> When the build has UI, the user must see it before approval — not read about it. Design produces a clickable HTML prototype the user navigates, not a written spec they read.</p>
+  <div class="tags">
+    <span class="tag tag-claude">Claude (designer)</span>
+    <span class="tag tag-gate">User approval gate (HTML — IS the artifact)</span>
+    <span style="font-size: 11px; color: var(--mute); align-self: center;">conditional: skip when no UI scope (gstack rule)</span>
+  </div>
+  <div class="row"><div class="k">Trigger</div><div class="v">After spec.md is approved <i>AND</i> spec contains UI scope. Skip for backend-only / library / pure-refactor work (gstack <code>plan-design-review</code> skip rule).</div></div>
+  <div class="row"><div class="k">Workflow</div><div class="v"><ol>
+    <li><b>Designer reads spec.md.</b> Extracts user stories that imply screens. One screen per primary user job — aggressively trimmed.</li>
+    <li><b>Drafts design tokens.</b> Colors, typography, spacing — small palette. <code>tokens.css</code>.</li>
+    <li><b>Drafts <code>screens.html</code></b> — single self-contained file, clickable navigation between screens, real-looking states (loading / empty / error / success). No real backend; mocked data inline.</li>
+    <li><b>HTML gate IS the artifact.</b> Human opens <code>screens.html</code>, clicks through, says approve / cut screens / merge screens. The user's edits to the HTML (or notes about what to change) are the spec input for Plan.</li>
+  </ol></div></div>
+  <div class="row"><div class="k">Output</div><div class="v"><code>.agent/design/screens.html</code> + <code>.agent/design/tokens.css</code>. Both consumed by Plan and Build subagents — workers reference the design when building UI tasks.</div></div>
+  <div class="row"><div class="k">Boundary</div><div class="v">No production code in screens.html — it's a mock. No state management, no real APIs. The design is a contract for what to build, not a head-start on the build itself.</div></div>
+  <div class="why">
+    <span class="q">"Motion and interaction can't be described, only felt."</span>
+    <span class="src">Thariq Shihipar, html-effectiveness</span>
+    <div class="gloss">Markdown specs of UI hide failures that show up the moment a human clicks. Catching "this flow is wrong" at design time costs minutes; catching it after Build phase 5 costs hours of subagent work and an 8-round Review loop.</div>
+  </div>
+  <div class="delete"><b>Deletion test:</b> Cut Design and UI scope decisions live in the Spec's user-story prose. Build phase produces UI subagents will read prose and guess; Review phase has no visual reference to compare against. The "is this the right flow" question gets discovered at the Review HTML gate (phase 6) when the cost to fix is 50× higher. <b>Verdict: keep, with skip-when-no-UI rule.</b></div>
+</section>
+
+<!-- PHASE 4 -->
+<section class="phase" id="p4">
+  <div class="top"><div><h3>Plan</h3></div><div class="id">phase 4</div></div>
+  <p class="lead"><b>Make the change easy, then make the easy change.</b> Tasks are atomic (≤3 files, ≤50 LOC, single test). Refactors and behavior changes never share a task. The plan-editor loop runs up to 5 rounds — bugs found here cost 10× less than bugs found in code.</p>
+  <div class="tags">
+    <span class="tag tag-claude">Claude (planner)</span>
+    <span class="tag tag-codex">Codex (critic, fresh per round)</span>
+    <span class="tag tag-judge">Plan-editor loop ×5</span>
+    <span class="tag tag-gate">User approval gate (HTML)</span>
+  </div>
+  <div class="row"><div class="k">Trigger</div><div class="v">After spec.md is approved (and design/ exists if UI scope).</div></div>
+  <div class="row"><div class="k">Workflow</div><div class="v"><ol>
+    <li><b>Planner decomposes.</b> Spec + design (if present) → atomic tasks. Each task: ≤3 files, ≤50 LOC, single named acceptance test, single dependency direction.</li>
+    <li><b>Tag each task</b> as <code>refactor</code> or <code>behavior</code> (Beck/gstack rule — never both in one task).</li>
+    <li><b>Build the DAG.</b> <code>depends_on</code> per task. Parallelizable tasks marked. Max 5 in flight at any time (jarrodwatts).</li>
+    <li><b>Plan-editor loop.</b> Fresh planner per round critiques the current plan; returns READY or REVISED. Up to 5 rounds. If still REVISED after round 5: stop, dispatch analyzer subagent for why convergence failed, surface to user (trycycle).</li>
+    <li><b>HTML gate.</b> Human sees: task DAG visualization, refactor-vs-behavior balance, depth/width metrics, parallel-wave estimate. Approve or trim.</li>
+  </ol></div></div>
+  <div class="row"><div class="k">Output</div><div class="v"><code>.agent/tasks.json</code> — array of task objects with <code>id</code>, <code>kind</code> (refactor|behavior), <code>files</code>, <code>acceptance</code>, <code>depends_on</code>, <code>estimated_minutes</code>.</div></div>
+  <div class="row"><div class="k">Boundary</div><div class="v">No code in the plan. No "TODO: implement X" tasks — every task has a falsifiable acceptance signal. No bulk test plans (Pocock: <i>"tests written in bulk test imagined behavior"</i>).</div></div>
+  <div class="why">
+    <span class="q">"Make the change easy, then make the easy change — Refactor first, implement second. Never structural + behavioral changes simultaneously (Beck)."</span>
+    <span class="src">gstack plan-eng-review/SKILL.md (Cognitive Patterns #13)</span>
+    <div class="gloss">Mixing refactor and behavior in one task makes the diff unreviewable and the failure mode unattributable. The 5-round plan-editor cap comes from trycycle — diminishing returns past round 3, hard stop at 5.</div>
+  </div>
+  <div class="delete"><b>Deletion test:</b> Cut Plan and Build (phase 5) gets a spec instead of tasks — workers immediately conflict because nothing serializes the order. The 5-parallel cap (jarrodwatts) cannot be enforced. Plan-editor loop has nothing to operate on. <b>Verdict: keep.</b></div>
+</section>
+
+<!-- PHASE 5 -->
+<section class="phase" id="p5">
+  <div class="top"><div><h3>Build</h3></div><div class="id">phase 5</div></div>
+  <p class="lead"><b>One task per worker invocation. Commit, push, promise NEXT, stop.</b> Workers run in isolated worktrees. Models alternate Claude/Codex per task — the reviewer in phase 5 will be the opposite model.</p>
+  <div class="tags">
+    <span class="tag tag-coord">Coordinator (host)</span>
+    <span class="tag tag-claude">Worker × ≤5 (Claude or Codex)</span>
+  </div>
+  <div class="row"><div class="k">Trigger</div><div class="v">After tasks.json is approved. Continuous: as soon as a task's <code>depends_on</code> is satisfied, it's eligible.</div></div>
+  <div class="row"><div class="k">Workflow</div><div class="v"><ol>
+    <li><b>Coordinator picks the next eligible task.</b> Re-reads tasks.json + progress.md before every dispatch (jarrodwatts: state files are working memory).</li>
+    <li><b>Spawns a worker subagent</b> in an isolated git worktree. Model assignment: alternate Claude/Codex; record which.</li>
+    <li><b>Worker writes the test first</b> (TDD), then the code. Runs <code>make check && make test</code>. Captures evidence (screenshot/golden/trace) into <code>.agent/evidence/&lt;task-id&gt;/</code>.</li>
+    <li><b>Worker commits, pushes, outputs</b> <code>&lt;promise&gt;NEXT&lt;/promise&gt;</code>, <b>and stops</b>. No multi-task workers.</li>
+    <li><b>Coordinator updates progress.md</b> with task result + which model + commit hash + evidence path.</li>
+  </ol></div></div>
+  <div class="row"><div class="k">Output</div><div class="v">Git commits + <code>.agent/evidence/&lt;task-id&gt;/</code> + <code>.agent/progress.md</code> updates.</div></div>
+  <div class="row"><div class="k">Boundary</div><div class="v">Worker never decides scope. Never modifies files outside its declared <code>files</code>. Never weakens or deletes tests to reach green (trycycle). Never starts the next task itself.</div></div>
+  <div class="why">
+    <span class="q">"HARD STOP: Implement exactly ONE feature per invocation. Commit, push, output promise, stop."</span>
+    <span class="src">ralph-to-ralph build-prompt.md:190</span>
+    <div class="gloss">Single-task-per-invocation is what makes the parallel coordinator pattern work. If a worker chains tasks, it accumulates state, which defeats the "specialized subagents with clean context" rule (Anthropic, effective context engineering).</div>
+  </div>
+  <div class="delete"><b>Deletion test:</b> Cut Build and you have nothing. (Trivially survives.) The interesting question is: would removing the <i>HARD STOP</i> constraint matter? Yes — a worker that chains tasks reads more files, accumulates context, and produces less reviewable diffs. The discipline is what makes the pipeline work. <b>Verdict: keep, with HARD STOP discipline.</b></div>
+</section>
+
+<!-- PHASE 6 -->
+<section class="phase" id="p6">
+  <div class="top"><div><h3>Review</h3></div><div class="id">phase 6</div></div>
+  <p class="lead"><b>If you haven't seen the code do the right thing, the code doesn't work.</b> A judge subagent — opposite model from the worker — verifies against runtime evidence. Trycycle post-impl loop runs up to 8 rounds. Test ratchet: never accept weakened tests as green.</p>
+  <div class="tags">
+    <span class="tag tag-judge">Judge (opposite model)</span>
+    <span class="tag tag-judge">Post-impl review loop ×8</span>
+    <span class="tag tag-gate">User approval gate (HTML, per milestone)</span>
+  </div>
+  <div class="row"><div class="k">Trigger</div><div class="v">After every task commit. Per-task review is automatic. Per-milestone HTML gate is where the human approves.</div></div>
+  <div class="row"><div class="k">Workflow</div><div class="v"><ol>
+    <li><b>Judge reads</b> the task spec, the diff, and the evidence folder. Different model from the worker — Osmani: <i>models grade themselves too generously</i>.</li>
+    <li><b>Verify against runtime evidence.</b> Run the test, open the screenshot, replay the API call. Husain: <i>telemetry tells the agent whether it worked</i>.</li>
+    <li><b>Test-ratchet check.</b> Diff old vs new test files; flag any deletions or weakened assertions. (Osmani's anti-cheat mechanism.)</li>
+    <li><b>If issues:</b> resume the same worker (trycycle persistent session) with structured feedback. Up to 8 rounds. Stop and dispatch analyzer if not converged.</li>
+    <li><b>Per-milestone HTML gate</b> — human sees evidence wall: screenshots, video thumbs, test results, judge verdicts. Approve or send fixes. (Willison: <i>one significant change at a time</i> — humans approve milestones, not every task.)</li>
+  </ol></div></div>
+  <div class="row"><div class="k">Output</div><div class="v"><code>.agent/evidence/&lt;task-id&gt;/</code> contains: <code>before.png</code>, <code>after.png</code>, <code>flow.webm</code> (≤30s) for UI; <code>request.http</code>, <code>response.json</code>, <code>golden.json</code> for API; <code>report.md</code> with judge verdict + quoted assertions for pure logic.</div></div>
+  <div class="row"><div class="k">Boundary</div><div class="v">Judge never modifies code (only the worker does). Judge never weakens its own criteria. The HTML gate is the only place humans approve completed work — no per-task human review.</div></div>
+  <div class="why">
+    <span class="q">"separate generation from evaluation matters because models grade their own work too generously... a test ratchet sits in the prompt to stop the very common failure of an agent deleting failing tests."</span>
+    <span class="src">Addy Osmani, Long-running Agents, Apr 28 2026</span>
+    <div class="gloss">8 rounds (vs Plan's 5) because code fixes are slower than text edits — same wall-time budget, more iterations available. Opposite-model judge is ralph-to-ralph's Claude-builds-Codex-QAs principle applied per-task.</div>
+  </div>
+  <div class="delete"><b>Deletion test:</b> Cut Review and the build rots silently. Workers report success, no one verifies, the orchestrator updates progress.md based on worker self-reports, you wake up to a green build that doesn't actually work. The Willison principle — <i>"a computer can never be held accountable; that's your job as the human"</i> — is unenforceable without a runtime-grounded judge. <b>Verdict: keep, this is the load-bearing phase.</b></div>
+
+  <div class="row" style="margin-top: 18px; border-top: 2px solid var(--accent); padding-top: 14px;"><div class="k" style="color: var(--fg); text-transform: none; letter-spacing: 0; font-weight: 600; font-size: 13px;">Reviewer prompt structure</div><div class="v">The judge runs this prompt verbatim each round. Source: <code>trycycle/subagents/prompt-post-impl-review.md</code>.</div></div>
+
+  <div style="background: #1a1a1a; color: #e8e6e0; padding: 16px 20px; border-radius: 4px; font: 11.5px/1.55 ui-monospace, Menlo, monospace; margin-top: 12px; overflow-x: auto;">
+<b style="color: #c97f3a;">[Identity]</b>
+You are an independent code reviewer performing a detailed review.
+Review the diff between {WORKTREE_PATH} and merge base against:
+  - {IMPLEMENTATION_PLAN_PATH}  (finalized plan from phase 4)
+  - {TEST_PLAN_PATH}            (finalized test plan)
+
+<b style="color: #c97f3a;">[Inputs to read first]</b>
+- The finalized implementation plan
+- The finalized test plan
+- Relevant files and repository context
+- Read-only git inspection commands as needed
+- Do NOT modify files
+
+<b style="color: #c97f3a;">[Review for]</b>
+- Mismatches: implementation vs plan
+- Mismatches: tests vs test plan
+- Correctness and logic issues
+- Missing edge cases
+- Security and performance problems
+- Error-handling gaps
+- Missing or incorrect tests
+- Mismatches: implementation vs intended behavior
+- Doing things the right way, without taking shortcuts
+- <b style="color: #b54a4a;">SKIPPED TESTS — run the test suite yourself.</b>
+  ANY skipped test is a critical blocking issue,
+  regardless of why (env gating, missing tools, missing env vars
+  — none of these are acceptable reasons).
+  Tests that were weakened, deleted, or had assertions loosened
+  to pass are also critical blocking issues.
+
+<b style="color: #c97f3a;">[Output — exactly one block, no prose around it]</b>
+&lt;review_observations_json&gt;
+{
+  "status": "no_issues" | "issues_found",
+  "summary": "short summary",
+  "observations": [
+    {
+      "id": "R1",
+      "severity": "critical" | "major" | "minor" | "nit",
+      "category": "implementation_plan_mismatch" | "test_plan_mismatch"
+                | "correctness" | "edge_case" | "security"
+                | "performance" | "error_handling" | "missing_test"
+                | "behavior" | "other",
+      "expected": "what should have happened",
+      "observed": "what actually happened",
+      "where": { "file": "rel/path", "line": 123, "symbol": "name" },
+      "evidence": {
+        "commands": ["exact read-only commands you ran"],
+        "stdout_excerpt": "...", "stderr_excerpt": "...",
+        "traceback_excerpt": "...", "artifacts": ["paths"],
+        "notes": "..."
+      }
+    }
+  ]
+}
+&lt;/review_observations_json&gt;
+
+<b style="color: #c97f3a;">[Rules]</b>
+- Preserve observed evidence. Prefer command output, artifacts,
+  and precise mismatches over advice.
+- Include where.file and where.line when possible.
+- Do NOT invent command output, tracebacks, or artifacts
+  you did not actually inspect.
+- Use status:"no_issues" with empty observations only when
+  no issues were found.</div>
+
+  <div class="row" style="margin-top: 16px;"><div class="k">Loop wrapper</div><div class="v"><ol>
+    <li><b>Round 1:</b> Coordinator dispatches a fresh judge subagent (different model from the worker that built this task). Judge returns the JSON block above.</li>
+    <li><b>Extract.</b> Coordinator runs <code>review_observations.py extract</code> to get authoritative <code>blocking_issue_count</code>, <code>has_blocking_issues</code>, <code>review_status</code>. If extraction fails, stop and surface — never guess.</li>
+    <li><b>If blocking_issue_count == 0:</b> task complete. Coordinator updates progress.md, closes the worker, moves on.</li>
+    <li><b>If blocking issues remain:</b> resume the <i>same worker subagent</i> (persistent session) with the JSON observations as fix input. Worker fixes, commits. Then a <i>fresh</i> judge runs round 2.</li>
+    <li><b>Stop conditions:</b> blocking_issue_count == 0, OR 8 rounds completed.</li>
+    <li><b>If still red after round 8:</b> dispatch an analyzer subagent to review past sessions and hypothesize why convergence failed. Surface to user with the analysis. <b>Do NOT loop further.</b></li>
+  </ol></div></div>
+
+  <div class="row"><div class="k">Why this shape</div><div class="v" style="font-size: 12.5px;">
+    <ul style="margin: 0;">
+      <li><b>Fresh judge per round</b> — same judge across rounds anchors on its first read; fresh judge re-derives. Pattern from trycycle.</li>
+      <li><b>Persistent worker</b> across rounds — worker has the context of what it just tried; restarting loses that. Pattern from trycycle.</li>
+      <li><b>Different model judge vs worker</b> — Osmani: <i>"models grade their own work too generously"</i>. Claude-built tasks reviewed by Codex; Codex-built reviewed by Claude.</li>
+      <li><b>Structured JSON output</b> — orchestrator parses programmatically. No "the reviewer said it's mostly fine" subjective drift.</li>
+      <li><b>Explicit skipped-test rule</b> — single most common cheat in autonomous loops. Made critical-blocking by name.</li>
+      <li><b>8 rounds, then analyzer</b> — past round 5 you're usually thrashing; the analyzer surface gives the human enough information to intervene without dumping 8 round transcripts.</li>
+    </ul>
+  </div></div>
+</section>
+
+<h2>What was cut from v1, and why</h2>
+<div class="cuts">
+  <table>
+    <thead><tr><th>Phase cut</th><th>Why cut</th><th>Source for the cut</th></tr></thead>
+    <tbody>
+      <tr><td>Domain (as DDD phase)</td><td>Cut as a separate phase. <b>Substance kept</b> — Pocock retired the <i>vocabulary</i> (ubiquitous-language, aggregate, bounded-context) but kept Module/Interface/Seam/Depth/Adapter/Context/Deletion-test in his <code>improve-codebase-architecture/LANGUAGE.md</code>. These are now used inside Spec phase, not as their own phase.</td><td>mattpocock/skills/improve-codebase-architecture/LANGUAGE.md</td></tr>
+      <tr><td>Architect (separate)</td><td>Folded into Spec. Pocock: ADRs are <i>"a single paragraph. Most ADRs won't need Status/Considered Options/Consequences."</i> A separate phase produces a directory of ceremonial files; one Spec doc with paragraph-decisions is reviewable in one sitting.</td><td>mattpocock/skills/grill-with-docs/ADR-FORMAT.md</td></tr>
+      <tr><td>Standards (separate)</td><td>Folded into Plan. Standards exist to constrain what tasks can do — reviewing them with the task DAG visible catches contradictions that a separate Standards gate would miss.</td><td>jarrodwatts standards.md (template inlined into Plan)</td></tr>
+      <tr><td>Verify (separate)</td><td>Built into Review. Verification IS the judge's job, not a separate phase. Husain: <i>"Documentation tells the agent what to do. Telemetry tells it whether it worked."</i></td><td>hamel.dev evals-skills-for-coding-agents</td></tr>
+      <tr><td>Spec separate from Plan</td><td>Kept as separate phases — but spec is one file (no ADR sprawl), plan is one file (no slices/ directory unless intent class is GREENFIELD). Pocock: <i>"Create files lazily — only when you have something to write."</i></td><td>mattpocock/skills/grill-with-docs/CONTEXT-FORMAT.md</td></tr>
+      <tr><td><b>v3 reversal:</b> Design re-added</td><td>v2 cut Design — wrong. Visual review needs visual artifact (Thariq). Kept as phase 3 with gstack skip-by-scope rule (skipped for backend-only / library / refactor; runs for any UI scope).</td><td>thariqs.github.io/html-effectiveness + gstack plan-design-review/SKILL.md:1485-1487</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>State files (.agent/)</h2>
+<div class="tree">.agent/
+├── research.md                     <span class="c"># phase 0 — Quality Commands + Verification Tooling = downstream contract</span>
+├── goal.md                         <span class="c"># phase 1 — bounded outcome + measurable acceptance</span>
+├── spec.md                         <span class="c"># phase 2 — concepts (Pocock vocab) + user stories + decisions + modules</span>
+├── design/                         <span class="c"># phase 3 — only when UI scope (gstack skip rule)</span>
+│   ├── screens.html                <span class="c"># clickable prototype, single self-contained file</span>
+│   └── tokens.css                  <span class="c"># colors, typography, spacing</span>
+├── tasks.json                      <span class="c"># phase 4 — atomic DAG, refactor|behavior tagged</span>
+├── progress.md                     <span class="c"># phase 5 — re-read before every dispatch</span>
+└── evidence/
+    └── &lt;task-id&gt;/                  <span class="c"># phase 6 — runtime-grounded proof</span>
+        ├── before.png, after.png
+        ├── flow.webm  (≤30s)
+        ├── request.http, response.json, golden.json
+        └── report.md
+</div>
+
+<h2>Trycycle loops (where they sit)</h2>
+<div class="loops">
+  <div class="loop">
+    <h4>Plan-editor loop · phase 4 (Plan), max 5 rounds</h4>
+    <p>Fresh planner subagent per round. Returns <code>Plan verdict: READY|REVISED</code>. Stops with user surface if not converged. Cheap iterations on text edits — front-loaded here because plan bugs are 10× cheaper than code bugs.</p>
+  </div>
+  <div class="loop">
+    <h4>Post-implementation review loop · phase 6 (Review), max 8 rounds</h4>
+    <p>Fresh judge per round (opposite model from worker). Returns structured <code>blocking_issue_count</code>. Persistent worker session for fixes. 8 rounds because code iterations are slower than text — same wall-time, more rounds.</p>
+  </div>
+</div>
+
+<h2>Source-by-source contributions</h2>
+<div class="sources">
+  <div class="row"><b>jarrodwatts long-running-agent</b> — backbone orchestrator: <code>.agent/</code> as working memory (re-read before every decision); worktree-isolated subagents; max 5 parallel.</div>
+  <div class="row"><b>smart-ralph</b> — phase 0 Research: coordinator/teammate split; external-first cross-reference; intent classification gating question count; Quality Commands as downstream contract.</div>
+  <div class="row"><b>ralph-to-ralph</b> (your repo) — HARD STOP one-feature-per-invocation discipline; evidence/ folder pattern; needs_structure flag for vertical slicing in GREENFIELD intent.</div>
+  <div class="row"><b>trycycle</b> — both loops (plan-editor 5, post-impl 8); fresh-subagent-per-round; test-weakening prohibition; analyzer subagent on non-convergence.</div>
+  <div class="row"><b>obra/superpowers</b> — hard gate between design and execution: no implementation until user approves spec.</div>
+  <div class="row"><b>gstack</b> — Beck rule "make the change easy, then make the easy change" applied at task tagging (refactor vs behavior, never both); skip-by-scope rules for optional phases.</div>
+  <div class="row"><b>Mat Pocock</b> — style: bold one-liner principle + gloss + deletion test; deprecated <i>ubiquitous-language</i> as a skill but <b>kept the substance</b> in <code>improve-codebase-architecture/LANGUAGE.md</code> (Module/Interface/Seam/Depth/Adapter/Context/Deletion-test); ADR-as-paragraph; create files lazily; user stories long, ceremony short.</div>
+  <div class="row"><b>Addy Osmani</b> — separate generation from evaluation; test ratchet to stop test-deletion; "just enough to guide without overwhelming"; Planners/Workers/Judges role split.</div>
+  <div class="row"><b>Anthropic engineering</b> — sessions are durable event logs; specialized subagents with clean context; incremental progress, never one-shot.</div>
+  <div class="row"><b>Simon Willison</b> — "if you haven't seen the code do the right thing yourself, that code doesn't work"; humans review one significant change at a time.</div>
+  <div class="row"><b>Hamel Husain</b> — verification grounded in runtime evidence (telemetry, traces, screenshots), not agent claims.</div>
+  <div class="row"><b>Geoffrey Huntley</b> — Ralph is a bash loop. Every fancier orchestrator must justify itself against this baseline.</div>
+  <div class="row"><b>Thariq Shihipar</b> — HTML at human gates because diffs/DAGs/screen prototypes are spatial; markdown flattens them.</div>
+</div>
+
+<div class="actions">
+  <button class="primary" onclick="exportDecision('approve')">Looks right — scaffold the skill</button>
+  <button onclick="exportDecision('changes')">Needs changes</button>
+  <button onclick="exportDecision('cut')">Cut more — still too heavy</button>
+  <button onclick="exportDecision('test')">Test on a subagent before committing</button>
+</div>
+<textarea id="export"></textarea>
+
+</div>
+
+<script>
+function exportDecision(kind) {
+  const ta = document.getElementById('export');
+  ta.classList.add('show');
+  const stamps = {
+    'approve': 'APPROVE — scaffold skills/long-running-skill-pipeline/.\n\nNotes:\n- [any constraints]',
+    'changes': 'REQUEST CHANGES.\n\n1. Phase X — change Y because Z\n2. ...',
+    'cut': 'CUT MORE.\n\nThese still feel like ceremony:\n- Phase X — because [no falsifiable value]\n- ...\n\nKeep:\n- The load-bearing phases [list]',
+    'test': 'TEST FIRST.\n\nRun a subagent through phases 0-3 on a small real task. Compare:\n- with this pipeline\n- without (just one Claude session)\nReport what changed in observed behavior.\n\nTask to use: [one-line description]'
+  };
+  ta.value = stamps[kind];
+  ta.focus();
+  ta.select();
+}
+</script>
+</body>
+</html>

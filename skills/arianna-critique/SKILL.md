@@ -1,6 +1,6 @@
 ---
 name: arianna-critique
-description: Fresh-subagent critic for Spec (Phase 2) and Plan (Phase 4) auto-critic loops in the arianna-magic pipeline. Use when arianna-magic dispatches a critique round, or the user asks to "auto-critique this spec", "run the planner critic loop", "READY or REVISED on this draft". Stateless per round; verdict is READY or REVISED with reasoning; max 3 rounds at Spec, max 5 at Plan. Do not use for interactive grilling — that is arianna-grill.
+description: Fresh-subagent critic for Spec (Phase 2) and Plan (Phase 4) auto-critic loops in the arianna-loop pipeline. Use when arianna-loop dispatches a critique round, or the user asks to "auto-critique this spec", "run the planner critic loop", "READY or REVISED on this draft". Stateless per round; verdict is READY or REVISED with reasoning; max 3 rounds at Spec, max 5 at Plan. Do not use for interactive grilling — that is arianna-grill.
 ---
 
 # arianna-critique
@@ -9,41 +9,13 @@ A fresh subagent runs one round and returns one verdict. The orchestrator owns t
 
 ## Workflow
 
-```dot
-digraph arianna_critique {
-    rankdir=TB;
+1. Identify the phase (Spec at 2b or Plan at 4b). Load ONLY the artifact for that phase plus the read-list below; refuse to read prior critique rounds.
+2. If your inputs include a prior `critique-round-N.json`, the dispatch is contaminated — return `status: "blocked"` and stop.
+3. Walk the phase checklist top to bottom.
+4. If every row passes, return `verdict: "READY"` with `specific_issues: []`.
+5. If any row fails, emit `specific_issues[]` (one entry per failure: `location`, `issue`, `suggested_fix`) and return `verdict: "REVISED"`.
 
-    dispatch [shape=oval label="orchestrator dispatch\n(Phase 2b or 4b, round N)"];
-    phase    [shape=diamond label="phase?"];
-    load_spec  [shape=box label="load ONLY .agent/spec.md\n+ research.md, goal.md,\nCONTEXT.md, docs/adr/"];
-    load_plan  [shape=box label="load ONLY .agent/tasks.json\n+ spec.md, research.md"];
-    contam   [shape=diamond label="prior critique-round-N.json\nin reading list?"];
-    refuse   [shape=box style=filled fillcolor="#ffcccc" label="status: blocked\n(contaminated spawn)"];
-    scan     [shape=box label="walk phase checklist top to bottom"];
-    failed   [shape=diamond label="any checklist row fails?"];
-    issues   [shape=box label="emit specific_issues[]:\nlocation + issue + suggested_fix\n(one entry per failure)"];
-    ready    [shape=box style=filled fillcolor="#ccffcc" label="verdict: READY\nspecific_issues: []"];
-    revised  [shape=box style=filled fillcolor="#ffffcc" label="verdict: REVISED\nwith specific_issues[]"];
-    out      [shape=oval label="return JSON, stop"];
-
-    dispatch -> phase;
-    phase    -> load_spec [label="spec"];
-    phase    -> load_plan [label="plan"];
-    load_spec -> contam;
-    load_plan -> contam;
-    contam   -> refuse [label="yes"];
-    contam   -> scan   [label="no"];
-    scan     -> failed;
-    failed   -> issues  [label="yes"];
-    failed   -> ready   [label="no"];
-    issues   -> revised;
-    refuse   -> out;
-    ready    -> out;
-    revised  -> out;
-}
-```
-
-Fresh per round: each spawn loads the current draft cold. A critic who already argued the prior round defends the prior verdict; that is theatre, not critique. The orchestrator dispatches a clean subagent every round and never passes your prior JSON forward — if you find it in your inputs, the dispatch is broken and you return `status: "blocked"`.
+Fresh per round: each spawn loads the current draft cold. A critic who already argued the prior round defends the prior verdict; that is theatre, not critique. The orchestrator dispatches a clean subagent every round and never passes your prior JSON forward — if you find it in your inputs, the dispatch is broken.
 
 ## What you read
 
@@ -144,4 +116,4 @@ You do not count rounds. You report the current round in the JSON and apply the 
 
 ## References
 
-The writers you critique are siblings: `arianna-spec` writes `.agent/spec.md` at Phase 2a, `arianna-plan` writes `.agent/tasks.json` at Phase 4a. The interactive successor on both phases is `arianna-grill`; you do not invoke it. The orchestrator (`arianna-magic`) owns the loop counter, the round cap, and the gate escalation.
+The writers you critique are siblings: `arianna-spec` writes `.agent/spec.md` at Phase 2a, `arianna-plan` writes `.agent/tasks.json` at Phase 4a. The interactive successor on both phases is `arianna-grill`; you do not invoke it. The orchestrator (`arianna-loop`) owns the loop counter, the round cap, and the gate escalation.

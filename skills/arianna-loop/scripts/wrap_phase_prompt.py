@@ -18,7 +18,7 @@ from pathlib import Path
 
 PHASE_ROLES = {
     "research": ("arianna-research", "Phase 0 — Research"),
-    "discover": ("arianna-magic",    "Phase 1 — Discover (orchestrator self-runs)"),
+    "discover": ("arianna-loop",    "Phase 1 — Discover (orchestrator self-runs)"),
     "spec":     ("arianna-spec",     "Phase 2 — Spec"),
     "critique": ("arianna-critique", "Auto-critic round"),
     "grill":    ("arianna-grill",    "Interactive grill"),

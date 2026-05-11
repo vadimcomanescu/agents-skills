@@ -1,6 +1,6 @@
 ---
 name: arianna-spec
-description: Spec writer for Phase 2 of the arianna-magic pipeline. Use when arianna-magic dispatches Phase 2 (Spec), or the user asks to "write a spec", "draft requirements", "synthesize what we know", "produce spec.md". Uses the core vocabulary (Module, Interface, Seam, Depth, Adapter, Context, Deletion-test) and writes spec.md as decisions-as-paragraphs. Do not use for interactive requirement elicitation — that is arianna-grill.
+description: Spec writer for Phase 2 of the arianna-loop pipeline. Use when arianna-loop dispatches Phase 2 (Spec), or the user asks to "write a spec", "draft requirements", "synthesize what we know", "produce spec.md". Uses the core vocabulary (Module, Interface, Seam, Depth, Adapter, Context, Deletion-test) and writes spec.md as decisions-as-paragraphs. Do not use for interactive requirement elicitation — that is arianna-grill.
 ---
 
 # arianna-spec
@@ -13,48 +13,15 @@ If your draft asks the user a question, you are doing `arianna-grill`'s job. Rem
 
 ## Workflow
 
-```dot
-digraph arianna_spec {
-    rankdir=TB;
-
-    read    [shape=box    label="read research.md + goal.md\n+ CONTEXT.md + docs/adr/ + codebase"];
-    concepts[shape=box    label="extract candidate concepts\n→ Concepts section"];
-    stories [shape=box    label="draft user stories\n(actor / want / so-that)"];
-    inv     [shape=box    label="inventory candidate modules"];
-    deltest [shape=diamond label="deletion test:\ndoes complexity vanish?"];
-    drop    [shape=box    label="drop or fold into a sibling"];
-    deep    [shape=diamond label="deep enough?\n(small interface, real behaviour)"];
-    widen   [shape=box    label="widen behaviour\nOR narrow interface"];
-    iface   [shape=box    label="write Interface:\nsignature + invariants + ordering\n+ error modes + config + perf"];
-    seam    [shape=box    label="name the Seam\n(where Adapters plug in)"];
-    decide  [shape=box    label="write Decisions as paragraphs\n(what / what-not / why)"];
-    defer   [shape=diamond label="open question?"];
-    block   [shape=box    label="mark Deferred\nwith an unblocker"];
-    adr     [shape=diamond label="hard-to-reverse\nAND surprising\nAND real trade-off?"];
-    mark    [shape=box    label="tag <!-- adr-candidate -->"];
-    check   [shape=diamond label="self-check:\nany question to user?\nany untested assumption?"];
-    fix     [shape=box    label="answer it yourself\nor mark Deferred"];
-    write   [shape=box    style=filled fillcolor=lightgreen label="write .agent/spec.md"];
-
-    read -> concepts -> stories -> inv -> deltest;
-    deltest -> drop   [label="yes"];
-    deltest -> deep   [label="no"];
-    drop    -> inv;
-    deep    -> widen  [label="no"];
-    deep    -> iface  [label="yes"];
-    widen   -> deep;
-    iface   -> seam   -> decide -> defer;
-    defer   -> block  [label="yes"];
-    defer   -> adr    [label="no"];
-    block   -> adr;
-    adr     -> mark   [label="all three"];
-    adr     -> check  [label="otherwise"];
-    mark    -> check;
-    check   -> fix    [label="yes"];
-    check   -> write  [label="no"];
-    fix     -> check;
-}
-```
+1. Read `.agent/research.md`, `.agent/goal.md`, any existing repo-root `CONTEXT.md` and `docs/adr/*.md`, and the codebase regions the goal touches.
+2. Extract candidate concepts (domain terms appearing more than once or anchoring a user story) → Concepts section.
+3. Draft user stories (actor / want / so-that) → User Stories section. Stories cite Concepts by name only.
+4. Inventory candidate modules. Apply the deletion test: if complexity vanishes when you imagine deleting the module, drop it or fold it into a sibling. For modules that survive, check depth — small interface fronting real behaviour. Widen behaviour or narrow interface as needed.
+5. For each surviving module write the Module sub-section: Name, Interface (signature + invariants + ordering + error modes + config + perf), Seam, depth justification, deletion-test outcome.
+6. Write Decisions as paragraphs (what / what-not / why). For each decision, tag `<!-- adr-candidate -->` only when **all three** of hard-to-reverse, surprising, and real trade-off are true.
+7. Mark every open question as `Deferred:` with a named unblocker. No floating questions.
+8. Self-check: are there any questions to the user? Any untested assumption? Answer it yourself from the inputs or mark Deferred. Do not leave a question for arianna-grill to discover.
+9. Write `.agent/spec.md`.
 
 The graph is the contract. The text below is supplement.
 
@@ -151,6 +118,6 @@ The last block of your reply is a single JSON object:
 
 ## References
 
-- `../arianna-magic/SKILL.md` — orchestrator that dispatches you and the rest of Phase 2.
+- `../arianna-loop/SKILL.md` — orchestrator that dispatches you and the rest of Phase 2.
 - `../arianna-critique/SKILL.md` — the stateless critic that runs after you, up to three rounds.
 - `../arianna-grill/SKILL.md` — the interactive grill that runs after critique converges and owns the user interview.

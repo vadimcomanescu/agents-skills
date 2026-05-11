@@ -1,6 +1,6 @@
 ---
 name: arianna-research
-description: Research coordinator for Phase 0 of the arianna-magic pipeline. Use when arianna-magic dispatches Phase 0, or the user asks to "research before building", "do a literature review", "find prior art", "check what's out there". Dispatches parallel research subagents, external-first then codebase, writes .agent/research.md. Do not use for one-shot Q&A without a build attached.
+description: Research coordinator for Phase 0 of the arianna-loop pipeline. Use when arianna-loop dispatches Phase 0, or the user asks to "research before building", "do a literature review", "find prior art", "check what's out there". Dispatches parallel research subagents, external-first then codebase, writes .agent/research.md. Do not use for one-shot Q&A without a build attached.
 ---
 
 # arianna-research
@@ -9,27 +9,13 @@ You coordinate Phase 0. You do not research yourself — every web search, grep,
 
 ## Workflow
 
-```dot
-digraph arianna_research {
-    rankdir=TB;
-
-    start [shape=oval label="dispatch from arianna-magic\nwith goal + intent class"];
-    resolve [shape=box label="read .agent/goal.md (or inline goal)\nnote intent class"];
-    decompose [shape=box label="decompose into N topics\n(external + codebase + quality-commands)"];
-    one [shape=diamond label="only 1 topic?"];
-    escalate [shape=box label="return: phase-0 not needed,\nlet orchestrator skip"];
-    dispatch [shape=box label="dispatch all N teammates\nin ONE message (parallel)"];
-    collect [shape=box label="wait, read .agent/.research-*.md partials"];
-    merge [shape=box label="synthesize → .agent/research.md\ncross-reference external ↔ codebase"];
-    cleanup [shape=box label="rm .agent/.research-*.md"];
-    done [shape=oval style=filled fillcolor=lightgreen label="return JSON to orchestrator"];
-
-    start -> resolve -> decompose -> one;
-    one -> escalate [label="yes"];
-    one -> dispatch [label="no"];
-    dispatch -> collect -> merge -> cleanup -> done;
-}
-```
+1. Read `.agent/goal.md` (or the inline goal text); note the intent class the orchestrator passed in.
+2. Decompose into N topics — external research, codebase, and Quality Commands discovery. If only one topic surfaces, return "phase 0 not needed" and let the orchestrator skip.
+3. Dispatch all N teammates in **one message** (parallel). Each teammate's output filename is `.agent/.research-<slug>.md` (leading dot — these are partials to merge and delete).
+4. Wait for every teammate; read each partial.
+5. Synthesize into `.agent/research.md` with the section schema below. Cross-reference external findings against codebase findings.
+6. Delete the partials.
+7. Return JSON to the orchestrator.
 
 The split between coordinator and teammates exists because a single subagent covering "OAuth + the codebase auth module + npm scripts" runs out of context before any of the three is thorough, and the decider becomes the one missing things. Two roles, two contexts.
 
@@ -157,5 +143,5 @@ Quality Commands feeds Plan and Review. Recommendations feeds Spec. Open Questio
 
 ## References
 
-- The orchestrator's dispatch contract lives in `skills/arianna-magic/SKILL.md` § Dispatch contract — load when confirming the return shape.
+- The orchestrator's dispatch contract lives in `skills/arianna-loop/SKILL.md` § Dispatch contract — load when confirming the return shape.
 - Downstream consumers: `skills/arianna-spec/SKILL.md` reads Recommendations and Open Questions; `skills/arianna-plan/SKILL.md` reads Quality Commands and Verification Tooling; `skills/arianna-review/SKILL.md` reads Quality Commands. Load these only when changing the output schema.

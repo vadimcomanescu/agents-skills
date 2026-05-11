@@ -9,7 +9,7 @@ __pycache__/
 # Scratch eval/playground HTML produced during skill-development sessions.
 skill-eval-*.html
 
-# arianna-magic runtime state (committed: goal/plans/standards/implement/HANDOFF.md, spec.md, tasks.json, research.md, design/, evidence/)
+# arianna-loop runtime state (committed: goal/plans/implement/HANDOFF.md, spec.md, tasks.json, research.md, design/, evidence/)
 .agent/progress.md
 .agent/gates/
 .agent/*.lock

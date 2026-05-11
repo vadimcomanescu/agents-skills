@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the arianna-magic dashboard from `.agent/` state.
+"""Render the arianna-loop dashboard from `.agent/` state.
 
 Reads markdown state files, `tasks.json`, and optional evidence reports
 from a `.agent/` directory; substitutes the `{{ var }}` placeholders in
@@ -16,7 +16,7 @@ Usage:
 Defaults:
   --agent-dir   ./.agent
   --out         <agent-dir>/dashboard.html
-  --template    skills/arianna-magic/references/templates/dashboard.html
+  --template    skills/arianna-loop/references/templates/dashboard.html
                 (located relative to this script's parent)
 """
 from __future__ import annotations
@@ -698,7 +698,7 @@ def render(agent_dir: Path, template_path: Path) -> str:
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         prog="render_dashboard.py",
-        description="Render the arianna-magic Birchline dashboard from .agent/ state.",
+        description="Render the arianna-loop Birchline dashboard from .agent/ state.",
     )
     parser.add_argument(
         "--agent-dir",

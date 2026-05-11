@@ -67,6 +67,6 @@ You are implementing one task from `.agent/plans.md`. Follow this workflow exact
 }
 ```
 
-## Boundary: do not invoke arianna-magic itself
+## Boundary: do not invoke arianna-loop itself
 
-You are implementing arianna-magic. Do not test it by triggering `/arianna-magic` on a real project — that's the smoke test at Milestone 6.4, and only the orchestrator performs it. Your job is to produce the files; the smoke test verifies they work.
+You are implementing arianna-loop. Do not test it by triggering `/arianna-loop` on a real project — that's the smoke test at Milestone 6.4, and only the orchestrator performs it. Your job is to produce the files; the smoke test verifies they work.

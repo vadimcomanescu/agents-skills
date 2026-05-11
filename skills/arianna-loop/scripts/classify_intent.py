@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Classify a user goal into one of the arianna-magic intent classes.
+"""Classify a user goal into one of the arianna-loop intent classes.
 
 Output: JSON to stdout with the intent class plus the heuristic signals
 that contributed. The orchestrator reads this and decides which phase set

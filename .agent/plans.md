@@ -1,10 +1,10 @@
-# Project Plan: arianna-magic
+# Project Plan: arianna-loop
 
 ## Architecture Overview
 
-arianna-magic is a **9-skill bundle** implementing a long-running autonomous build pipeline. The architecture is "**thin harness, fat skills**":
+arianna-loop is a **9-skill bundle** implementing a long-running autonomous build pipeline. The architecture is "**thin harness, fat skills**":
 
-- **arianna-magic** (orchestrator) is a thin skill that classifies intent, dispatches role-specialist subagents, manages state in `.agent/`, and renders the dashboard.
+- **arianna-loop** (orchestrator) is a thin skill that classifies intent, dispatches role-specialist subagents, manages state in `.agent/`, and renders the dashboard.
 - **8 role skills** are fat: each holds the methodology for one role (research, spec writing, designing, planning, implementing, reviewing, critiquing, grilling).
 
 Composition pattern (jarrodwatts): the orchestrator dispatches general-purpose subagents (Claude Code Agent tool / Codex spawn) with prompts pointing at the relevant role skill's `SKILL.md`. Subagents inherit access to all skills, so they pull in `tdd-mutation`, `systematic-debugging`, `verification-before-completion` as referenced from the role skills.
@@ -13,7 +13,7 @@ Composition pattern (jarrodwatts): the orchestrator dispatches general-purpose s
 
 | Skill | Role | Invoked | Key methodology |
 |---|---|---|---|
-| arianna-magic | Orchestrator | Slash `/arianna-magic` | Phase routing, intent classification, dispatch, state files, dashboard rendering |
+| arianna-loop | Orchestrator | Slash `/arianna-loop` | Phase routing, intent classification, dispatch, state files, dashboard rendering |
 | arianna-research | Research coordinator | Phase 0 | Parallel topics (coordinator/teammate split per smart-ralph), external-first cross-reference, Quality Commands discovery |
 | arianna-spec | Spec writer | Phase 2 | Pocock vocab (Module/Interface/Seam/Depth), decisions-as-paragraphs not formal ADRs, deep-module deletion test |
 | arianna-design | Designer | Phase 3 (UI only) | Birchline aesthetic, screens.html generation, aggressively-trimmed screen list, tokens.css |
@@ -26,7 +26,7 @@ Composition pattern (jarrodwatts): the orchestrator dispatches general-purpose s
 ### Pipeline flow
 
 ```
-User: /arianna-magic "build me X"
+User: /arianna-loop "build me X"
   ↓
 Orchestrator: classify intent (LLM call), select phase set per class
 
@@ -232,25 +232,25 @@ Five milestones. Tasks within a milestone are parallel-friendly unless marked se
 **Parallelism:** All 9 skill inits are independent.
 
 Tasks:
-- **1.1** Init `arianna-magic` via `python skills/creating-skills/scripts/init_skill.py arianna-magic --path skills/`. Write frontmatter: `name: arianna-magic`; `description: Long-running autonomous build pipeline orchestrator. Use when user types /arianna-magic <goal>, or asks to "build end-to-end", "long-running build", "autonomous build", "multi-day project". Do not use for trivial one-file edits.`
+- **1.1** Init `arianna-loop` via `python skills/creating-skills/scripts/init_skill.py arianna-loop --path skills/`. Write frontmatter: `name: arianna-loop`; `description: Long-running autonomous build pipeline orchestrator. Use when user types /arianna-loop <goal>, or asks to "build end-to-end", "long-running build", "autonomous build", "multi-day project". Do not use for trivial one-file edits.`
 - **1.2–1.9** Same for each of `arianna-research`, `arianna-spec`, `arianna-design`, `arianna-plan`, `arianna-implement`, `arianna-review`, `arianna-critique`, `arianna-grill`. Description for each = its capability sentence from the skills table above + concrete triggers (the phase it runs in + the dispatch language).
 - **1.10** (Sequential after 1.1-1.9) Run `python skills/creating-skills/scripts/quick_validate.py skills/arianna-<name>` for all 9. All must pass.
 
 **Acceptance:** 9 directories exist, each with valid `SKILL.md` frontmatter; `quick_validate.py` clean on all 9.
 
-### Milestone 2: Orchestrator — `arianna-magic` body, scripts, templates
+### Milestone 2: Orchestrator — `arianna-loop` body, scripts, templates
 
 **Goal:** Orchestrator is functional standalone (can be triggered, classifies intent, writes initial `.agent/` files, renders an empty dashboard).
 **Depends on:** Milestone 1.
 
 Tasks:
-- **2.1** Write `skills/arianna-magic/SKILL.md` body (≤500 lines). Sections: operating idea (jarrodwatts backbone + thin-harness-fat-skills), phase routing logic (intent → phase set table), dispatch instructions (how to invoke each role skill via subagent), state-file conventions (the committed/ignored split), dashboard contract.
-- **2.2** Write `skills/arianna-magic/scripts/classify_intent.py`: takes goal text as arg, returns one of {TRIVIAL, REFACTOR, MID_SIZED, GREENFIELD, BUG_FIX} on stdout. Mechanism: small set of regex heuristics over the goal text + fallback to an LLM call (implementation: orchestrator-prompted classification, not a direct API call from the script — script just emits a JSON block the orchestrator interprets).
-- **2.3** Write `skills/arianna-magic/scripts/wrap_phase_prompt.py`: takes phase name + state-file paths, emits the dispatch prompt for the subagent (inline subset of trycycle's `run_phase.py` template-rendering logic, ≤80 lines).
-- **2.4** Write `skills/arianna-magic/references/templates/implement.md` — template for the `.agent/implement.md` file the orchestrator writes per project. Worker dispatch prompt references `tdd-mutation` skill.
-- **2.5** Write `skills/arianna-magic/references/templates/review.md` — template for `.agent/review.md`. Judge dispatch prompt with verbatim Osmani test-ratchet line + reference to `systematic-debugging` and `verification-before-completion`.
-- **2.6** Write `skills/arianna-magic/references/templates/dashboard.html` — Birchline skeleton (`<style>` block with all tokens; placeholder sections for each phase; `<script>` only for click-to-detail interactions, no external deps).
-- **2.7** Smoke: `quick_validate.py skills/arianna-magic` clean; `classify_intent.py "build a TODO app with Postgres-backed auth"` returns `GREENFIELD`.
+- **2.1** Write `skills/arianna-loop/SKILL.md` body (≤500 lines). Sections: operating idea (jarrodwatts backbone + thin-harness-fat-skills), phase routing logic (intent → phase set table), dispatch instructions (how to invoke each role skill via subagent), state-file conventions (the committed/ignored split), dashboard contract.
+- **2.2** Write `skills/arianna-loop/scripts/classify_intent.py`: takes goal text as arg, returns one of {TRIVIAL, REFACTOR, MID_SIZED, GREENFIELD, BUG_FIX} on stdout. Mechanism: small set of regex heuristics over the goal text + fallback to an LLM call (implementation: orchestrator-prompted classification, not a direct API call from the script — script just emits a JSON block the orchestrator interprets).
+- **2.3** Write `skills/arianna-loop/scripts/wrap_phase_prompt.py`: takes phase name + state-file paths, emits the dispatch prompt for the subagent (inline subset of trycycle's `run_phase.py` template-rendering logic, ≤80 lines).
+- **2.4** Write `skills/arianna-loop/references/templates/implement.md` — template for the `.agent/implement.md` file the orchestrator writes per project. Worker dispatch prompt references `tdd-mutation` skill.
+- **2.5** Write `skills/arianna-loop/references/templates/review.md` — template for `.agent/review.md`. Judge dispatch prompt with verbatim Osmani test-ratchet line + reference to `systematic-debugging` and `verification-before-completion`.
+- **2.6** Write `skills/arianna-loop/references/templates/dashboard.html` — Birchline skeleton (`<style>` block with all tokens; placeholder sections for each phase; `<script>` only for click-to-detail interactions, no external deps).
+- **2.7** Smoke: `quick_validate.py skills/arianna-loop` clean; `classify_intent.py "build a TODO app with Postgres-backed auth"` returns `GREENFIELD`.
 
 **Acceptance:** All files exist, validate clean, smoke commands work.
 
@@ -260,7 +260,7 @@ Tasks:
 **Depends on:** Milestone 2.
 
 Tasks:
-- **3.1** Write `skills/arianna-magic/scripts/render_dashboard.py`. Reads `.agent/*.md`, `.agent/tasks.json`, `.agent/evidence/<id>/report.md` if present. Interpolates `references/templates/dashboard.html`. Embeds inline SVG for the task DAG (hand-codes from `tasks.json` depends_on edges). Outputs `.agent/dashboard.html`.
+- **3.1** Write `skills/arianna-loop/scripts/render_dashboard.py`. Reads `.agent/*.md`, `.agent/tasks.json`, `.agent/evidence/<id>/report.md` if present. Interpolates `references/templates/dashboard.html`. Embeds inline SVG for the task DAG (hand-codes from `tasks.json` depends_on edges). Outputs `.agent/dashboard.html`.
 - **3.2** Write `.gitignore` entries (or update existing one): `.agent/progress.md`, `.agent/gates/`, `.agent/*.lock`, `.agent/*.log`.
 - **3.3** Smoke fixture: synthetic `.agent/` with sample `research.md`, `goal.md`, `spec.md`, `tasks.json` (3 tasks, 2 with depends_on). Run renderer. Visually verify the HTML opens, shows 5 phase cards (research/goal/spec/plan/empty-evidence), task DAG with 3 nodes + 2 edges, Birchline colors (`#FAF9F5` body, `#D97757` accent).
 
@@ -289,7 +289,7 @@ Tasks:
 Tasks:
 - **5.1** `skills/arianna-implement/SKILL.md`: worker workflow (TDD per task, reference `tdd-mutation` skill); evidence capture rules (`evidence/<task-id>/{before.png,after.png,flow.webm,request.http,response.json,golden.json,report.md}`); `qa-hints.json` output schema (verbatim from ralph-to-ralph); HARD STOP rule (one task per invocation); structured JSON return schema.
 - **5.2** `skills/arianna-review/SKILL.md`: two-stage methodology; verbatim anti-cheat lines (test ratchet, "DIFFERENT agent from builder", HARD STOP, etc. — all cited); verdict JSON schema; progressive QA modules by task category dispatch logic; references `systematic-debugging` + `verification-before-completion`; append-only log rules.
-- **5.3** `skills/arianna-review/references/qa-modules/{base,api,security,a11y,footer}.md`: adapted from `/home/vadim/Code/ralph-to-ralph/ralph/qa/*.md`. Adapt the language to be project-agnostic (remove ralph-to-ralph-specific references like `target-docs/`, `prd.json`, `ever-cli` — replace with arianna-magic conventions: `.agent/spec.md`, `.agent/tasks.json`, `.agent/evidence/<task-id>/`).
+- **5.3** `skills/arianna-review/references/qa-modules/{base,api,security,a11y,footer}.md`: adapted from `/home/vadim/Code/ralph-to-ralph/ralph/qa/*.md`. Adapt the language to be project-agnostic (remove ralph-to-ralph-specific references like `target-docs/`, `prd.json`, `ever-cli` — replace with arianna-loop conventions: `.agent/spec.md`, `.agent/tasks.json`, `.agent/evidence/<task-id>/`).
 - **5.4** `skills/arianna-critique/SKILL.md`: fresh-subagent-per-round discipline; READY/REVISED structured verdict; max-round caps (3 at Spec, 5 at Plan); non-convergence escalation (surface to user when pre-handoff; jarrodwatts log-and-continue when post-handoff but autonomous critique loops don't exist post-handoff anyway).
 - **5.5** `skills/arianna-grill/SKILL.md`: adapted from Pocock's `grill-with-docs/SKILL.md`. Verbatim opening prompt (`Interview me relentlessly...`). Pipeline-specific write-back hooks: when a term is resolved, write to `CONTEXT.md` at repo root inline; when a decision crystallises and meets the hard-to-reverse-AND-surprising-AND-real-tradeoff bar, write a new `docs/adr/NNNN-<slug>.md` (lazy creation). Attribute Pocock in a comment at top of `SKILL.md`.
 
@@ -304,7 +304,7 @@ Tasks:
 - **6.1** Audit cross-references: every `arianna-implement` mention of `tdd-mutation`, every `arianna-review` mention of `systematic-debugging`/`verification-before-completion`, every `arianna-grill` reference to `CONTEXT.md`/`docs/adr/` conventions. Confirm targets exist and names match.
 - **6.2** Re-run `quick_validate.py` across all 9 skills.
 - **6.3** Update `.gitignore` if not done in 3.2: add `.agent/progress.md`, `.agent/gates/`, `.agent/*.lock`, `.agent/*.log`.
-- **6.4** Smoke test: simulate `/arianna-magic "build a TODO app with Postgres-backed auth"`. Verify the orchestrator (a) auto-classifies as `GREENFIELD`, (b) writes a draft `.agent/research.md` skeleton showing it would dispatch Phase 0 subagents. Full Phase 0 execution NOT required — orchestrator-mode invocation check only.
-- **6.5** Update repo `README.md` if needed to mention `/arianna-magic` (one line under the existing skills list).
+- **6.4** Smoke test: simulate `/arianna-loop "build a TODO app with Postgres-backed auth"`. Verify the orchestrator (a) auto-classifies as `GREENFIELD`, (b) writes a draft `.agent/research.md` skeleton showing it would dispatch Phase 0 subagents. Full Phase 0 execution NOT required — orchestrator-mode invocation check only.
+- **6.5** Update repo `README.md` if needed to mention `/arianna-loop` (one line under the existing skills list).
 
 **Acceptance:** All 9 skills pass validation; smoke test produces expected `GREENFIELD` classification + research.md skeleton; cross-references resolved.

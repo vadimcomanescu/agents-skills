@@ -1,21 +1,21 @@
-# Project Goal: arianna-magic skill bundle
+# Project Goal: arianna-loop skill bundle
 
 ## Problem Statement
 
-Vadim has 4 skills in this repo (`creating-skills`, `tdd-mutation`, `systematic-debugging`, `verification-before-completion`) and a design HTML at `pipeline-design.html` describing **arianna-magic** — a long-running autonomous build pipeline as a multi-skill bundle for Claude Code and Codex. He needs the implementation: 9 skills (1 thin orchestrator + 8 fat role skills) following jarrodwatts long-running-agent as backbone, trycycle up-the-hill loops, Mat Pocock principle-first style, and Birchline visual aesthetic for human-in-loop gate dashboards.
+Vadim has 4 skills in this repo (`creating-skills`, `tdd-mutation`, `systematic-debugging`, `verification-before-completion`) and a design HTML at `pipeline-design.html` describing **arianna-loop** — a long-running autonomous build pipeline as a multi-skill bundle for Claude Code and Codex. He needs the implementation: 9 skills (1 thin orchestrator + 8 fat role skills) following jarrodwatts long-running-agent as backbone, trycycle up-the-hill loops, Mat Pocock principle-first style, and Birchline visual aesthetic for human-in-loop gate dashboards.
 
 ## Desired Outcome
 
-A complete skill bundle at `skills/arianna-{magic,research,spec,design,plan,implement,review,critique,grill}/`, each validating clean against `skills/creating-skills/scripts/quick_validate.py`, all reachable via the existing `.codex-plugin/plugin.json` plugin manifest (which already exports `./skills/`). The `/arianna-magic` slash command triggers correctly on intent phrases, classifies intent, dispatches Phase 0 research subagents, and writes a draft `.agent/research.md` on a smoke prompt.
+A complete skill bundle at `skills/arianna-{magic,research,spec,design,plan,implement,review,critique,grill}/`, each validating clean against `skills/creating-skills/scripts/quick_validate.py`, all reachable via the existing `.codex-plugin/plugin.json` plugin manifest (which already exports `./skills/`). The `/arianna-loop` slash command triggers correctly on intent phrases, classifies intent, dispatches Phase 0 research subagents, and writes a draft `.agent/research.md` on a smoke prompt.
 
 ## Acceptance Criteria
 
 - [ ] 9 skill directories exist with valid `SKILL.md` (frontmatter + body) at `skills/arianna-{magic,research,spec,design,plan,implement,review,critique,grill}/`
 - [ ] Each skill validates: `python skills/creating-skills/scripts/quick_validate.py skills/arianna-<name>`
-- [ ] `skills/arianna-magic/SKILL.md` body is <500 lines (creating-skills rule)
+- [ ] `skills/arianna-loop/SKILL.md` body is <500 lines (creating-skills rule)
 - [ ] Each role-skill `SKILL.md` body is <500 lines; deeper detail in `references/`
-- [ ] `skills/arianna-magic/scripts/render_dashboard.py` runs on a synthetic `.agent/` state and emits a valid Birchline-styled HTML file
-- [ ] `skills/arianna-magic/scripts/classify_intent.py` classifies a goal text into one of 5 intent classes (TRIVIAL / REFACTOR / MID_SIZED / GREENFIELD / BUG_FIX)
+- [ ] `skills/arianna-loop/scripts/render_dashboard.py` runs on a synthetic `.agent/` state and emits a valid Birchline-styled HTML file
+- [ ] `skills/arianna-loop/scripts/classify_intent.py` classifies a goal text into one of 5 intent classes (TRIVIAL / REFACTOR / MID_SIZED / GREENFIELD / BUG_FIX)
 - [ ] Cross-references resolve: `arianna-implement` references `tdd-mutation`; `arianna-review` references `systematic-debugging` and `verification-before-completion`; `arianna-grill` adapts Pocock's `grill-with-docs` methodology
 - [ ] Smoke test: invoking the orchestrator on the goal "build a TODO app with Postgres-backed auth" auto-classifies as `GREENFIELD` and dispatches Phase 0 research subagents (manual visual check, no end-to-end pipeline execution required)
 - [ ] `.gitignore` updated to ignore `.agent/progress.md`, `.agent/gates/`, `.agent/*.lock`, `.agent/*.log` (per the state-file split decision)

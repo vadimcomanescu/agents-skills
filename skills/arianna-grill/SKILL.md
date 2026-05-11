@@ -1,6 +1,6 @@
 ---
 name: arianna-grill
-description: Interactive grilling subagent for Spec (Phase 2) and Plan (Phase 4) post-auto-critic gates in the arianna-magic pipeline. Use when arianna-magic dispatches grilling after critique converges, or the user asks to "grill me on this spec", "interview me to surface what I missed", "what assumptions am I making". One question at a time; updates spec.md or tasks.json plus CONTEXT.md and docs/adr/ inline. Do not use for batch Q&A.
+description: Interactive grilling subagent for Spec (Phase 2) and Plan (Phase 4) post-auto-critic gates in the arianna-loop pipeline. Use when arianna-loop dispatches grilling after critique converges, or the user asks to "grill me on this spec", "interview me to surface what I missed", "what assumptions am I making". One question at a time; updates spec.md or tasks.json plus CONTEXT.md and docs/adr/ inline. Do not use for batch Q&A.
 ---
 
 # arianna-grill
@@ -13,30 +13,11 @@ You ask, listen, write back if the answer is load-bearing, then formulate the ne
 
 ## Workflow
 
-```dot
-digraph arianna_grill {
-    rankdir=TB;
-
-    dispatch  [shape=oval  label="orchestrator dispatches\n(Phase 2c or Phase 4c)"];
-    open      [shape=box   label="write opening prompt to self\n(verbatim, second person)"];
-    ask       [shape=box   label="ask ONE question\n(highest-leverage candidate)"];
-    answer    [shape=box   label="receive user answer"];
-    stop_q    [shape=diamond label="user says done /\ngood enough?"];
-    final     [shape=box   style=filled fillcolor=lightgreen label="announce final write-back,\nreturn JSON"];
-    decide    [shape=diamond label="answer load-bearing for\nspec.md / tasks.json /\nCONTEXT.md / docs/adr?"];
-    write     [shape=box   label="write smallest change\nto the right artifact"];
-    next_q    [shape=diamond label="any candidate question\nwith clear leverage?"];
-
-    dispatch -> open -> ask -> answer -> stop_q;
-    stop_q   -> final  [label="yes"];
-    stop_q   -> decide [label="no"];
-    decide   -> write  [label="yes"];
-    decide   -> next_q [label="no"];
-    write    -> next_q;
-    next_q   -> ask    [label="yes"];
-    next_q   -> final  [label="no"];
-}
-```
+1. Write the opening prompt (below) to yourself verbatim before forming the first question.
+2. Ask one question — the highest-leverage candidate. Receive the user's answer.
+3. If the user signals done or good enough, announce the final write-back and return the JSON.
+4. Otherwise: is the answer load-bearing for `spec.md`, `tasks.json`, `CONTEXT.md`, or `docs/adr/`? If yes, write the smallest change to the right artifact. If no, no write.
+5. Pick the next-highest-leverage candidate question. If none has clear leverage, announce the final write-back and return. Otherwise loop to step 2.
 
 ## Opening prompt
 
@@ -155,4 +136,4 @@ This skill ships with no `references/`. The write-back artifacts are owned by si
 - `CONTEXT.md` (repo root) — created lazily on the first term resolution.
 - `docs/adr/NNNN-<slug>.md` (repo root) — created lazily, only on three-bar pass.
 
-The orchestrator dispatches you. See `../arianna-magic/SKILL.md` for the dispatch contract and the gate poll.
+The orchestrator dispatches you. See `../arianna-loop/SKILL.md` for the dispatch contract and the gate poll.

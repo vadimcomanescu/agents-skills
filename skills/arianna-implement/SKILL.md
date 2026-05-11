@@ -1,6 +1,6 @@
 ---
 name: arianna-implement
-description: Autonomous worker for Phase 5 of the arianna-magic pipeline. Use when arianna-magic dispatches a single task to a worker subagent, or the user asks to "implement one task from tasks.json", "build feature X with TDD", "run the worker on task NN". One task per invocation (HARD STOP), TDD per the tdd-mutation skill, captures evidence/, writes qa-hints.json. Do not use for multi-task batch builds — the coordinator dispatches workers one at a time.
+description: Autonomous worker for Phase 5 of the arianna-loop pipeline. Use when arianna-loop dispatches a single task to a worker subagent, or the user asks to "implement one task from tasks.json", "build feature X with TDD", "run the worker on task NN". One task per invocation (HARD STOP), TDD per the tdd-mutation skill, captures evidence/, writes qa-hints.json. Do not use for multi-task batch builds — the coordinator dispatches workers one at a time.
 ---
 
 # arianna-implement
@@ -11,33 +11,13 @@ The pipeline treats worker output as three independent signals: the diff (what c
 
 ## Workflow
 
-```dot
-digraph arianna_implement {
-    rankdir=TB;
-
-    read [shape=box label="read goal, spec, tasks.json entry,\nevery file in tasks.json#files[], research.md § Quality Commands"];
-    cycle [shape=box label="TDD cycle per tdd-mutation skill\n(RED → Verify RED → GREEN → Verify GREEN → REFACTOR → MUTATE)"];
-    slice [shape=diamond label="more slices in this task?"];
-    evidence [shape=box label="write .agent/evidence/<task-id>/{report.md, qa-hints.json, +optional}"];
-    scope [shape=diamond label="diff stays inside tasks.json#files[]?"];
-    surface [shape=box label="status=blocked; surface in concerns[]"];
-    validate [shape=box label="run quality commands; quote outputs in report.md"];
-    commit [shape=box label="commit on worktree branch\n(refactor and behavior in separate commits)"];
-    ret [shape=box style=filled fillcolor=lightgreen label="emit return JSON as last block; exit"];
-
-    read -> cycle;
-    cycle -> slice;
-    slice -> cycle [label="yes — one test, one impl, repeat"];
-    slice -> evidence [label="no"];
-    evidence -> scope;
-    scope -> validate [label="yes"];
-    scope -> surface [label="no"];
-    surface -> ret;
-    validate -> commit -> ret;
-}
-```
-
-The TDD cycle nodes are not expanded here. Load `skills/tdd-mutation/SKILL.md` and follow it directly — the Iron Law (no production code without a failing test first), the Quality Law (no "done" without mutation evidence the tests bite), vertical slicing (one test → one impl → repeat, never five-then-five), and the Prove-It Pattern for bug fixes all live there. For browser-rendered output, the cycle includes VERIFY-IN-BROWSER as a final step; capture before/after screenshots into the evidence directory.
+1. Read `.agent/goal.md`, `.agent/spec.md`, the entry in `.agent/tasks.json` for your `task_id`, every file in `tasks.json#files[]` for this task, and `.agent/research.md` § Quality Commands.
+2. Run the TDD cycle per the `tdd-mutation` skill — load `skills/tdd-mutation/SKILL.md` and follow it directly. The Iron Law (no production code without a failing test first), the Quality Law (no "done" without mutation evidence the tests bite), vertical slicing (one test → one impl → repeat, never five-then-five), and the Prove-It Pattern for bug fixes all live there. For browser-rendered output, the cycle includes VERIFY-IN-BROWSER; capture before/after screenshots into the evidence directory.
+3. Write `.agent/evidence/<task-id>/report.md` and `qa-hints.json` (plus any optional artifacts). Be honest in `needs_deeper_qa[]` — the judge reads it first.
+4. Confirm the diff stays inside `tasks.json#files[]` for this task. If it must touch a file outside the list, stop and return `status: "blocked"` with the boundary issue in `concerns[]`.
+5. Run the project's quality commands; quote their output in `report.md`.
+6. Commit on the worktree branch. Refactor commits and behavior commits stay separate.
+7. Emit the return JSON as the last block of your reply and exit.
 
 If a dispatched task's `depends_on` are not green, or the task is not in `tasks.json`, return `status: "blocked"` immediately. Do not improvise the missing dependency.
 
@@ -156,7 +136,7 @@ Emit this as the final fenced block of your reply. Nothing after it — the orch
 ## References
 
 - `skills/tdd-mutation/SKILL.md` — load at the start of every task. The TDD cycle, Iron Law, vertical slicing, mutation testing, and the Prove-It Pattern live there. This skill points; it does not paraphrase.
-- `skills/arianna-magic/references/templates/implement.md` — load when the dispatch prompt looks malformed or when initializing a new project's `.agent/implement.md`.
-- `skills/arianna-magic/SKILL.md` § Dispatch — load when confirming the structured-JSON return shape the orchestrator expects.
+- `skills/arianna-loop/references/templates/implement.md` — load when the dispatch prompt looks malformed or when initializing a new project's `.agent/implement.md`.
+- `skills/arianna-loop/SKILL.md` § Dispatch — load when confirming the structured-JSON return shape the orchestrator expects.
 - `skills/systematic-debugging/SKILL.md` — load when a test fails for a reason you cannot reproduce locally. Reproduce first, root-cause second, fix third.
 - `skills/verification-before-completion/SKILL.md` — load before emitting the return JSON. No "done", "fixed", or "passing" claims without quoted output.

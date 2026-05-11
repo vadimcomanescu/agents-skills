@@ -1,48 +1,22 @@
 ---
 name: arianna-design
-description: UI designer for Phase 3 of the arianna-magic pipeline. Use when arianna-magic dispatches Phase 3 on a UI-scope project, or the user asks to "design the screens", "mock the UI", "produce screens.html", "show me the design before building". Generates a single self-contained screens.html with Birchline tokens. Do not use for non-UI projects — skip Phase 3 entirely.
+description: UI designer for Phase 3 of the arianna-loop pipeline. Use when arianna-loop dispatches Phase 3 on a UI-scope project, or the user asks to "design the screens", "mock the UI", "produce screens.html", "show me the design before building". Generates a single self-contained screens.html with Birchline tokens. Do not use for non-UI projects — skip Phase 3 entirely.
 ---
 
 # arianna-design
 
-Phase 3 of arianna-magic. You produce one self-contained `.agent/design/screens.html` showing every primary user job as a clickable mock — inline data, no backend, no framework, no build step. If the project has no UI surface, you self-cancel and return a no-op verdict.
+Phase 3 of arianna-loop. You produce one self-contained `.agent/design/screens.html` showing every primary user job as a clickable mock — inline data, no backend, no framework, no build step. If the project has no UI surface, you self-cancel and return a no-op verdict.
 
 ## Workflow
 
-```dot
-digraph arianna_design {
-    rankdir=TB;
-
-    start [shape=oval label="Phase 3 dispatch"];
-    read [shape=box label="read .agent/goal.md + .agent/spec.md"];
-    ui_q [shape=diamond label="UI surface?"];
-    noop [shape=box style=filled fillcolor="#F0EEE6" label="return no_op verdict — exit"];
-
-    jobs [shape=box label="list user jobs from spec.md"];
-    one [shape=box label="one screen per job"];
-    deltest [shape=diamond label="delete this screen — job still doable?"];
-    cut [shape=box label="cut the screen"];
-    keep [shape=box label="keep the screen"];
-    more_screens [shape=diamond label="more candidate screens?"];
-
-    copy_root [shape=box label="copy :root from dashboard.html verbatim"];
-    write_html [shape=box label="write .agent/design/screens.html (one section per screen, inline data)"];
-    self_check [shape=box label="open with file://, confirm no external requests, borders read 1.5px"];
-    verdict [shape=oval style=filled fillcolor=lightgreen label="return done verdict"];
-
-    start -> read -> ui_q;
-    ui_q -> noop [label="no"];
-    ui_q -> jobs [label="yes"];
-    jobs -> one -> deltest;
-    deltest -> cut [label="yes"];
-    deltest -> keep [label="no"];
-    cut -> more_screens;
-    keep -> more_screens;
-    more_screens -> deltest [label="yes"];
-    more_screens -> copy_root [label="no"];
-    copy_root -> write_html -> self_check -> verdict;
-}
-```
+1. Read `.agent/goal.md` and `.agent/spec.md`.
+2. Apply the UI-surface check (below). If the project has no UI surface, return the `no_op` verdict and exit.
+3. List user jobs from `spec.md`. One screen per job.
+4. Apply the deletion test to each candidate: if you delete the screen and the user can still complete the job through another screen on the list, cut it. Repeat until every remaining screen is the only place its job can be done.
+5. Copy the `:root { ... }` block from `skills/arianna-loop/references/templates/dashboard.html` verbatim into your `screens.html` `<style>`.
+6. Write `.agent/design/screens.html` — one section per screen, inline literal data, in-page anchor nav.
+7. Self-check by opening with `file://`: no external network requests; every border reads 1.5px in dev tools.
+8. Return the `done` verdict.
 
 ## UI surface check
 
@@ -81,7 +55,7 @@ Empty / loading / error are variants of one screen, not separate screens. Render
 
 ## Birchline tokens — reuse, do not redefine
 
-Read `skills/arianna-magic/references/templates/dashboard.html`, locate the `:root { ... }` block at the top of `<style>`, and paste it verbatim into `screens.html`'s `<style>`. The block carries:
+Read `skills/arianna-loop/references/templates/dashboard.html`, locate the `:root { ... }` block at the top of `<style>`, and paste it verbatim into `screens.html`'s `<style>`. The block carries:
 
 | Token | Value | Use |
 |---|---|---|
@@ -171,5 +145,5 @@ Write `.agent/design/tokens.css` only when the spec names branding (a brand colo
 
 ## References
 
-- `skills/arianna-magic/references/templates/dashboard.html` — source of the `:root` Birchline token block. Read once per dispatch, paste verbatim.
-- Sibling skills: **arianna-magic** (orchestrator), **arianna-spec** (upstream — user stories drive the screen list), **arianna-plan** (downstream — turns screens into atomic tasks).
+- `skills/arianna-loop/references/templates/dashboard.html` — source of the `:root` Birchline token block. Read once per dispatch, paste verbatim.
+- Sibling skills: **arianna-loop** (orchestrator), **arianna-spec** (upstream — user stories drive the screen list), **arianna-plan** (downstream — turns screens into atomic tasks).

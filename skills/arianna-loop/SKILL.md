@@ -1,19 +1,19 @@
 ---
-name: arianna-magic
-description: Long-running autonomous build pipeline orchestrator. Use when the user types /arianna-magic followed by a goal, or asks to "build end-to-end", "long-running build", "autonomous build", "multi-day project", "ship this whole thing". Do not use for trivial one-file edits.
+name: arianna-loop
+description: Long-running autonomous build pipeline orchestrator. Use when the user types /arianna-loop followed by a goal, or asks to "build end-to-end", "long-running build", "autonomous build", "multi-day project", "ship this whole thing". Do not use for trivial one-file edits.
 ---
 
-# arianna-magic
+# arianna-loop
 
 You classify intent, walk the workflow below, dispatch role subagents, persist state in `.agent/`, and render the dashboard. Eight sibling role skills do the work — you do not write specs, code, designs, or reviews.
 
 ## Workflow
 
 ```dot
-digraph arianna_magic {
+digraph arianna_loop {
     rankdir=TB;
 
-    start [shape=oval label="user: /arianna-magic <goal>"];
+    start [shape=oval label="user: /arianna-loop <goal>"];
     classify [shape=box label="classify_intent.py → class"];
     fork [shape=diamond label="intent class?"];
 

@@ -1,6 +1,6 @@
 ---
 name: arianna-review
-description: Two-stage code reviewer (judge) for Phase 6 of the arianna-magic pipeline. Use when arianna-magic dispatches a judge subagent on a completed task, or the user asks to "review this task", "audit the diff against the spec", "judge whether the worker's code passes". Stage 1 spec-compliance, Stage 2 code-quality; verbatim test ratchet; append-only review log; loads QA modules by task category. References systematic-debugging and verification-before-completion. Do not use for high-level architecture review.
+description: Two-stage code reviewer (judge) for Phase 6 of the arianna-loop pipeline. Use when arianna-loop dispatches a judge subagent on a completed task, or the user asks to "review this task", "audit the diff against the spec", "judge whether the worker's code passes". Stage 1 spec-compliance, Stage 2 code-quality; verbatim test ratchet; append-only review log; loads QA modules by task category. References systematic-debugging and verification-before-completion. Do not use for high-level architecture review.
 ---
 
 # arianna-review
@@ -200,4 +200,4 @@ Cross-skill (resolved through the subagent's skill catalog):
 - `systematic-debugging` — load when a real bug surfaces in Stage 2 and the `fix` field needs a root-cause-level recommendation.
 - `verification-before-completion` — load before publishing the verdict; evidence-before-claims applies to the judge.
 
-The orchestrator's dispatch contract lives in `skills/arianna-magic/SKILL.md`. The worker's `qa-hints.json` schema lives in `skills/arianna-implement/SKILL.md`. Load those only when changing the inputs read or the return shape emitted.
+The orchestrator's dispatch contract lives in `skills/arianna-loop/SKILL.md`. The worker's `qa-hints.json` schema lives in `skills/arianna-implement/SKILL.md`. Load those only when changing the inputs read or the return shape emitted.

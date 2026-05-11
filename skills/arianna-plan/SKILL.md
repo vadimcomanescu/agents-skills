@@ -1,6 +1,6 @@
 ---
 name: arianna-plan
-description: Planner for Phase 4 of the arianna-magic pipeline. Use when arianna-magic dispatches Phase 4 (Plan), or the user asks to "break this into tasks", "produce tasks.json", "make the build plan", "atomize the work". Outputs atomic tasks (at most 3 files and 50 LOC each) tagged refactor or behavior, with a depends_on DAG. Do not use for high-level roadmap planning — that is arianna-spec territory.
+description: Planner for Phase 4 of the arianna-loop pipeline. Use when arianna-loop dispatches Phase 4 (Plan), or the user asks to "break this into tasks", "produce tasks.json", "make the build plan", "atomize the work". Outputs atomic tasks (at most 3 files and 50 LOC each) tagged refactor or behavior, with a depends_on DAG. Do not use for high-level roadmap planning — that is arianna-spec territory.
 ---
 
 # arianna-plan
@@ -9,49 +9,16 @@ Phase 4 planner. You read `.agent/spec.md` and emit `.agent/tasks.json` — a DA
 
 ## Workflow
 
-```dot
-digraph arianna_plan {
-    rankdir=TB;
+1. Read `.agent/spec.md`.
+2. List candidate tasks per module from the spec.
+3. For each candidate, apply the four caps (files ≤ 3, LOC ≤ 50, exactly one named acceptance test, `depends_on` resolvable). Anything that fails a cap gets split.
+4. Tag each task `refactor` or `behavior` — never both. Mixed candidates split into a refactor predecessor with a `behavior` successor that `depends_on` it.
+5. Apply the task-level deletion test: does the task back at least one spec acceptance bullet? If not, drop it. (Refactor tasks earn their keep when at least one downstream behavior task in `depends_on[]` requires them.)
+6. Assign each task to a wave by topological level over `depends_on[]`. Flag any wave whose width exceeds 5 — it will serialise at the orchestrator cap.
+7. Emit the draft to arianna-critique. On `REVISED`, a fresh planner re-drafts with the critique notes, restarting from step 3. Up to 5 rounds; after the cap, surface residual disagreement to the user at the gate. On `READY`, proceed.
+8. Write `.agent/tasks.json`.
 
-    read [shape=box label="read .agent/spec.md"];
-    candidates [shape=box label="list candidate tasks per module"];
-    caps [shape=diamond label="four caps:\nfiles≤3, LOC≤50,\n1 named acceptance,\ndepends_on green"];
-    split [shape=box label="split task into smaller tasks"];
-    tag [shape=diamond label="tag: refactor XOR behavior?"];
-    split_tag [shape=box label="split into refactor predecessor\n+ behavior successor"];
-    deletion [shape=diamond label="task backs a spec acceptance bullet?"];
-    drop [shape=box label="drop task"];
-    wave [shape=box label="assign wave by topological level"];
-    width [shape=diamond label="max wave width ≤ 5?"];
-    flag_serial [shape=box label="flag: wave will serialise at orchestrator cap"];
-    critique [shape=box label="emit draft → arianna-critique (fresh)"];
-    ready [shape=diamond label="READY? (round ≤ 5)"];
-    revise [shape=box label="fresh planner re-drafts with notes"];
-    surface [shape=box label="surface residual disagreement to gate"];
-    write [shape=box label="write .agent/tasks.json"];
-
-    read -> candidates -> caps;
-    caps -> split [label="no"];
-    split -> caps;
-    caps -> tag [label="yes"];
-    tag -> split_tag [label="mixed"];
-    split_tag -> caps;
-    tag -> deletion [label="single"];
-    deletion -> drop [label="no"];
-    deletion -> wave [label="yes"];
-    wave -> width;
-    width -> flag_serial [label="no"];
-    flag_serial -> critique;
-    width -> critique [label="yes"];
-    critique -> ready;
-    ready -> revise [label="REVISED, round<5"];
-    revise -> caps;
-    ready -> surface [label="REVISED, round=5"];
-    ready -> write [label="READY"];
-}
-```
-
-The four caps are the loop's inner ring; the tag check and deletion test are the outer ring; wave estimation and the plan-editor loop wrap the whole thing. Each diamond has a forcing function — there is no "looks atomic enough" exit.
+The four caps are the inner ring; the tag check and deletion test are the outer ring; wave estimation and the plan-editor loop wrap the whole thing. Each step has a forcing function — there is no "looks atomic enough" exit.
 
 ## The four caps
 
@@ -180,8 +147,8 @@ If the spec is internally contradictory on a module boundary, return `status: "b
 
 This skill ships with no `references/`. Its surface area is `tasks.json` plus the workflow above. Downstream consumers that read `tasks.json`:
 
-- `skills/arianna-magic/references/templates/implement.md` — worker reads `id`, `files`, `acceptance`, `depends_on`, `built_by`.
-- `skills/arianna-magic/references/templates/review.md` — judge reads `id`, `acceptance`, `category`, `files`, `depends_on`.
-- `skills/arianna-magic/scripts/render_dashboard.py` — dashboard reads every field for the DAG and the per-task status card.
+- `skills/arianna-loop/references/templates/implement.md` — worker reads `id`, `files`, `acceptance`, `depends_on`, `built_by`.
+- `skills/arianna-loop/references/templates/review.md` — judge reads `id`, `acceptance`, `category`, `files`, `depends_on`.
+- `skills/arianna-loop/scripts/render_dashboard.py` — dashboard reads every field for the DAG and the per-task status card.
 
 If you rename a field, you change three downstream files in lockstep — flag it in `concerns[]` rather than shipping an unannounced rename.

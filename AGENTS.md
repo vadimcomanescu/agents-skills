@@ -38,10 +38,11 @@ This repo uses a skill-driven authoring model. The source skills in `skills/` ar
 
 For every request:
 
-1. MUST determine whether one of this repo's skills applies.
-2. MUST read the applicable skill before editing or implementing.
-3. MUST follow the skill workflow instead of summarizing it from memory.
-4. MUST preserve the user's requested scope. Do not add tooling, manifests, scripts, or process files unless requested.
+1. MUST ground every response in a file/code read, a tool output, or current online research before stating it. Do not answer from training data; verify before claiming a fact, or say verification is impossible. This applies to chat answers, design recommendations, and "how X works" explanations — not just code edits.
+2. MUST determine whether one of this repo's skills applies.
+3. MUST read the applicable skill before editing or implementing.
+4. MUST follow the skill workflow instead of summarizing it from memory.
+5. MUST preserve the user's requested scope. Do not add tooling, manifests, scripts, or process files unless requested.
 
 ### Anti-Rationalization
 

@@ -1,0 +1,26 @@
+{
+  "skill_name": "arianna-spec",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write a spec for adding session revocation to our Flask + Postgres web app. Run directory: .arianna/2026-05-11-session-revoke/ (the coordinator already created this per-run directory; read inputs and write outputs inside it). The goal: a logged-in user with two active sessions on different devices can revoke session B from device A, and within 5 seconds device B sees 401 on its next request. Existing infrastructure: Flask app, Postgres for users, server-side cookie-based sessions (no JWT). Assume .arianna/2026-05-11-session-revoke/research.md and .arianna/2026-05-11-session-revoke/goal.md already exist with this context. Produce .arianna/2026-05-11-session-revoke/spec.md.",
+      "expected_output": "A .arianna/2026-05-11-session-revoke/spec.md file with five sections: Concepts, User Stories, Decisions, Modules, Deferrals. Each story names actor/want/so-that/signal. Each decision names a rejected alternative. Each module names Interface/Seam/Depth/Deletion-test. No file paths or code snippets in Modules. Nothing is written to bare .arianna/spec.md.",
+      "files": [],
+      "expectations": [
+        "The agent reads skills/arianna-spec/SKILL.md before proceeding",
+        "The agent writes exactly one file: spec.md inside the supplied run directory (.arianna/2026-05-11-session-revoke/spec.md), NOT bare .arianna/spec.md",
+        "The spec.md has a 'Concepts' section with at least one term defined",
+        "The spec.md has a 'User Stories' section with at least one story",
+        "At least one user story names actor, want, so-that, and a measurable signal (observable, with a number or test name)",
+        "The spec.md has a 'Decisions' section",
+        "At least one decision names a rejected alternative and the trade-off",
+        "The spec.md has a 'Modules' section",
+        "At least one module names Interface, Seam, Depth justification, and Deletion-test outcome",
+        "The spec.md has a 'Deferrals' section (may be empty but heading exists)",
+        "No Module body contains a file path with a line number (e.g. 'src/x.py:42') or a code snippet",
+        "The agent returns JSON with phase, spec_path, concepts_count, stories_count, decisions_count, modules_count, deferrals_count fields",
+        "The spec_path field in the returned JSON points inside the supplied run directory (contains '2026-05-11-session-revoke/spec.md')"
+      ]
+    }
+  ]
+}

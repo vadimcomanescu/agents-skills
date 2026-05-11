@@ -1,0 +1,29 @@
+{
+  "skill_name": "arianna-plan-loop",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to add session revocation to my Flask app so logged-in users can end a session on another device from the current device. Plan this end-to-end before any code gets written. Walk the full workflow and produce a handoff packet I can give a build agent. Treat me as the user — when you reach a gate, I will answer approve. When the grill phase asks me questions, here are my prepared answers (use them in order, one per question): (1) yes 5-second propagation is acceptable; (2) we already use Postgres and Redis is not deployed; (3) revoke should hard-invalidate, not just blacklist; (4) done.",
+      "expected_output": "A per-run directory .arianna/YYYY-MM-DD-<slug>/ (slug derived from the goal, e.g. 'session-revoke') containing goal.md, research.md, spec.md, tasks.json, HANDOFF.md. The skill walks all phases without writing code. Reviews happen on spec and plan. Grill on both. HANDOFF.md lists artifacts, intent class, review/grill round counts, quality commands, build entry point. Nothing is written to bare .arianna/ (no .arianna/spec.md, no .arianna/tasks.json at the top level).",
+      "files": [],
+      "expectations": [
+        "The agent reads skills/arianna-plan-loop/SKILL.md before proceeding",
+        "The agent picks a per-run directory of the shape .arianna/YYYY-MM-DD-<slug>/ before any dispatch (creating it with mkdir -p, naming the date as today's date and the slug derived from the goal text)",
+        "The agent classifies the intent (TRIVIAL, REFACTOR, MID_SIZED, GREENFIELD, or BUG_FIX) and states the classification explicitly",
+        "The agent writes goal.md inside the per-run directory, NOT bare .arianna/goal.md",
+        "The agent walks the research phase (writes research.md inside the per-run directory, or explicitly skips with stated reason)",
+        "The agent dispatches arianna-spec or produces spec.md inside the per-run directory with five sections (Concepts, User Stories, Decisions, Modules, Deferrals)",
+        "The agent runs a review round on the spec (dispatches arianna-review or produces a verdict)",
+        "The agent runs a grill round on the spec (asks at least one question with a recommended answer, writes back)",
+        "The agent dispatches arianna-plan or produces tasks.json inside the per-run directory",
+        "The agent runs a review round on the plan",
+        "The agent writes HANDOFF.md inside the per-run directory as the final artifact",
+        "The HANDOFF.md lists pointers to spec/plan/research (all inside the per-run directory), intent class, review and grill round counts, and a build entry point",
+        "The HANDOFF.md names the per-run directory explicitly (e.g. via a Run directory header)",
+        "No file is written directly under bare .arianna/ at the top level (everything sits inside the per-run subdirectory)",
+        "The agent does NOT write production code in src/ or app/",
+        "The agent stops after writing HANDOFF.md and does not offer to start implementation"
+      ]
+    }
+  ]
+}

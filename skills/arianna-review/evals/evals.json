@@ -1,0 +1,27 @@
+{
+  "skill_name": "arianna-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this draft spec for issues blocking handoff. Phase: spec. Round: 1. Run directory: /tmp/arianna-eval/ (this is the per-run directory for this eval; treat it as your <run_dir>). The artifact is at /tmp/arianna-eval/spec.md (read it before judging). Source inputs are at /tmp/arianna-eval/goal.md and /tmp/arianna-eval/research.md. Return your verdict as a single JSON block.\n\n--- /tmp/arianna-eval/spec.md ---\n# Spec — session revoke\n\n## Concepts\n### Session Vault\nA per-user collection of active sessions stored in Postgres.\n### Magic Link\nA single-use token mailed to the user to authenticate without a password.\n\n## User Stories\n### Logged-in user revokes a session from a second device\nActor: authenticated user with ≥2 sessions. Want: end session on device B from device A. So that: a lost device cannot keep reading their inbox.\n\n## Decisions\n### Use Postgres for sessions\nWe use Postgres for sessions.\n\n## Modules\n### Session vault module\nInterface: create, revoke, valid. Implementation in src/auth/session.py:42.\n\n## Deferrals\n### Rate limiting\nDeferred: TBD.\n\n--- end spec.md ---",
+      "expected_output": "A single JSON block with verdict: REVISED, naming specific issues: (1) Magic Link concept defined but never used in stories/decisions/modules, (2) story missing observable signal, (3) Decision 'Use Postgres for sessions' names no rejected alternative, (4) Module body contains a file path with line number, (5) Deferral 'TBD' names no unblocker.",
+      "files": [],
+      "expectations": [
+        "The agent reads skills/arianna-review/SKILL.md before proceeding",
+        "The agent reads inputs from the supplied run directory (/tmp/arianna-eval/) and does not return status: blocked for a missing run_dir",
+        "The output contains exactly one JSON code block as the last block",
+        "The JSON has a 'verdict' field with value exactly 'READY' or 'REVISED' (not a third value, not partial)",
+        "The verdict is 'REVISED' (the draft has multiple checklist failures)",
+        "The JSON has a 'specific_issues' array with at least 3 entries",
+        "Each entry in specific_issues has location, issue, and suggested_fix fields",
+        "At least one specific_issues entry identifies the unused 'Magic Link' concept",
+        "At least one specific_issues entry identifies the story missing an observable signal",
+        "At least one specific_issues entry identifies the decision with no rejected alternative",
+        "At least one specific_issues entry identifies the module body containing a file path with line number",
+        "At least one specific_issues entry identifies the deferral with no unblocker named",
+        "The JSON has a 'reasoning' field with a paragraph explaining the verdict",
+        "The agent does NOT edit the spec.md file (it only returns JSON)"
+      ]
+    }
+  ]
+}

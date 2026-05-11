@@ -1,0 +1,28 @@
+{
+  "skill_name": "arianna-plan",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Break this spec into a buildable task DAG. Run directory: .arianna/2026-05-11-session-revoke/ (the coordinator already created this per-run directory; read inputs and write outputs inside it). Spec excerpt: 'Modules: Session vault (interface: create, revoke, valid; seam at every authenticated request). Stories: user can revoke session B from device A; device B gets 401 within 5s. Decisions: Postgres-backed sessions over JWT; opaque cookie keyed.' Quality commands (from .arianna/2026-05-11-session-revoke/research.md): pytest, ruff, mypy. Produce .arianna/2026-05-11-session-revoke/tasks.json — atomic tasks, refactor or behavior tagged, sound DAG, max wave width ≤ 5.",
+      "expected_output": "A .arianna/2026-05-11-session-revoke/tasks.json file with version 1, a tasks[] array, every task having id, category, tag, depends_on, files, estimate_loc, acceptance, green_on, rationale, spec_anchor. All tasks atomic (≤3 files, ≤50 LOC). Each task tagged refactor or behavior. DAG is sound. Nothing is written to bare .arianna/tasks.json.",
+      "files": [],
+      "expectations": [
+        "The agent reads skills/arianna-plan/SKILL.md before proceeding",
+        "The agent writes exactly one file: tasks.json inside the supplied run directory (.arianna/2026-05-11-session-revoke/tasks.json), NOT bare .arianna/tasks.json",
+        "The tasks.json inside the run directory is valid JSON (parses with json.tool)",
+        "Every task has id, category, tag, depends_on, files, estimate_loc, acceptance, green_on, rationale, spec_anchor fields",
+        "Every task tag is exactly 'refactor' or 'behavior' (not 'refactor+behavior' or anything else)",
+        "Every task has files[] length ≤ 3",
+        "Every task has estimate_loc ≤ 50",
+        "Every task acceptance is a single sentence naming a specific test",
+        "Every task green_on array references pytest, ruff, or mypy (matching the quality commands from the prompt)",
+        "Every task has spec_anchor pointing at a section like 'Modules § Session vault' or 'User Stories § ...'",
+        "No depends_on cycle exists (DAG is sortable)",
+        "Max wave width is ≤ 5 OR plan flags it in concerns[]",
+        "At least one task is tagged 'refactor' AND at least one task is tagged 'behavior'",
+        "The agent returns JSON with phase, plan_path, tasks_count, max_wave_width fields",
+        "The plan_path field in the returned JSON points inside the supplied run directory (contains '2026-05-11-session-revoke/tasks.json')"
+      ]
+    }
+  ]
+}

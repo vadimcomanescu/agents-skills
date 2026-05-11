@@ -11,16 +11,21 @@ These standards apply to writing the arianna-magic skill bundle. Subagents imple
 - Same-bundle file references: relative paths, no `@` prefix (e.g., `references/foo.md` not `@references/foo.md`)
 - Cross-skill references: name them plainly (`see the tdd-mutation skill`)
 
-## Pocock style (mandatory across all skills)
+## Skill prose rules (mandatory across all skills)
 
-- **Lead each major section with a one-sentence bold rule, then unpack in plain prose.** The bold sentence is the whole rule. The next sentence is the gloss.
-- **Define every term in one sentence, with a paired `_Avoid_:` line** naming what NOT to use for the same concept.
-- **Cite a named book/author in a single blockquote, then drop the formality.** One quote per principle. Then teach.
-- **Use everyday phrasing where academia uses Latin.** "Not terribly useful." "Earning its keep." Conversational, not formal.
-- **State `why` via a falsifiable test, not theory.** "The deletion test. Imagine deleting the module. If complexity vanishes, the module wasn't hiding anything."
-- **Anti-patterns get equal billing with rules.** Named, explicit, with "DO NOT" framing.
-- **Reject academic framings in a dedicated section when relevant.** Show what was considered and explicitly dropped.
-- **One excellent code example beats five mediocre ones.** Pick the most natural language for the domain.
+Skills are workflow + instructions for an executing model. They are not essays. Apply these rules:
+
+- **MUST lead each major section with a one-sentence bold rule, then unpack in plain prose.** The bold sentence is the whole rule. The next sentence is the gloss.
+- **MUST define every term in one sentence, with a paired `_Avoid_:` line** naming what NOT to use for the same concept.
+- **MUST NOT name authors, books, or sources in skill prose.** No "Pocock:", "jarrodwatts:", "Beck rule:", "Osmani says:", "per the obra pattern:", no blockquoted author principles, no `(per X)` parentheticals, no footnote-style attributions. Author-citation paratext is garbage. The rule itself stays; the source disappears.
+- **MUST NOT use blockquotes to introduce a principle.** State the rule directly in imperative voice.
+- **MUST use everyday phrasing where academia uses Latin.** "Not terribly useful." "Earning its keep." Conversational, not formal.
+- **MUST state `why` via a falsifiable test, not theory.** "The deletion test. Imagine deleting the module. If complexity vanishes, the module wasn't hiding anything."
+- **MUST give anti-patterns equal billing with rules.** Named, explicit, with "DO NOT" framing.
+- **MAY reject academic framings in a dedicated section when relevant.** Show what was considered and explicitly dropped — but do not name who rejected them.
+- **MUST prefer one excellent code example over five mediocre ones.** Pick the most natural language for the domain.
+
+Provenance and decision-source attribution belong in `.agent/plans.md` § Decisions log and in ADRs under `docs/adr/`. They do not belong in `SKILL.md`. Skills are operational; logs are historical.
 
 ## What NOT to include
 

@@ -30,7 +30,7 @@ Follow the **tdd-mutation** skill exactly. The short version:
 
 1. **Red.** Write the failing test first. Describe behavior, not implementation. Run it; confirm it fails for the right reason.
 2. **Green.** Smallest change that makes the test pass. Don't add anything the test doesn't demand.
-3. **Refactor.** Tidy on green. No behavior changes during refactor; no refactor while red. Beck's rule: refactor and behavior never in the same commit.
+3. **Refactor.** Tidy on green. No behavior changes during refactor; no refactor while red. Refactor and behavior never in the same commit.
 4. **Mutate.** After green, ask: if I flipped this condition or weakened this assertion, would a test fail? If not, the test is decorative — strengthen it.
 
 ## Evidence capture

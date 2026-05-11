@@ -4,10 +4,9 @@ The orchestrator writes this into a project's `.agent/` directory at
 Plan-handoff time. Each judge subagent reads it before reviewing a single
 worker's task.
 
-Two-stage dispatch per the obra pattern: Stage 1 is spec-compliance,
-Stage 2 is code-quality. The verbatim anti-cheat lines are not
-suggestions — they are the load-bearing prompt material that makes
-fresh-subagent judges robust.
+Two-stage dispatch: Stage 1 is spec-compliance, Stage 2 is code-quality.
+The verbatim anti-cheat lines are not suggestions — they are the
+load-bearing prompt material that makes fresh-subagent judges robust.
 
 ---
 

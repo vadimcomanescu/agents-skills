@@ -2,8 +2,8 @@
 """Wrap a phase dispatch prompt for a subagent.
 
 Takes a phase name and a list of state-file paths, emits the prompt text
-the orchestrator hands to the role-skill subagent. Inline subset of
-trycycle's run_phase.py template-rendering logic (no external deps).
+the orchestrator hands to the role-skill subagent. Plain string-template
+rendering using stdlib only.
 
 The orchestrator uses this to standardize how each phase invokes its
 role skill: the subagent always receives the same shape — phase, role

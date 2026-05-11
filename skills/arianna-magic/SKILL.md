@@ -7,9 +7,9 @@ description: Long-running autonomous build pipeline orchestrator. Use when the u
 
 ## Operating idea
 
-**You are a thin orchestrator that stays in chat while fat role skills do the work in fresh subagents.** The shape is jarrodwatts' long-running-agent: one persistent coordinator, a stack of state files in `.agent/` as working memory, parallel subagent dispatch in worktrees, and the human gated only at pre-handoff phases. Roles are not folded into this file — each role is its own skill (see the eight `arianna-*` siblings), and you dispatch them through subagents that re-enter the skill index fresh.
+**You are a thin orchestrator that stays in chat while fat role skills do the work in fresh subagents.** One persistent coordinator, a stack of state files in `.agent/` as working memory, parallel subagent dispatch in worktrees, the human gated only at pre-handoff phases. Roles are not folded into this file — each role is its own skill (see the eight `arianna-*` siblings), and you dispatch them through subagents that re-enter the skill index fresh.
 
-> jarrodwatts: "State files in `.agent/` are your working memory — re-read before every decision."
+State files in `.agent/` are your working memory. Re-read them before every decision; do not rely on what you remember from earlier in this conversation.
 
 You do not write code. You do not write specs. You classify, dispatch, persist, and render. The roles do the work.
 
@@ -36,7 +36,7 @@ _Avoid_: branching on free-form vibes. The five classes are the contract.
 | Intent class | Phases | Notes |
 |---|---|---|
 | `TRIVIAL` | 1, 5, 6 | Skip research and spec; one-task plan and one worker invocation |
-| `REFACTOR` | 0, 1, 2, 4, 5, 6 | Refactor-only tasks per Beck; never mixed with behavior |
+| `REFACTOR` | 0, 1, 2, 4, 5, 6 | Refactor-only tasks; never mixed with behavior changes |
 | `MID_SIZED` | 0, 1, 2, (3 if UI), 4, 5, 6 | Design only when the goal touches a UI surface |
 | `GREENFIELD` | 0, 1, 2, 3, 4, 5, 6 | All seven phases |
 | `BUG_FIX` | 0, 1, 2, 4, 5, 6 | Phase 1 starts with a failing-test reproduction |
@@ -74,7 +74,7 @@ Then spawn the subagent with the runtime's native mechanism (Claude Code Agent t
 
 ### Worktree discipline
 
-One worktree per parallel worker. Cap at 5 in flight. Merge to main on green review; delete the worktree. Worktrees come from jarrodwatts' merge-conflict cap rule — more than 5 and conflicts dominate.
+One worktree per parallel worker. Cap at 5 in flight. Merge to main on green review; delete the worktree. More than 5 and merge conflicts dominate.
 
 _Avoid_: long-lived feature branches. The worktree's life is exactly one task.
 
@@ -88,7 +88,7 @@ The principle that matters is fresh context, not vendor branding. A second pass 
 
 ### When you act directly
 
-Trivial fixes (typos, single-line config, one-character renames) you do yourself. Multi-file features, complex logic, anything with tests — delegate. This is jarrodwatts' over/under-delegate rule: trivial work in a subagent wastes context; multi-file work outside a subagent loses parallelism.
+Trivial fixes (typos, single-line config, one-character renames) you do yourself. Multi-file features, complex logic, anything with tests — delegate. Trivial work in a subagent wastes context; multi-file work outside a subagent loses parallelism.
 
 ## State files
 
@@ -179,12 +179,12 @@ For Phase 2 and Phase 4 only. Spawn `arianna-critique` as a fresh subagent (no p
 
 ### History-aware review log
 
-Judges append to `.agent/evidence/<task-id>/review-log.json`. The log is read at the start of each review round so the judge can refuse to re-accept a strategy that already failed. This is the ralph-to-ralph "do not repeat an approach that already failed" property.
+Judges append to `.agent/evidence/<task-id>/review-log.json`. The log is read at the start of each review round so the judge can refuse to re-accept a strategy that already failed. Do not repeat an approach that already failed.
 
 ## Anti-patterns
 
 - **Workflow leak into description.** The description is capability + triggers only — never a step list. Models follow descriptions and skip the body.
-- **Role methodology in this file.** TDD detail belongs in `arianna-implement` (which loads the `tdd-mutation` skill). Pocock vocab belongs in `arianna-spec`. Review anti-cheat lines belong in `arianna-review`. If you find yourself adding a methodology paragraph here, you are fattening the harness — stop.
+- **Role methodology in this file.** TDD detail belongs in `arianna-implement` (which loads the `tdd-mutation` skill). Spec vocabulary belongs in `arianna-spec`. Review anti-cheat lines belong in `arianna-review`. If you find yourself adding a methodology paragraph here, you are fattening the harness — stop.
 - **Skipping classify_intent.** "It's obviously greenfield" is how the wrong phase set gets run. Run the script, record the class.
 - **Same model for builder and judge in the same context.** This is the rotation rule; violating it removes the independent-evaluator property.
 - **Synchronous user prompts during autonomous phases.** After the Plan gate, no chat-blocking prompts. The dashboard plus gates back-channel is the only user surface; in Phase 5–6 even that is dormant.

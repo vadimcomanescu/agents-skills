@@ -1,6 +1,6 @@
 ---
 name: arianna-plan
-description: Planner for Phase 4 of the arianna-magic pipeline. Use when arianna-magic dispatches Phase 4 (Plan), or the user asks to "break this into tasks", "produce tasks.json", "make the build plan", "atomize the work". Outputs atomic tasks (at most 3 files and 50 LOC each) tagged refactor or behavior per Beck, with a depends_on DAG. Do not use for high-level roadmap planning — that is arianna-spec territory.
+description: Planner for Phase 4 of the arianna-magic pipeline. Use when arianna-magic dispatches Phase 4 (Plan), or the user asks to "break this into tasks", "produce tasks.json", "make the build plan", "atomize the work". Outputs atomic tasks (at most 3 files and 50 LOC each) tagged refactor or behavior, with a depends_on DAG. Do not use for high-level roadmap planning — that is arianna-spec territory.
 ---
 
 # arianna-plan
@@ -56,9 +56,7 @@ _Avoid_: "works", "is correct", "looks good", "handles edge cases". Name the tes
 
 **Tag every task with exactly one of `tag: "refactor"` or `tag: "behavior"`. Never both.** A refactor task changes structure without changing observable behavior; tests should pass before and after with no edits. A behavior task adds, removes, or alters observable behavior; tests change too. Mixing them in one diff destroys the ability to bisect: when a test fails, you cannot tell whether the new behavior is wrong or the old behavior was misplaced by refactor.
 
-> Kent Beck: "Each commit is either a structural change or a behavior change, never both."
-
-This is Beck's rule from _Tidy First?_. The plan inherits it. If the spec needs both — for example, "extract `AuthSession` into its own module and add 2FA" — the planner emits two tasks: `(refactor) extract AuthSession` first, then `(behavior) add 2FA to AuthSession` with `depends_on: ["<extract-id>"]`. Workers and judges then know which discipline they are in.
+If the spec needs both — for example, "extract `AuthSession` into its own module and add 2FA" — the planner emits two tasks: `(refactor) extract AuthSession` first, then `(behavior) add 2FA to AuthSession` with `depends_on: ["<extract-id>"]`. Workers and judges then know which discipline they are in.
 
 _Avoid_: "cleanup", "rework", "polish". Use _refactor_. _Avoid_: "feature", "story", "change". Use _behavior_.
 
@@ -66,11 +64,9 @@ _Avoid_: "cleanup", "rework", "polish". Use _refactor_. _Avoid_: "feature", "sto
 
 ## The deletion test, applied to tasks
 
-**Imagine deleting the task from the plan. If the spec still ships, the task is not earning its keep — drop it.** The deletion test is Pocock's bar for deep modules; here it is the bar for tasks. The plan is a contract with the autonomous loop, and every task in it costs at least one worker dispatch, one judge review, and one worktree. Tasks that exist for completeness or symmetry but do not advance an acceptance bullet in `spec.md` are pure cost.
+**Imagine deleting the task from the plan. If the spec still ships, the task is not earning its keep — drop it.** The deletion test, used elsewhere on modules, applies here at the task level: the plan is a contract with the autonomous loop, and every task in it costs at least one worker dispatch, one judge review, and one worktree. Tasks that exist for completeness or symmetry but do not advance an acceptance bullet in `spec.md` are pure cost.
 
-> Mat Pocock: "Imagine deleting the module. If you can, and the system still works, the module wasn't earning its keep."
-
-The Pocock test was designed for modules; tasks have the same property. A task earns its keep when at least one acceptance bullet in `spec.md` would become unverifiable if the task were absent. If you cannot point at that bullet, delete the task.
+A task earns its keep when at least one acceptance bullet in `spec.md` would become unverifiable if the task were absent. If you cannot point at that bullet, delete the task.
 
 _Avoid_: "scaffolding task", "preparatory task", "nice-to-have". Either it backs an acceptance bullet or it goes.
 
@@ -82,7 +78,7 @@ A refactor task is allowed because it unblocks the next behavior task — the de
 
 ## Parallel-wave estimation
 
-**Walk the DAG layer-by-layer; each layer is a wave; the orchestrator runs up to 5 tasks per wave.** A wave is the set of tasks whose `depends_on[]` are all in earlier waves. Wave 0 is every task with empty `depends_on`. Wave 1 is every task whose dependencies are all in Wave 0. And so on. The orchestrator caps in-flight workers at 5 (jarrodwatts' merge-conflict cap), so a wave wider than 5 spills over and serializes the remainder inside the same logical layer.
+**Walk the DAG layer-by-layer; each layer is a wave; the orchestrator runs up to 5 tasks per wave.** A wave is the set of tasks whose `depends_on[]` are all in earlier waves. Wave 0 is every task with empty `depends_on`. Wave 1 is every task whose dependencies are all in Wave 0. And so on. The orchestrator caps in-flight workers at 5 (the merge-conflict cap), so a wave wider than 5 spills over and serializes the remainder inside the same logical layer.
 
 _Avoid_: "phase", "batch", "step". Say _wave_.
 
@@ -102,13 +98,11 @@ If most tasks have `depends_on` lengths of 1 forming a long chain, the plan is o
 
 **Falsifiable test.** If your DAG has more waves than tasks ÷ 2, you have over-serialised — every wave averages fewer than two parallel tasks. Re-examine `depends_on[]` for narrative-order pseudo-dependencies and flatten.
 
-## trycycle plan-editor loop
+## Plan-editor loop
 
 **The plan-editor loop runs up to five rounds of arianna-critique, each with a fresh planner subagent, terminating on a READY verdict.** This is the auto-critic loop the orchestrator wraps Phase 4 in. Each round: the planner emits a `tasks.json` draft, a fresh arianna-critique subagent reviews it stateless, returns `READY` (ship to grill/gate) or `REVISED` (with line-level notes), and a fresh planner re-drafts on `REVISED`. After five rounds without `READY`, the orchestrator surfaces the residual disagreement to the user at the Phase 4 gate.
 
-> trycycle subagent-defaults: "Each round runs in a fresh subagent. The planner that wrote round N must not be the planner that fixes round N+1."
-
-trycycle's up-the-hill protocol is built on context-fresh iteration. A planner that just defended a decision is the worst candidate to revise it; a fresh planner inherits no investment in the previous draft. Pair this with arianna-critique's stateless contract (no prior round context loaded), and each round is a genuine new attempt rather than an incremental edit.
+Each round runs in a fresh subagent. The planner that wrote round N must not be the planner that fixes round N+1. A planner that just defended a decision is the worst candidate to revise it; a fresh planner inherits no investment in the previous draft. Paired with arianna-critique's stateless contract (no prior round context loaded), each round is a genuine new attempt rather than an incremental edit.
 
 _Avoid_: "feedback loop", "review cycle", "iteration". Say _plan-editor loop_.
 
@@ -182,7 +176,7 @@ When the orchestrator dispatches Phase 4:
 1. **Read.** `.agent/spec.md` (the source of truth), `.agent/research.md` § Quality Commands (for test/lint commands the worker will invoke), and if a prior `tasks.json` exists, the latest critique notes.
 2. **Slice.** Walk each module in the spec. For each module, list the behavior changes the spec commits to and the refactors required to enable them. Each becomes a candidate task.
 3. **Atomize.** For each candidate, check the four caps. Split anything over the line until every task fits.
-4. **Tag.** Apply the Beck rule. Split any mixed task into a `refactor` predecessor and a `behavior` successor.
+4. **Tag.** Apply the refactor-or-behavior-never-both rule. Split any mixed task into a `refactor` predecessor and a `behavior` successor.
 5. **Wire.** Fill in `depends_on[]` strictly by true data/code dependency. Drop narrative-order pseudo-dependencies.
 6. **Delete.** For each task, run the deletion test. If you cannot name the acceptance bullet it backs, remove the task.
 7. **Estimate waves.** Topologically layer. Report wave count and max wave width. If max width > 5, the orchestrator will serialize within the wave — flag it.
@@ -211,11 +205,11 @@ If you cannot complete the plan — for example, the spec is internally contradi
 ## Anti-patterns
 
 - **Story-sized tasks.** A "task" that is really a feature with sub-tasks hidden inside. If a worker would naturally split it on receipt, you should have split it in planning.
-- **Mixed refactor + behavior.** The Beck rule violation. Worker writes a 60-line diff with both a rename and a new endpoint; the judge cannot tell whether the rename broke an unrelated test.
+- **Mixed refactor + behavior.** A tag-rule violation. Worker writes a 60-line diff with both a rename and a new endpoint; the judge cannot tell whether the rename broke an unrelated test.
 - **Narrative `depends_on`.** Task B depends on Task A only because you described A first. If B's `files[]` does not overlap A's outputs, the dependency is fake — drop it and let them parallelise.
 - **Free-form `category`.** `category: "session-management"` instead of `auth`. The judge loads the wrong QA modules; security checks silently get skipped.
 - **`estimate_loc: 120`.** If your honest estimate is over 50, the task is not atomic. Split it before writing the JSON.
-- **Re-dispatching the loop yourself.** The plan-editor loop is the orchestrator's job. A planner that critiques its own draft is not a fresh planner — that breaks the trycycle contract.
+- **Re-dispatching the loop yourself.** The plan-editor loop is the orchestrator's job. A planner that critiques its own draft is not a fresh planner — that breaks the fresh-subagent-per-round contract.
 - **Acceptance as a paragraph.** "Login works for valid users and rejects invalid users with appropriate error messages and rate-limits brute-force attempts" is three tasks, not one acceptance line.
 - **Scaffolding tasks.** A task that "sets up the directory structure" with no behavior dependent. Fails the deletion test.
 

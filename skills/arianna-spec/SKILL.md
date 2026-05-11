@@ -1,6 +1,6 @@
 ---
 name: arianna-spec
-description: Spec writer for Phase 2 of the arianna-magic pipeline. Use when arianna-magic dispatches Phase 2 (Spec), or the user asks to "write a spec", "draft requirements", "synthesize what we know", "produce spec.md". Uses Pocock vocab (Module, Interface, Seam, Depth, Adapter, Context, Deletion-test), writes spec.md as decisions-as-paragraphs. Do not use for interactive requirement elicitation — that is arianna-grill.
+description: Spec writer for Phase 2 of the arianna-magic pipeline. Use when arianna-magic dispatches Phase 2 (Spec), or the user asks to "write a spec", "draft requirements", "synthesize what we know", "produce spec.md". Uses the core vocabulary (Module, Interface, Seam, Depth, Adapter, Context, Deletion-test) and writes spec.md as decisions-as-paragraphs. Do not use for interactive requirement elicitation — that is arianna-grill.
 ---
 
 # arianna-spec
@@ -9,9 +9,7 @@ description: Spec writer for Phase 2 of the arianna-magic pipeline. Use when ari
 
 **Synthesize what you already know — do not interview the user.** Phase 0 (`arianna-research`) and Phase 1 (`goal.md`) already collected the inputs. Your job is to fold `.agent/research.md`, `.agent/goal.md`, the codebase, and any pre-existing `CONTEXT.md` / `docs/adr/` into a single coherent `.agent/spec.md`. The interview happens later, in `arianna-grill`, after the auto-critic loop has surfaced what synthesis alone cannot.
 
-> Pocock, `to-prd`: "Do NOT interview the user — just synthesize what you already know."
-
-You write principle-first, in Pocock's vocabulary. Every load-bearing rule leads with a one-sentence bold statement, then a gloss, then a falsifiable test. Every term you introduce has a one-line definition paired with an `_Avoid_:` line naming what NOT to use for the same concept.
+You write principle-first. Every load-bearing rule leads with a one-sentence bold statement, then a gloss, then a falsifiable test. Every term you introduce has a one-line definition paired with an `_Avoid_:` line naming what NOT to use for the same concept.
 
 **Falsifiable test.** If your draft asks the user a question, you are doing `arianna-grill`'s job. Stop, remove the question, decide one way or the other, and mark the loser as deferred if it might come back.
 
@@ -25,9 +23,9 @@ The pipeline already paid for one research pass and one goal-confirmation pass. 
 
 Trigger phrases live in the description. The non-trigger to keep in mind: this is not the interactive spec writer. If the user is currently in chat asking exploratory questions, the right skill is `arianna-grill`. If `.agent/research.md` and `.agent/goal.md` do not exist, the pipeline has not reached Phase 2 yet — stop and return that as the structured-JSON failure, do not invent inputs.
 
-## Pocock vocabulary
+## Core vocabulary
 
-Use these terms exactly. Consistent language is the whole point — drift into "component", "service", "API", or "boundary" and the resulting spec stops being useful to the planner and the reviewer. Definitions are paraphrased faithfully from Pocock's `LANGUAGE.md`; rejected framings come from the same source.
+Use these terms exactly. Consistent language is the whole point — drift into "component", "service", "API", or "boundary" and the resulting spec stops being useful to the planner and the reviewer.
 
 ### Terms
 
@@ -53,7 +51,7 @@ _Avoid_: "wrapper", "impl class" — those say nothing about the seam.
 
 **Context**
 The named scope inside which terms in `CONTEXT.md` mean what `CONTEXT.md` says they mean. A repo may carry one context or several; multi-context repos resolve names through `CONTEXT-MAP.md`.
-_Avoid_: "bounded context", "subdomain", "aggregate root" (DDD ceremony Pocock retired).
+_Avoid_: "bounded context", "subdomain", "aggregate root" (DDD ceremony — explicitly rejected here).
 
 **Deletion-test**
 The test for whether a module is deep enough to deserve its interface: imagine deleting the module. If complexity vanishes, the module wasn't hiding anything. If complexity reappears across N callers, the module was earning its keep.
@@ -67,7 +65,7 @@ _Avoid_: "responsibility check", "SRP audit" — those reward narrative, not con
 
 ### Rejected framings
 
-- **Ubiquitous language, aggregate, bounded context.** Pocock retired these. Say _shared language_, _module_, _context_.
+- **Ubiquitous language, aggregate, bounded context.** Rejected. Say _shared language_, _module_, _context_.
 - **"Interface" as the TypeScript `interface` keyword or a class's public methods.** Too narrow. The interface here is every fact a caller must know.
 - **"Boundary"** as a synonym for seam. Boundary is overloaded with DDD. Say _seam_.
 - **Service / Repository / Factory as load-bearing nouns.** They describe role at a single tier and obscure depth. Name the module after the behaviour it consolidates.
@@ -84,11 +82,11 @@ _Avoid_: "responsibility check", "SRP audit" — those reward narrative, not con
 └── Modules         — the deep modules the build will land on
 ```
 
-_Avoid_: "Functional Requirements", "Non-Functional Requirements", "System Architecture Diagram", "Glossary Appendix". Pocock's four-section spec carries the same load with less ceremony.
+_Avoid_: "Functional Requirements", "Non-Functional Requirements", "System Architecture Diagram", "Glossary Appendix". The four-section spec carries the same load with less ceremony.
 
 ### Concepts
 
-The terms specific to *this* build, defined in Pocock style: one-line definition plus `_Avoid_:` line. If `CONTEXT.md` exists at the repo root, copy the relevant terms verbatim and add only what is missing for this build; do not re-litigate established names. If `CONTEXT.md` does not exist, `arianna-grill` may create it later — your job is to seed the candidate terms in `spec.md` Concepts, not to write `CONTEXT.md` yourself.
+The terms specific to *this* build, defined as one-line definition plus `_Avoid_:` line. If `CONTEXT.md` exists at the repo root, copy the relevant terms verbatim and add only what is missing for this build; do not re-litigate established names. If `CONTEXT.md` does not exist, `arianna-grill` may create it later — your job is to seed the candidate terms in `spec.md` Concepts, not to write `CONTEXT.md` yourself.
 
 Use the project's domain words, not generic architecture words. "Order intake module" beats "FooBarHandler"; "scheduling window" beats "TimeRangeService".
 
@@ -116,15 +114,13 @@ The deep modules this build will land on. One sub-section per module, in this sh
 - **Depth justification.** What behaviour sits behind the interface, and what shallow alternative was rejected.
 - **Deletion test.** What complexity reappears across callers if this module is deleted.
 
-No file paths. No code snippets. Pocock's bar: "they may end up being outdated very quickly". Schemas or state machines that ARE the decision (a wire protocol, a finite state machine) MAY appear inline — they are the spec, not an illustration of it.
+No file paths. No code snippets — they may end up being outdated very quickly. Schemas or state machines that ARE the decision (a wire protocol, a finite state machine) MAY appear inline — they are the spec, not an illustration of it.
 
 **Falsifiable test.** If a Module sub-section does not pass the deletion test (complexity does not concentrate when you imagine deleting it), the module is shallow — fold it into a deeper neighbour or delete it from the spec.
 
 ## Decisions are paragraphs, not formal ADRs
 
-**By default, every decision in `spec.md` is a paragraph in the Decisions section — three to six sentences saying what was chosen, what was rejected, and why.** No `Status:`, no `Considered Options:`, no `Consequences:`, no separate file. The spec is the record of the decision.
-
-> Pocock, `ADR-FORMAT.md`: "An ADR can be a single paragraph. The value is in recording *that* a decision was made and *why* — not in filling out sections."
+**By default, every decision in `spec.md` is a paragraph in the Decisions section — three to six sentences saying what was chosen, what was rejected, and why.** No `Status:`, no `Considered Options:`, no `Consequences:`, no separate file. The spec is the record of the decision. The value is in recording *that* a decision was made and *why* — not in filling out sections.
 
 A formal ADR file at `docs/adr/NNNN-<slug>.md` is reserved for decisions that meet all three of these bars:
 
@@ -151,8 +147,6 @@ Three sentences. What, what-not, why. No headings.
 ## The deep-module deletion test
 
 **Every Module you propose must pass the deletion test before it earns a sub-section in `spec.md`.** Imagine deleting the module. If complexity vanishes, the module was a pass-through and the spec is overstating it. If complexity reappears across N callers, the module is earning its keep and deserves the interface.
-
-> Pocock, `LANGUAGE.md`: "Imagine deleting the module. If complexity vanishes, the module wasn't hiding anything. If complexity reappears across N callers, the module was earning its keep."
 
 The deletion test is the bar, not a hint. A module that fails it is shallow by construction. Three common shapes that fail:
 
@@ -194,7 +188,7 @@ One paragraph per deferral. Each carries a named unblocker. No `Deferred (TBD)` 
 For every Phase 2 dispatch:
 
 1. **Read inputs.** Load `.agent/research.md`, `.agent/goal.md`, and any pre-existing `CONTEXT.md` and `docs/adr/*.md`. If any are missing, return the structured-JSON failure noting which.
-2. **Extract candidate concepts.** Pull every domain term that appears in goal or research more than once or that anchors a User Story. Define each in Pocock style: one-line definition plus `_Avoid_:`.
+2. **Extract candidate concepts.** Pull every domain term that appears in goal or research more than once or that anchors a User Story. Define each: one-line definition plus `_Avoid_:`.
 3. **Draft User Stories.** One paragraph per story. Each names caller, outcome, observable signal. Stories cite concepts by name only — if a story needs a new word, add it to Concepts.
 4. **Inventory candidate modules.** From the stories, list the named behaviours that consolidate work for multiple callers. Apply the deletion test to each candidate. Discard the ones that fail.
 5. **For each surviving module, write the Module sub-section.** Interface (every caller-fact), Seam, depth justification, deletion-test outcome.
@@ -209,12 +203,12 @@ For every Phase 2 dispatch:
 - You do not ask the user questions. The synthesis is the whole job; `arianna-grill` runs the interactive pass.
 - You do not write `CONTEXT.md` or `docs/adr/`. Those are repo-root artifacts, owned by `arianna-grill`, created lazily.
 - You do not write `tasks.json`, the design, or the implementation. Those are later phases.
-- You do not paraphrase Pocock's vocabulary. Use the terms exactly. Drift breaks the planner's and reviewer's vocabulary downstream.
+- You do not paraphrase the core vocabulary. Use the terms exactly. Drift breaks the planner's and reviewer's vocabulary downstream.
 
 ## Anti-patterns
 
 - **Interview prose in `spec.md`.** "Should we use Postgres or Mongo?" belongs in `arianna-grill`. Decide one way or mark deferred with an unblocker — never leave a question floating.
-- **DDD ceremony.** "Bounded contexts", "aggregate roots", "ubiquitous language" — Pocock dropped these. Say "context", "module", "shared language".
+- **DDD ceremony.** "Bounded contexts", "aggregate roots", "ubiquitous language" — explicitly rejected. Say "context", "module", "shared language".
 - **File paths and code snippets.** They go stale immediately. Exception: schemas or state machines that ARE the decision.
 - **Bulk test plans.** "We will write tests for X, Y, Z" tests imagined behaviour. The spec names the observable signal per User Story; the worker writes the test against the actual seam in Phase 5.
 - **`Status: Proposed` headings on every decision.** Decisions are paragraphs. The status field is for the rare formal ADR, not the default decision form.
@@ -227,5 +221,4 @@ For every Phase 2 dispatch:
 
 - The companion skill `arianna-grill` runs the interactive pass after this skill writes `spec.md`. It owns the questions you do not ask, the `CONTEXT.md` writes you do not make, and the `docs/adr/` creation gated on the three-bar test.
 - The companion skill `arianna-critique` runs between this skill and `arianna-grill`, up to three rounds, returning `READY` or `REVISED` per round. Revise on `REVISED`; pass control to the grill skill on `READY` or on cap-out.
-- Pocock vocabulary lives in `improve-codebase-architecture/LANGUAGE.md` (external). The terms here are faithful paraphrases for the spec-writer's context; the canonical definitions stay in Pocock's file.
 - The orchestrator (`arianna-magic`) dispatches this skill in Phase 2 with `.agent/research.md` and `.agent/goal.md` attached and expects structured JSON back. See `arianna-magic/SKILL.md` "Dispatch" for the prompt shape.

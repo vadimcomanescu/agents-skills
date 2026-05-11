@@ -9,7 +9,7 @@ description: UI designer for Phase 3 of the arianna-magic pipeline. Use when ari
 
 **You produce one self-contained `screens.html` that shows every primary user job as a clickable mock, and nothing else.** Phase 3 exists to let the human see the product before the worker phase commits code that is hard to undo. The artifact is a single file the user opens with `file://`. Mocked data, clickable nav between screens, no real backend, no framework, no build step.
 
-> jarrodwatts: "State files in `.agent/` are your working memory — re-read before every decision." Your decision here is which screens earn their keep. The state file is `.agent/spec.md`.
+Re-read `.agent/spec.md` before every decision. Your decision here is which screens earn their keep; the state file holds the user stories that determine that.
 
 You do not design components in isolation, you do not write a design system, you do not draft a style guide. You take the user stories from `.agent/spec.md`, pick the screens that carry them, and render those screens in one HTML file that opens locally.
 
@@ -58,7 +58,7 @@ The orchestrator records the no-op and advances to Phase 4.
 
 **Reuse the Birchline tokens from the dashboard template, do not redefine them.** The token block lives in `skills/arianna-magic/references/templates/dashboard.html` in the `:root { ... }` declaration at the top of the `<style>`. Read it once, paste the `:root` block verbatim into `screens.html`, and use the resulting custom properties everywhere. No new color names, no new font stack, no new scale, no new radii.
 
-> "Beautiful like Thariq." Birchline is a verbatim system, not an inspiration. Surface variation belongs in the project's own `tokens.css` (see below), never in screens.html itself.
+Birchline is a verbatim system, not an inspiration. Surface variation belongs in the project's own `tokens.css` (see below), never in `screens.html` itself.
 
 _Avoid_: "design system", "theme", "look and feel". Say _Birchline tokens_.
 
@@ -88,9 +88,7 @@ _Avoid_: "shadow elevation", "raised cards". Use the 1.5px border for hierarchy,
 
 ## Screen list
 
-**One screen per primary user job. If a screen can be cut and the user still gets the job done, cut it.** This is the deletion test, applied at the screen level. The deletion test is borrowed from Pocock's deep-module rule: imagine deleting the thing; if the rest of the system still works, the thing was not earning its keep.
-
-> Pocock: "Imagine deleting the module. If complexity vanishes, the module wasn't hiding anything."
+**One screen per primary user job. If a screen can be cut and the user still gets the job done, cut it.** This is the deletion test, applied at the screen level: imagine deleting the screen; if the rest of the product still works, the screen was not earning its keep.
 
 _Avoid_: "we'll need a settings page", "users will expect a profile screen", "let's add an admin view for later". The trim is aggressive on purpose.
 

@@ -13,3 +13,4 @@ skill-eval-*.html
 .agent/progress.md
 .agent/gates/
 .agent/*.lock
+.agent/*.log

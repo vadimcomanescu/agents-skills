@@ -24,6 +24,7 @@ This repo uses a skill-driven authoring model. The source skills in `skills/` ar
 - MUST use `tdd-mutation` when implementing features, fixing bugs, refactoring tested code, changing observable behavior, or checking test strength.
 - MUST use `systematic-debugging` when behavior is failing, flaky, unreproduced, or not yet root-caused.
 - MUST use `verification-before-completion` before claiming work is done, fixed, passing, or verified.
+- MUST use `slap` when the user invokes `/slap` to flag that steering has failed and the same correction is recurring.
 
 ### Lifecycle Mapping
 
@@ -74,6 +75,7 @@ Composition rule: the user request is the orchestrator. Skills may reference oth
 - `tdd-mutation`: Iron Law test-first implementation plus mutation-backed verification. Vertical slices, behavior-first tests, and no new surviving mutants.
 - `systematic-debugging`: Phase 1 reproduce, Phase 2 root cause, Phase 3 fix plus verify.
 - `verification-before-completion`: No "done", "fixed", or "passing" claims without output.
+- `slap`: User-invoked correction protocol. Forces meta-level changes to repo, docs, and behavior when steering has failed.
 
 ## Creating Or Editing A Skill
 

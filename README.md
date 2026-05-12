@@ -8,7 +8,7 @@ The [`npx skills`](https://github.com/vercel-labs/skills) CLI handles the instal
 
 ```bash
 npx skills@latest add vadimcomanescu/agents-skills -g -y -a claude-code codex gemini-cli opencode
-for s in tdd-mutation systematic-debugging verification-before-completion creating-skills; do
+for s in tdd-mutation systematic-debugging verification-before-completion creating-skills slap; do
   for a in codex gemini opencode; do
     [ -d ~/."$a" ] && ln -sfn "../../.agents/skills/$s" ~/."$a/skills/$s"
   done
@@ -69,7 +69,7 @@ agents=()
 npx skills@latest add vadimcomanescu/agents-skills -g -y -a "${agents[@]}"
 
 # Bridge the universal agents (CLI auto-handles only claude-code).
-for s in tdd-mutation systematic-debugging verification-before-completion creating-skills; do
+for s in tdd-mutation systematic-debugging verification-before-completion creating-skills slap; do
   for a in codex gemini opencode; do
     [ -d ~/."$a" ] && ln -sfn "../../.agents/skills/$s" ~/."$a/skills/$s"
   done
@@ -77,7 +77,7 @@ done
 ```
 
 - Recognized `-a` values for this repo: `claude-code`, `codex`, `gemini-cli`, `opencode`.
-- Skills shipped here: `tdd-mutation`, `systematic-debugging`, `verification-before-completion`, `creating-skills`. Use `-s` to install a subset; omit it for all four.
+- Skills shipped here: `tdd-mutation`, `systematic-debugging`, `verification-before-completion`, `creating-skills`, `slap`. Use `-s` to install a subset; omit it for all five.
 - MUST NOT use `--all` (alias for `-s '*' -a '*' -y`) — it creates dirs for every agent the CLI knows about.
 - The `ln -s` loop is required for Codex/Gemini/OpenCode (and harmless if the agent dir is absent — the loop skips it).
 
@@ -88,7 +88,7 @@ done
 Update all four skills from this repo in one go:
 
 ```bash
-npx skills update -g tdd-mutation systematic-debugging verification-before-completion creating-skills
+npx skills update -g tdd-mutation systematic-debugging verification-before-completion creating-skills slap
 ```
 
 The `npx skills` CLI updates by skill name (not by source repo), so the four skills are listed explicitly. The CLI fetches the latest from the source recorded in `~/.agents/.skill-lock.json` and overwrites the canonical bundle at `~/.agents/skills/<name>/`. The per-agent symlinks (`~/.claude/skills/<name>`, `~/.codex/skills/<name>`, etc.) keep working — no re-symlinking needed.
@@ -113,6 +113,7 @@ npx skills@latest add vadimcomanescu/agents-skills -g -y -a claude-code codex ge
 | [`tdd-mutation`](skills/tdd-mutation/SKILL.md) | Iron Law test-first implementation plus mutation-backed verification. Vertical slices, behavior-first tests, and no new surviving mutants. |
 | [`systematic-debugging`](skills/systematic-debugging/SKILL.md) | Phase 1 reproduce, Phase 2 root cause, Phase 3 fix + verify. No symptom patches. |
 | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) | Forbids "done"/"fixed"/"passing" claims without verification output. |
+| [`slap`](skills/slap/SKILL.md) | User-invoked correction protocol. Forces meta-level changes (repo, docs, behavior) when steering has failed. |
 
 ## Development
 

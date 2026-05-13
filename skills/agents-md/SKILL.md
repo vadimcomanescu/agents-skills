@@ -79,7 +79,7 @@ Before producing the plan, every item below must be true.
 - **Build the References table** at the bottom of `AGENTS.md`. Every row points to a doc that exists on disk.
 - **Verify paths on disk** — `test -e <path>` for every path mentioned in `AGENTS.md`. Any miss is a stale link.
 - **Replace hardcoded inventories** with `ls`, `find`, or a runtime command. Static lists go stale.
-- **Symlink `CLAUDE.md → AGENTS.md`** if no symlink exists: `ln -s AGENTS.md CLAUDE.md`.
+- **Symlink `CLAUDE.md → AGENTS.md`.** Missing: `ln -s AGENTS.md CLAUDE.md`. Regular file: merge any unique content into `AGENTS.md`, then `rm CLAUDE.md && ln -s AGENTS.md CLAUDE.md`. Already a symlink to `AGENTS.md`: skip.
 - **Read content, not just structure.** Three concrete passes — generic exhortation does not fire:
   1. List every named entity in inventory sections (components, scripts, tokens, deps). Check the list for duplicates.
   2. Cross-reference stated tooling with the actual stack: if `Stack` names Vite but `build` runs `tsup`, one of them is wrong — flag it.

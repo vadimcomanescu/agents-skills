@@ -93,16 +93,17 @@ Read `references/project-templates.md` for initial structures, then customize.
 ### Per-Milestone Execution
 
 1. **Re-read state:** Read `${RUN_DIR}/progress.md` and `${RUN_DIR}/plans.md` before every milestone
-2. **Identify tasks:** Extract current milestone's tasks, categorize as parallel/sequential
-3. **Create worktrees + branches:** For each task in this milestone, run the worktree command below. Max 5 parallel subagents to limit merge pressure.
-4. **Dispatch implementers:** One subagent per parallel task, each pointed at its worktree. The orchestrator pastes the absolute worktree path and branch name into the dispatch prompt.
-5. **Verify results:** After each subagent reports, run tests, linter, type checker inside its worktree
-6. **Merge branches:** Merge each task branch into `<base-branch>` in the primary checkout, resolving any conflicts. Do not cleanup worktrees yet — a worktree with unresolved merge state is still the source of those changes. After all branches are merged, run tests/lint/types on `<base-branch>` (each branch passing in isolation does not guarantee they pass together).
-7. **Spec-compliance review:** Dispatch the spec-compliance reviewer on the merged milestone code
-8. **Code-quality review:** Dispatch the code-quality reviewer on the same merged code
-9. **Fix cycle:** Route review feedback to fix subagents (parallel, in fresh worktrees). Re-review until approved or 3 iterations reached
-10. **Cleanup worktrees:** `git worktree remove --force ${RUN_DIR}/worktrees/<task-slug>` after each successful merge (see Worktree Setup for why `--force`). Optionally delete the task branch.
-11. **Update state:** Write milestone summary, decisions, and architecture state to `${RUN_DIR}/progress.md`
+2. **Pin milestone base SHA:** Capture `git rev-parse HEAD` on `<base-branch>` BEFORE creating any worktrees for this milestone. Record it in `progress.md` as this milestone's `milestone_base_sha`. Use this exact value whenever a dispatch template names `[milestone_base_sha]` (steps 8 and 9 below). Do NOT reuse a prior milestone's base SHA or the project's initial SHA — reviewers will report on changes outside the milestone's actual scope.
+3. **Identify tasks:** Extract current milestone's tasks, categorize as parallel/sequential
+4. **Create worktrees + branches:** For each task in this milestone, run the worktree command below. Max 5 parallel subagents to limit merge pressure.
+5. **Dispatch implementers:** One subagent per parallel task, each pointed at its worktree. The orchestrator pastes the absolute worktree path and branch name into the dispatch prompt.
+6. **Verify results:** After each subagent reports, run tests, linter, type checker inside its worktree
+7. **Merge branches:** Merge each task branch into `<base-branch>` in the primary checkout, resolving any conflicts. Do not cleanup worktrees yet — a worktree with unresolved merge state is still the source of those changes. After all branches are merged, run tests/lint/types on `<base-branch>` (each branch passing in isolation does not guarantee they pass together).
+8. **Spec-compliance review:** Dispatch the spec-compliance reviewer on the merged milestone code
+9. **Code-quality review:** Dispatch the code-quality reviewer on the same merged code
+10. **Fix cycle:** Route review feedback to fix subagents (parallel, in fresh worktrees). Re-review until approved or 3 iterations reached
+11. **Cleanup worktrees:** `git worktree remove --force ${RUN_DIR}/worktrees/<task-slug>` after each successful merge (see Worktree Setup for why `--force`). Optionally delete the task branch.
+12. **Update state:** Write milestone summary, decisions, and architecture state to `${RUN_DIR}/progress.md`
 
 ### Subagent Worktree Setup
 
@@ -172,8 +173,8 @@ Agent tool (general-purpose):
     [Paste the milestone's task list and acceptance criteria from plans.md]
 
     ## Implementation to review
-    Run: git log --oneline [base_sha]..HEAD
-    Run: git diff [base_sha]..HEAD --stat
+    Run: git log --oneline [milestone_base_sha]..HEAD
+    Run: git diff [milestone_base_sha]..HEAD --stat
     Inspect the changes against the spec.
 
     ## What to check
@@ -200,7 +201,7 @@ Agent tool (general-purpose, can be superpowers:code-reviewer if available):
     Review code quality of the implementation.
 
     ## Scope
-    Run: git diff [base_sha]..HEAD
+    Run: git diff [milestone_base_sha]..HEAD
     Read: [absolute resolved RUN_DIR]/standards.md
 
     ## Review Calibration

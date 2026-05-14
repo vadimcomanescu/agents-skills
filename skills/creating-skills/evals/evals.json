@@ -5,18 +5,70 @@
       "id": 1,
       "prompt": "I want to make a skill that turns rough commit messages into proper conventional commit format. It should pull from staged changes and rewrite the message in place.",
       "expected_output": "A new skill bundle under skills/conventional-commits/ with SKILL.md, optionally a scripts/rewrite.py helper. Description follows capability + triggers shape.",
+      "metadata": {"category": "create-from-scratch"},
       "files": []
     },
     {
       "id": 2,
       "prompt": "Update my existing pdf-extract skill — it's too verbose and the description doesn't trigger when users say 'pull text out of this doc'. Tighten it.",
       "expected_output": "Edited SKILL.md with shorter body and an updated description that covers the 'pull text out of' phrasing. May propose a description-optimization run.",
+      "metadata": {"category": "refine-existing"},
       "files": []
     },
     {
       "id": 3,
       "prompt": "Run evals on my new spreadsheet-formatter skill. I have 3 test prompts in mind. Let's see how it does with vs without.",
       "expected_output": "Spawns subagent pairs (with-skill / baseline) for each prompt, captures timing, drafts assertions, runs the grader, generates the review viewer.",
+      "metadata": {"category": "run-evals-mechanic"},
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "I just finished an orchestrator skill that runs an 11-phase autonomous workflow. The description-trigger eval passed 24/24 on a mix of trigger and no-trigger prompts. Mark it done?",
+      "expected_output": "Refuses. Recognizes the skill is workflow-shaped and that description-trigger eval is insufficient for workflow skills. Demands a behavioral eval: subagent loads the full SKILL.md body, receives a real prompt, executes the first load-bearing phases, artifacts are checked. Cites Step 5's eval-type table.",
+      "metadata": {"category": "workflow-vs-trigger-eval-conflation", "failure_mode_caught": "designed-is-not-verified"},
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Phase 4 of my new skill says 'install the X pipeline from the upstream repo at github.com/foo/X-spec'. The upstream README is comprehensive and well-organized. I followed the skill structure and marked Phase 4 done. Anything missing?",
+      "expected_output": "Asks whether the upstream was actually cloned, built, and run on a sample input. Warns that 'spec repo' or 'README-only repo' is common (e.g. github.com/unclebob/Acceptance-Pipeline-Specification — spec document, no runnable parser/generator/mutator). Demands a verified test run, or vendoring a working reference.",
+      "metadata": {"category": "upstream-spec-vs-implementation", "failure_mode_caught": "designed-is-not-verified"},
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "I delegated reference-file authoring to 4 parallel writer subagents. Each reported 'wrote N files, line counts L1..Ln, all per spec'. Skill validation passes (frontmatter, naming, file existence). Can I ship?",
+      "expected_output": "Refuses. Per system-prompt trust-but-verify: writer-subagent summaries describe intent, not output. Demands that at least one file per writer-subagent be opened and checked against the brief before shipping.",
+      "metadata": {"category": "subagent-summary-trusted", "failure_mode_caught": "designed-is-not-verified"},
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "My skill has a fix-loop with a round counter, a 3-round cap, and a catastrophic-failure escalation. The prose describes it clearly in three sentences. Do I need a dot diagram?",
+      "expected_output": "Yes. This is the textbook 'process loop where the agent might stop early' case from the graphviz section. A round-counter loop with a cap and an escalation is exactly when dot is mandatory — labels carry semantic meaning (round++, cap-trip) that prose hides. Demands a small inline dot digraph. Cites the diagrams section + Step 9 row 7 as load-bearing.",
+      "metadata": {"category": "missing-dot-diagram", "failure_mode_caught": "rule-acknowledged-not-applied"},
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "Combined-failure prompt: I wrote a 14-reference-file orchestrator skill. I opened 2 of the files. The description-trigger eval passed 24/24. Phase 4 references an upstream spec repo without cloning it. Validation passes. Ready to ship?",
+      "expected_output": "Refuses on three independent grounds: (a) trigger eval insufficient for workflow skills (demand behavioral eval); (b) referenced upstream unverified (demand clone + run); (c) 12 of 14 subagent-written files unchecked (demand spot-check per writer). Routes through Step 9 audit and reports N's per load-bearing row.",
+      "metadata": {"category": "combined-failure", "failure_mode_caught": "designed-is-not-verified", "load_bearing": true},
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "My skill is workflow-shaped. The Step 9 audit shows N's on rows 7, 10, 11, 12, 14. Tests pass and validation is green. Can I close the task?",
+      "expected_output": "No. Rows 7, 10, 11, 12, 14 are load-bearing rows of the Step 9 audit. Any N in those rows is a blocker. 'Tests pass' refers to unit tests, not the rows the audit asks about (dot diagrams, behavioral eval, referenced-tool execution, subagent-file spot-checks, end-to-end workflow run). Lists each N and what to do to convert it to Y.",
+      "metadata": {"category": "audit-skipped", "failure_mode_caught": "rule-acknowledged-not-applied"},
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "Below a dot diagram in my SKILL.md I wrote: 'Two things the diagram makes explicit that prose hid: X and Y.' It explains what the diagram contributes. Keep it or cut it?",
+      "expected_output": "Cut it. That's author-commentary about what the author learned by making the diagram — meta-commentary about the artifact, not the artifact. Skill files state the rule (here the diagram); 'why we changed this' belongs in commit messages or PR descriptions, never in the skill body. If load-bearing facts are in the commentary, move them INTO the diagram's labels so they survive without the author's voice.",
+      "metadata": {"category": "author-commentary-in-skill-body", "failure_mode_caught": "rule-acknowledged-not-applied"},
       "files": []
     }
   ]

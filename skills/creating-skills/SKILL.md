@@ -146,6 +146,17 @@ Run the validator: `bash scripts/validate.sh "$INPUT_FILE"`.
 
 ### Step 5 — Run test cases
 
+**Two eval types exist; report which you ran.** Conflating them is the most common skill-authoring failure mode.
+
+| Eval type | What it tests | Subagent setup | When sufficient |
+|---|---|---|---|
+| **Trigger-discrimination** | Does the description fire on the right prompts and stay quiet on the wrong ones? | Subagent reads ONLY the frontmatter description; answers TRIGGER / NO_TRIGGER per prompt. | Skill is small and the description is the whole surface. |
+| **Behavioral** | Once triggered, does the workflow actually produce the artifact / fire the right tool / enter the right phase the skill body promises? | Subagent loads the FULL SKILL.md body + relevant references; receives a real prompt; runs at least the first few load-bearing steps. Capture the artifacts produced. | Skill is workflow-shaped (orchestrator, multi-phase, dispatch-heavy). Trigger-eval alone is NOT enough — the description fires correctly on prompts the workflow then fumbles. |
+
+For workflow-shaped skills, run BOTH. A skill that triggers on the right prompts and then does the wrong thing is worse than one that fails to trigger at all.
+
+If a phase says "run pipeline X" or "use tool Y", **verify X and Y exist and produce the artifact the skill claims** before declaring done. Upstream README ≠ runnable implementation; vendor a working reference or be explicit the user provides one.
+
 Save 2-3 realistic prompts to `evals/evals.json` (full schema in `references/schemas.md`). Don't write assertions yet — draft them while runs are in progress.
 
 ```json
@@ -191,6 +202,30 @@ scripts/quick_validate.py <path/to/skill-folder>
 Checks YAML frontmatter, required fields, naming rules. Fix and rerun until clean.
 
 Packaging-only. If you reached here without doing Steps 4–7 (test prompts, grade, iterate), the skill isn't done — only the bundle shape is. Go back unless the user said "no evals."
+
+### Step 9 — Self-audit against this skill's own rules
+
+The most common skill-authoring failure mode is "rule-acknowledged ≠ rule-applied." Run this checklist as a Y/N gate before claiming done. Any N is a blocker; N's in load-bearing rows (7, 10, 11, 12, 14, 15) are the kind of N that look like Y under pressure.
+
+| # | Rule | Source | Check |
+|---|---|---|---|
+| 1 | Description = capability + triggers, not workflow summary | Step 4 / frontmatter | Open description; if it reads as steps, rewrite. |
+| 2 | Description under 1024 chars | Step 4 | `awk '/^description: /{sub(/^description: /,""); print length}' SKILL.md` |
+| 3 | SKILL.md body ≤ 500 lines | Progressive disclosure | `wc -l SKILL.md`; over → split to `references/`. |
+| 4 | References loaded on demand | Progressive disclosure | SKILL.md tells the agent *when* to load each ref. |
+| 5 | No README / CHANGELOG / meta-docs in bundle | "What to leave out" | `ls` the bundle. |
+| 6 | Each major section opens with one sentence on *why* | "Explain the why" | Spot-check 3 section heads. |
+| 7 | Dot diagrams for non-obvious decision points | Diagrams section | Inventory decisions (loops with counters, A-vs-B forks, escalation paths). Each one needs a dot diagram OR a stated reason. Prose alone for a round-counter loop is not enough. |
+| 8 | Same-bundle links use relative paths, no `@<path>` | Frontmatter examples | Grep for `@`-prefixed. |
+| 9 | Trigger-discrimination eval ran on ≥ 8-12 prompts | Step 5 | `evals/evals.json` + results in `evals/iteration-N/`. |
+| 10 | Behavioral eval ran (workflow-shaped skills only) | Step 5 eval-type table | Subagent loaded full SKILL.md body, executed at least the first load-bearing phases, artifacts checked. Trigger-only on a workflow-shaped skill = N. |
+| 11 | Tools/pipelines the skill references actually run | Step 5 vendor clause | For each "run X" / "use Y" in the skill, X and Y are runnable and produce the artifact claimed. Upstream README is not enough. |
+| 12 | Reference files written by subagents have been opened and checked | System-prompt trust-but-verify | Spot-check at least one file per writer subagent. |
+| 13 | Anti-patterns section names the failure modes | Step 4 body sections | At least 3 named anti-patterns with the fix beside each. |
+| 14 | If workflow-shaped, the workflow itself has been exercised end-to-end | This step | The end-to-end result is an executed artifact, not just a documented one. |
+| 15 | No author-citation or meta-commentary in skill body | "What to leave out" | Grep for "Two things the diagram shows...", "What this section explains...", "We added this because...", "Note that we...". Rule belongs in the file; rationale belongs in the commit message. |
+
+Score: count N's. Any N in 7, 10, 11, 12, 14, 15 → blocker; do the work, re-score. Caveat: this audit, like every other rule in this skill, is read-only — it does not enforce itself. If you're tempted to mark a load-bearing row Y without evidence, you've already failed it.
 
 ## Description Optimization (optional)
 

@@ -1,0 +1,95 @@
+{
+  "skill_name": "creating-skills",
+  "iteration": 2,
+  "eval_set": "evals 4-10 (added 2026-05 to catch the failure modes from the arianna-autonomous-agent redesign session)",
+  "method": "Two batched subagents in parallel: one loaded creating-skills/SKILL.md (with_skill), one explicitly forbidden from reading any skill or memory file (baseline). Outputs at iteration-2/{with_skill,without_skill}/output.md.",
+  "grading_per_eval": [
+    {
+      "eval_id": 4,
+      "topic": "workflow-shaped skill, trigger-eval only",
+      "baseline_verdict": "Not done — trigger eval proves activation, not behavior.",
+      "with_skill_verdict": "Refuses; demands behavioral eval; cites Step 5 eval-type table + Step 9 row 10.",
+      "actually_caught_by_skill": true,
+      "actually_caught_by_baseline": true,
+      "delta": "Framing only. Baseline catches the failure without the skill; the skill adds precise vocabulary and rule traceability.",
+      "skill_adds_enforcement": false
+    },
+    {
+      "eval_id": 5,
+      "topic": "upstream README ≠ implementation",
+      "baseline_verdict": "Missing — pin/vendor the upstream.",
+      "with_skill_verdict": "Refuses; upstream README ≠ runnable; vendor or be explicit; cites Step 9 row 11.",
+      "actually_caught_by_skill": true,
+      "actually_caught_by_baseline": true,
+      "delta": "Framing only.",
+      "skill_adds_enforcement": false
+    },
+    {
+      "eval_id": 6,
+      "topic": "writer-subagent self-reports trusted",
+      "baseline_verdict": "Don't ship — sample the files.",
+      "with_skill_verdict": "Refuses; spot-check writer-subagent files; cites trust-but-verify + Step 9 row 12.",
+      "actually_caught_by_skill": true,
+      "actually_caught_by_baseline": true,
+      "delta": "Framing only.",
+      "skill_adds_enforcement": false
+    },
+    {
+      "eval_id": 7,
+      "topic": "fix-loop in prose vs dot diagram",
+      "baseline_verdict": "Optional — prose can suffice for simple loops.",
+      "with_skill_verdict": "Add the dot diagram; cites Diagrams section + Step 9 row 7 as load-bearing.",
+      "actually_caught_by_skill": true,
+      "actually_caught_by_baseline": false,
+      "delta": "BEHAVIORAL CHANGE. Baseline calls the diagram optional; skill makes it mandatory for round-counter loops with caps and escalations. The ONLY eval where loading the skill changes the verdict, not just the framing.",
+      "skill_adds_enforcement": true
+    },
+    {
+      "eval_id": 8,
+      "topic": "combined failure (trigger-only eval + unverified upstream + unchecked subagent files)",
+      "baseline_verdict": "Don't ship — three issues flagged.",
+      "with_skill_verdict": "Refuses on three independent grounds; routes through Step 9 audit.",
+      "actually_caught_by_skill": true,
+      "actually_caught_by_baseline": true,
+      "delta": "Framing only.",
+      "skill_adds_enforcement": false
+    },
+    {
+      "eval_id": 9,
+      "topic": "Step 9 audit Ns ignored when tests/validation pass",
+      "baseline_verdict": "Don't close — audit items override green tests.",
+      "with_skill_verdict": "Don't close; cites load-bearing rows 7/10/11/12/14.",
+      "actually_caught_by_skill": true,
+      "actually_caught_by_baseline": true,
+      "delta": "Framing only.",
+      "skill_adds_enforcement": false
+    },
+    {
+      "eval_id": 10,
+      "topic": "author-commentary in skill body",
+      "baseline_verdict": "Cut the meta-commentary — let the diagram speak.",
+      "with_skill_verdict": "Cut it; rule 15 forbids meta-commentary in skill body.",
+      "actually_caught_by_skill": true,
+      "actually_caught_by_baseline": true,
+      "delta": "Framing only.",
+      "skill_adds_enforcement": false
+    }
+  ],
+  "aggregate": {
+    "evals_total": 7,
+    "caught_with_skill": 7,
+    "caught_by_baseline": 6,
+    "skill_actually_changed_verdict": 1,
+    "evals_where_skill_only_added_framing": 6,
+    "pass_rate_with_skill": 1.0,
+    "pass_rate_baseline": 0.857
+  },
+  "findings": [
+    "The new evals exercise the rules. 7/7 with-skill responses match expected behavior.",
+    "But 6 of 7 also pass with baseline alone. A careful general-purpose subagent — no skill loaded, no memory files, no conversation context — catches the failure modes from general engineering common sense.",
+    "Only Eval 7 (dot-diagram requirement) shows the skill changing the verdict, not just the vocabulary. Baseline calls a fix-loop diagram 'optional'; skill makes it mandatory for round-counter loops with caps + escalations.",
+    "Implication: the rules I missed in the prompting session are rules a baseline subagent reaches for automatically. I had MORE context (skill loaded, memory entries, system prompt's trust-but-verify) and STILL performed below the baseline. Not a rule-ignorance failure — a rule-erosion-under-pressure failure.",
+    "Stacking more rules into creating-skills body therefore does not change behavior under pressure. The right fix is structural: rules must FIRE at the moment of claim, not exist as background. Until that interrupt exists, this skill is teaching, not enforcing."
+  ],
+  "verdict": "PASS on the eval mechanic. FAIL on the underlying assumption that adding rules to skill bodies changes agent behavior under workflow pressure. Step 9 audit is included anyway because (a) the one row that does change verdicts (row 7) is worth the body cost, and (b) the audit itself is the artifact a future interrupt would run against."
+}

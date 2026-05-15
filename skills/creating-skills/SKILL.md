@@ -192,6 +192,7 @@ Read transcripts, not just outputs. Look for:
 - **Generalize from feedback.** The skill will run a million times across prompts you'll never see. Avoid overfitty fixes — branch out, try different metaphors, recommend different patterns.
 - **Keep the prompt lean.** If a section makes the agent waste time, delete it and rerun.
 - **Repeated work = bundle it.** If three subagents independently wrote `create_docx.py`, write it once, drop in `scripts/`, point the skill at it.
+- **Keep operating laws separate from attribution and examples.** The rule, the source ("Anthropic says…"), and the example illustrating it have different decay rates. Entangling them means a stale example or a shifted source story makes the rule itself look stale. Edit each as an independent unit.
 
 ### Step 8 — Validate
 

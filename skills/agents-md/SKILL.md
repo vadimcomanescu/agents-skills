@@ -9,7 +9,7 @@ Every line in `AGENTS.md` gets loaded on every task. Bloat steals the budget you
 
 **Core principle.** Every line in `AGENTS.md` must be project-specific. If a competent model would do the right thing without it, delete it.
 
-The root file is a map. Depth lives in `docs/` and `references/`.
+The root file is a map. Depth lives in `README.md`, `docs/`, and `references/`.
 
 ## Normative language
 
@@ -28,6 +28,7 @@ Contradictions encode a user choice the model cannot see. Autoresolving silently
 Keep in `AGENTS.md` — nothing else:
 
 - One-sentence project description
+- Source-of-truth pointers for deeper project overview, architecture, install, and workflow docs
 - Package manager — only if it isn't `npm`
 - Non-standard build / test / lint / typecheck commands
 - Forbidden Patterns table
@@ -46,12 +47,14 @@ Flag every instance. Concrete before/after for each pattern lives in `references
 - **Hardcoded inventories** — component lists, dependency versions. Replace with `ls` / `find` / runtime command.
 - **Inline rationale** — "Use X because A, B, C" per rule. Move rationale to an ADR.
 - **Zero-value sections** — entirely covered by another section. Delete.
+- **README duplication** — project overview, install, usage, architecture tours, and package/distribution detail already maintained in `README.md`. Keep a one-line identity in `AGENTS.md`, then point to `README.md`.
 - **Stale paths** — paths that no longer resolve. Verify, then fix or remove.
 
 ### 4. Group the rest
 
 Sort remaining content:
 
+- `README.md` — human-facing project overview, install/usage, package or distribution model, and broad architecture tour
 - `docs/adr/` — non-obvious architectural decisions (see Final checks)
 - `docs/conventions.md` — project-specific idioms beyond language defaults
 - `docs/workflow.md` — branch / commit / PR cycle with exact commands
@@ -81,6 +84,7 @@ Before producing the plan, every item below must be true.
 - **List 3–7 Boundaries** — `never X` rules covering the project's actual incident surface. More than seven and the model starts ignoring them.
 - **Specify Verification commands** — exact CLI calls to run after every change.
 - **Build the References table** at the bottom of `AGENTS.md`. Every row points to a doc that exists on disk.
+- **Reference README when it owns orientation.** If `README.md` explains what the repo is, how it is installed, or how users consume it, list it in References instead of duplicating that content.
 - **Verify paths on disk** — `test -e <path>` for every path mentioned in `AGENTS.md`. Any miss is a stale link.
 - **Replace hardcoded inventories** with `ls`, `find`, or a runtime command. Static lists go stale.
 - **Symlink `CLAUDE.md → AGENTS.md`.** Missing: `ln -s AGENTS.md CLAUDE.md`. Regular file: merge any unique content into `AGENTS.md`, then `rm CLAUDE.md && ln -s AGENTS.md CLAUDE.md`. Already a symlink to `AGENTS.md`: skip.

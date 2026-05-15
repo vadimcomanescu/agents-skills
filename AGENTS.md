@@ -48,6 +48,7 @@ jq . .codex-plugin/plugin.json        # valid JSON
 
 | Path | Topic |
 |---|---|
+| `README.md` | Human-facing repo overview, install/update commands, distribution model, and skill list |
 | `skills/creating-skills/SKILL.md` | Authoring or editing any skill — directory layout, frontmatter, descriptions, evals |
 | `skills/agents-md/SKILL.md` | Auditing and refactoring this file |
 | `skills/slap/SKILL.md` | User-invoked correction protocol when steering fails |

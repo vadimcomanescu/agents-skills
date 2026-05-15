@@ -11,6 +11,10 @@ Every line in `AGENTS.md` gets loaded on every task. Bloat steals the budget you
 
 The root file is a map. Depth lives in `docs/` and `references/`.
 
+## Normative language
+
+Use plain imperatives for routine workflow instructions. Reserve `MUST` / `MUST NOT` for hard constraints with clear failure modes, and use `SHOULD` for strong defaults where a deviation can be explained. Do not require every rule to begin with RFC 2119 keywords; keyword inflation hides the rules that actually matter.
+
 ## Workflow
 
 ### 1. Find contradictions

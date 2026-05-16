@@ -1,8 +1,6 @@
 # Project File Templates
 
-Templates for the per-run state files that live in `${RUN_DIR}` (`.arianna/runs/<run-id>/`). The orchestrator customizes each to the project's tech stack and patterns when writing it into the run directory.
-
-**Placeholder convention:** `${RUN_DIR}` in these templates is a placeholder that the orchestrator MUST substitute with the absolute resolved path of the current run's directory before writing the file. Subagents that read these files should never see `${RUN_DIR}` literal text — only concrete absolute paths.
+Templates for `.arianna/` project files. Customize to your project's tech stack and patterns.
 
 ## goal.md
 
@@ -110,7 +108,7 @@ Write code that a senior staff engineer would be proud of. Not "good enough" —
 
 - Each commit is a single logical change that compiles and passes tests.
 - Commit messages explain WHY, not WHAT. The diff shows what changed.
-- No merge commits in feature work. Rebase onto `<base-branch>`.
+- No merge commits in feature work. Rebase onto main.
 ```
 
 ## implement.md
@@ -122,11 +120,10 @@ You are a subagent implementing a specific task. Follow this workflow exactly.
 
 ## Before You Start
 
-1. Read `${RUN_DIR}/goal.md` — understand the project's purpose
-2. Read `${RUN_DIR}/standards.md` — understand the quality bar
-3. cd into your worktree (path provided in your dispatch prompt)
-4. Read your task description carefully — understand exactly what to build
-5. If anything is unclear, state your assumptions in your report
+1. Read `.arianna/goal.md` — understand the project's purpose
+2. Read `.arianna/standards.md` — understand the quality bar
+3. Read your task description carefully — understand exactly what to build
+4. If anything is unclear, state your assumptions in your report
 
 ## Implementation Workflow
 

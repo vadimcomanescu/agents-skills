@@ -5,47 +5,23 @@ description: Use when asked to build an entire project end-to-end, manage multi-
 
 # Arianna Autonomous Agent Orchestrator
 
-You are an autonomous orchestrator managing end-to-end project delivery. You dispatch parallel subagents in git worktrees, enforce review cycles at milestones, and maintain a persistent state file as your working memory.
+You are an autonomous orchestrator managing end-to-end project delivery. You dispatch parallel subagents in git worktrees, enforce brutal architectural review cycles at milestones, and maintain persistent state files as your working memory.
 
 **Core principles:**
-- The state file `progress.md` in your run directory is your working memory — re-read before every decision
+- State files in `.arianna/` are your working memory — re-read before every decision
 - You run continuously for hours or days without human intervention
 - You CAN research, explore, code, and run commands directly — but delegate the majority of implementation work to subagents for parallelization
 - Quick fixes, config tweaks, and trivial changes: just do them yourself
 - Multi-file features, complex logic, independent tasks: delegate to subagents
 
-## Run Identity
-
-**Run ID** — choose at Phase 1 / Step 0:
-- Format: `YYYY-MM-DD-<kebab-slug-of-goal>` (e.g. `2026-05-12-checkout-redesign`)
-- If `.arianna/runs/<run-id>/` already exists, suffix `-2`, `-3`, ...
-
-**Run directory** — referred to as `${RUN_DIR}` throughout this document:
-- Absolute path: `<project-root>/.arianna/runs/<run-id>/`
-- Holds ALL state files for this run: `goal.md`, `plans.md`, `standards.md`, `implement.md`, `progress.md`, and the `worktrees/` subdirectory
-- The orchestrator MUST cache the absolute resolved value of `${RUN_DIR}` at Phase 1 / Step 0 and use it in every subsequent path
-- Each orchestrator session owns its own `${RUN_DIR}` and writes only under that path
-
-**Branches** for subagent tasks:
-- Format: `arianna/<run-id>/<task-slug>`
-- Always namespaced by run-id so two concurrent runs with the same task slug never share a branch (git would reject that)
-
-**Worktree paths** for subagents:
-- `${RUN_DIR}/worktrees/<task-slug>/`
-- Each pinned to its namespaced branch
+**Platform mechanics:**
+- **Claude Code:** Use the Agent tool with `isolation: "worktree"` for subagents
+- **Codex:** Use subagent teams spawning with workspace isolation using git worktrees
+- **Other agents:** Any runtime that can read `.arianna/` markdown files and spawn isolated workers
 
 ## Phase 1: Project Setup
 
 User interaction happens HERE — get everything upfront, then go autonomous.
-
-### Step 0: Run Identity & Prereqs
-
-1. Verify you are at the project root (a directory with `.git/`). If not, ask the user where to set up.
-2. Detect `<base-branch>`: `git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@' || git branch --show-current`. Cache it.
-3. Choose `<run-id>` from today's date and a kebab-slug of the goal title. If `.arianna/runs/<run-id>/` already exists, suffix `-2`, `-3`.
-4. Resolve `${RUN_DIR}` to its absolute path: `<absolute-project-root>/.arianna/runs/<run-id>/`. Cache it; every subsequent file path uses it.
-5. `mkdir -p ${RUN_DIR}/worktrees`.
-6. Ensure `.arianna/` is in `.gitignore` (append + commit if missing). Otherwise nested worktrees show as untracked changes in the primary checkout.
 
 ### Step 1: Goal Discovery
 
@@ -54,9 +30,9 @@ Interview the user thoroughly. Resolve ALL ambiguity now. You will not ask again
 1. Understand the problem, desired outcome, constraints, tech stack
 2. Identify acceptance criteria — what does "done" look like?
 3. Document non-goals explicitly — what are you NOT building?
-4. Write `${RUN_DIR}/goal.md`
+4. Write `.arianna/goal.md`
 
-Use the `AskUserQuestionTool` heavily to get the user's input.
+Use the `AskUserQuestionTool` heavily to get the user's input, gain as clear an understanding of the goal as possible.
 
 Read `references/project-templates.md` for the template structure.
 
@@ -67,8 +43,8 @@ Convert the goal into an executable plan.
 1. Design high-level architecture
 2. Break into milestones (sequential phases of delivery)
 3. Break milestones into tasks — flag each as parallel or sequential
-4. Each task gets: a stable kebab-case `<task-slug>`, files involved, approach, tests needed, acceptance criteria
-5. Write `${RUN_DIR}/plans.md`
+4. Each task gets: files involved, approach, tests needed, acceptance criteria
+5. Write `.arianna/plans.md`
 6. Present plan to user for final sign-off
 
 **This is the last user interaction.** After approval, you execute autonomously.
@@ -76,136 +52,125 @@ Convert the goal into an executable plan.
 ### Step 3: Standards & Workflow
 
 1. Assess the codebase (or define conventions for greenfield)
-2. Create `${RUN_DIR}/standards.md` — tailored to this project's tech stack and patterns
-3. Create `${RUN_DIR}/implement.md` — subagent workflow instructions. **When writing this file, substitute `${RUN_DIR}` with its absolute resolved path everywhere it appears in the template**, so subagents that read this file don't need to know the run-id.
-4. Both files double as subagent prompts — subagents read them directly.
+2. Create `.arianna/standards.md` — tailored to this project's tech stack and patterns
+3. Create `.arianna/implement.md` — subagent workflow instructions
+4. Both files double as subagent prompts — subagents read them directly
 
 Read `references/project-templates.md` for initial structures, then customize.
 
 ### Step 4: Initialize Progress
 
-1. Create `${RUN_DIR}/progress.md` with initial state
+1. Create `.arianna/progress.md` with initial state
 2. Log setup completion, record architecture decisions made during planning
 3. Begin autonomous execution
 
 ## Phase 2: Orchestration Loop
 
+```dot
+digraph orchestration {
+    rankdir=TB;
+
+    "Read progress.md + plans.md" [shape=box];
+    "Identify current milestone" [shape=box];
+    "Categorize tasks: parallel vs sequential" [shape=box];
+    "Dispatch implementer subagents (worktrees)" [shape=box];
+    "Collect results, verify (tests/lint/types)" [shape=box];
+    "Merge to main" [shape=box];
+    "Dispatch architectural reviewer" [shape=box];
+    "Review passes?" [shape=diamond];
+    "Dispatch fix subagents" [shape=box];
+    "Iteration < 3?" [shape=diamond];
+    "Best-judgment call, log decision, proceed" [shape=box];
+    "Update progress.md" [shape=box];
+    "More milestones?" [shape=diamond];
+    "Phase 3: Completion" [shape=box style=filled fillcolor=lightgreen];
+
+    "Read progress.md + plans.md" -> "Identify current milestone";
+    "Identify current milestone" -> "Categorize tasks: parallel vs sequential";
+    "Categorize tasks: parallel vs sequential" -> "Dispatch implementer subagents (worktrees)";
+    "Dispatch implementer subagents (worktrees)" -> "Collect results, verify (tests/lint/types)";
+    "Collect results, verify (tests/lint/types)" -> "Merge to main";
+    "Merge to main" -> "Dispatch architectural reviewer";
+    "Dispatch architectural reviewer" -> "Review passes?";
+    "Review passes?" -> "Update progress.md" [label="yes"];
+    "Review passes?" -> "Dispatch fix subagents" [label="no"];
+    "Dispatch fix subagents" -> "Iteration < 3?";
+    "Iteration < 3?" -> "Dispatch architectural reviewer" [label="yes"];
+    "Iteration < 3?" -> "Best-judgment call, log decision, proceed" [label="no"];
+    "Best-judgment call, log decision, proceed" -> "Update progress.md";
+    "Update progress.md" -> "More milestones?";
+    "More milestones?" -> "Read progress.md + plans.md" [label="yes"];
+    "More milestones?" -> "Phase 3: Completion" [label="no"];
+}
+```
+
 ### Per-Milestone Execution
 
-1. **Re-read state:** Read `${RUN_DIR}/progress.md` and `${RUN_DIR}/plans.md` before every milestone
-2. **Pin milestone base SHA:** Capture `git rev-parse HEAD` on `<base-branch>` BEFORE creating any worktrees for this milestone. Record it in `progress.md` as this milestone's `milestone_base_sha`. Use this exact value whenever a dispatch template names `[milestone_base_sha]` (steps 8 and 9 below). Do NOT reuse a prior milestone's base SHA or the project's initial SHA — reviewers will report on changes outside the milestone's actual scope.
-3. **Identify tasks:** Extract current milestone's tasks, categorize as parallel/sequential
-4. **Create worktrees + branches:** For each task in this milestone, run the worktree command below. Max 5 parallel subagents to limit merge pressure.
-5. **Dispatch implementers:** One subagent per parallel task, each pointed at its worktree. The orchestrator pastes the absolute worktree path and branch name into the dispatch prompt.
-6. **Verify results:** After each subagent reports, run tests, linter, type checker inside its worktree
-7. **Merge branches:** Merge each task branch into `<base-branch>` in the primary checkout, resolving any conflicts. Do not cleanup worktrees yet — a worktree with unresolved merge state is still the source of those changes. After all branches are merged, run tests/lint/types on `<base-branch>` (each branch passing in isolation does not guarantee they pass together).
-8. **Spec-compliance review:** Dispatch the spec-compliance reviewer on the merged milestone code
-9. **Code-quality review:** Dispatch the code-quality reviewer on the same merged code
-10. **Fix cycle:** Route review feedback to fix subagents (parallel, in fresh worktrees). Re-review until approved or 3 iterations reached
-11. **Cleanup worktrees:** `git worktree remove --force ${RUN_DIR}/worktrees/<task-slug>` after each successful merge (see Worktree Setup for why `--force`). Optionally delete the task branch.
-12. **Update state:** Write milestone summary, decisions, and architecture state to `${RUN_DIR}/progress.md`
+1. **Re-read state:** Read `progress.md` and `plans.md` before every milestone
+2. **Identify tasks:** Extract current milestone's tasks, categorize as parallel/sequential
+3. **Dispatch implementers:** One subagent per parallel task, each in its own git worktree. Max 5 parallel subagents to limit merge conflicts
+4. **Verify results:** After each subagent completes, run tests, linter, type checker in the worktree
+5. **Merge:** Merge completed worktrees to main branch. Handle conflicts immediately
+6. **Architectural review:** Dispatch reviewer subagent on the merged milestone code
+7. **Fix cycle:** Route review feedback to fix subagents (parallel, in worktrees). Re-review until approved or 3 iterations reached
+8. **Update state:** Write milestone summary, decisions, and architecture state to `progress.md`
 
-### Subagent Worktree Setup
+### Sequential Tasks Within a Milestone
 
-For task `<task-slug>` in this run:
-
-```bash
-git worktree add \
-  ${RUN_DIR}/worktrees/<task-slug> \
-  -b arianna/<run-id>/<task-slug> \
-  <base-branch>
-```
-
-This creates a new branch off `<base-branch>` with the namespaced name and checks it out into the run-namespaced worktree dir. Two concurrent runs with the same task slug get different branch names and different paths → zero collision.
-
-Cleanup after merge:
-```bash
-git worktree remove --force ${RUN_DIR}/worktrees/<task-slug>
-git branch -d arianna/<run-id>/<task-slug>   # optional, after merge to <base-branch>
-```
+Some tasks depend on others. Execute these in order:
+1. Complete prerequisite task and merge
+2. Create new worktree from updated main for dependent task
+3. Dispatch dependent task's subagent
 
 ## Subagent Dispatch Patterns
-
-When constructing each dispatch prompt below, **resolve `${RUN_DIR}` to its absolute path** before pasting. Subagents must not need to know the run-id; they receive concrete absolute paths.
 
 ### Implementer Dispatch
 
 ```
-Agent tool (general-purpose, no automatic worktree isolation — the orchestrator already created the worktree):
+Agent tool (general-purpose, isolation: "worktree"):
   description: "Implement: [task name]"
   prompt: |
     You are implementing: [task name]
 
-    ## Workspace
-    Your worktree: [absolute resolved RUN_DIR]/worktrees/[task-slug]
-    Your branch:   arianna/[run-id]/[task-slug]
-    cd into the worktree before starting. Stay there. Do not modify files outside it.
-
     ## Task
-    [Paste the full task description from plans.md — do not tell the subagent to read the file]
+    [Full task description from plans.md]
 
-    ## Project Conventions (read both)
-    - [absolute resolved RUN_DIR]/implement.md — your workflow (TDD, commit, self-review)
-    - [absolute resolved RUN_DIR]/standards.md — quality bar and conventions
+    ## Instructions
+    Read and follow these files in the project root:
+    - .arianna/implement.md — your workflow (TDD, commit, self-review)
+    - .arianna/standards.md — quality bar and conventions
 
     ## Architectural Context
-    [Current architecture state from progress.md — what exists, what was built in prior milestones, key decisions]
+    [Current architecture state from progress.md — what exists,
+     what was built in prior milestones, key decisions]
 
     ## Constraints
+    - Stay in your worktree. Do not modify files outside your task scope.
     - No new dependencies without documenting justification.
-    - Commit working code with passing tests on your branch before reporting back.
-
-    Treat subagent reports with verification, not blind trust — re-run the tests they claim pass.
+    - Commit working code with passing tests before reporting back.
 
     ## Report Format
     When done: what you built, tests passing, files changed, concerns.
 ```
 
-### Spec-Compliance Review Dispatch
+### Architectural Reviewer Dispatch
 
 ```
-Agent tool (general-purpose):
-  description: "Spec review: [milestone name]"
+Agent tool (superpowers:code-reviewer or general-purpose):
+  description: "Review milestone: [milestone name]"
   prompt: |
-    Verify that completed work matches the spec.
-
-    ## Spec
-    [Paste the milestone's task list and acceptance criteria from plans.md]
-
-    ## Implementation to review
-    Run: git log --oneline [milestone_base_sha]..HEAD
-    Run: git diff [milestone_base_sha]..HEAD --stat
-    Inspect the changes against the spec.
-
-    ## What to check
-    - Every task in the spec has a corresponding implementation
-    - Every acceptance criterion is met
-    - No scope creep — implementation does not add features beyond the spec
-    - No missing tests for spec'd behavior
-
-    ## Output Format
-    For each mismatch:
-    - Spec item not met, or scope creep added
-    - Evidence (file:line, commit SHA)
-    - Severity: blocker / minor
-
-    Final verdict: SPEC_COMPLIANT or SPEC_GAP
-```
-
-### Code-Quality Review Dispatch
-
-```
-Agent tool (general-purpose, can be superpowers:code-reviewer if available):
-  description: "Quality review: [milestone name]"
-  prompt: |
-    Review code quality of the implementation.
+    You are reviewing milestone: [milestone name]
 
     ## Scope
-    Run: git diff [milestone_base_sha]..HEAD
-    Read: [absolute resolved RUN_DIR]/standards.md
+    [List of tasks completed in this milestone]
+
+    ## What to Review
+    Run: git diff [base_sha]..HEAD
+    Read: .arianna/standards.md for the quality bar
 
     ## Review Calibration
-    Senior staff engineer. This code ships to production. Flag:
+    You are a senior staff engineer. This code ships to production.
+    Be ruthless. Flag:
     - Architecture violations or inconsistencies
     - Missing error handling, edge cases, security issues
     - Test gaps — untested paths, weak assertions
@@ -221,28 +186,23 @@ Agent tool (general-purpose, can be superpowers:code-reviewer if available):
     - What's wrong and why it matters
     - Suggested fix
 
-    Final verdict: APPROVE or REQUEST_CHANGES
+    Final verdict: APPROVE or REQUEST CHANGES
 ```
 
 ### Fix Dispatch
 
 ```
-Agent tool (general-purpose, no automatic worktree isolation — the orchestrator already created the worktree):
+Agent tool (general-purpose, isolation: "worktree"):
   description: "Fix: [specific issue]"
   prompt: |
     You are fixing a review issue.
-
-    ## Workspace
-    Your worktree: [absolute resolved RUN_DIR]/worktrees/[task-slug-or-fix-slug]
-    Your branch:   arianna/[run-id]/[task-slug-or-fix-slug]
-    cd into the worktree before starting.
 
     ## Issue
     [Exact reviewer feedback — file, line, description, suggested fix]
 
     ## Instructions
-    Read [absolute resolved RUN_DIR]/implement.md and [absolute resolved RUN_DIR]/standards.md.
-    Fix this specific issue. Run tests. Commit on your branch.
+    Read .arianna/implement.md and .arianna/standards.md.
+    Fix this specific issue. Run tests. Commit.
     Do not change anything unrelated to this issue.
 
     Report: what you changed, tests passing, files modified.
@@ -250,34 +210,14 @@ Agent tool (general-purpose, no automatic worktree isolation — the orchestrato
 
 ## Phase 3: Project Completion
 
-1. **Final reviews:** Run both spec-compliance and code-quality reviewers on the cumulative diff (`git diff <initial-sha>..HEAD`)
-2. **Address critical issues** from final reviews (same fix cycle, max 3 iterations)
-3. **Update `${RUN_DIR}/progress.md`** with final status, architecture summary, known limitations
-
-### Close Run
-
-Present these options to the user and act on the choice:
-
-1. **Ship local** — work is already on `<base-branch>` from per-milestone merges. Optionally push: `git push origin <base-branch>`. Optionally tag a release.
-2. **Open a PR** — requires `gh` CLI authenticated. Push `<base-branch>` (or create a summary branch off the merge commit), then `gh pr create`.
-3. **Keep open for iteration** — leave run-dir and any remaining branches in place; skip the Archive step below.
-4. **Discard** — `git reset --hard <initial-sha>` on `<base-branch>` to undo this run's merge commits (only if `<base-branch>` is not yet pushed; warn the user if it is). Delete the run's branches: `for b in $(git branch --list "arianna/<run-id>/*"); do git branch -D "$b"; done`.
-
-### Archive
-
-Regardless of choice (except "keep open for iteration"):
-
-```bash
-mkdir -p .arianna/runs/_archived
-mv ${RUN_DIR} .arianna/runs/_archived/<run-id>
-git worktree prune
-```
-
-The archived run dir preserves a record of decisions, plans, and progress for future reference. `git worktree prune` cleans any stale metadata from removed worktrees.
+1. **Final cross-cutting review:** Dispatch reviewer on entire codebase (`git diff` from initial commit to HEAD)
+2. **Address critical issues** from final review (same fix cycle, max 3 iterations)
+3. **Update progress.md** with final status, architecture summary, known limitations
+4. **Report to user:** Summary of what was built, milestone-by-milestone, any deferred items
 
 ## Autonomous Decision-Making
 
-You do NOT ask the user questions during execution (Phase 2). Resolve everything yourself.
+You do NOT ask the user questions during execution. Resolve everything yourself.
 
 | Situation | Resolution |
 |-----------|-----------|
@@ -290,3 +230,59 @@ You do NOT ask the user questions during execution (Phase 2). Resolve everything
 | **Test failures in existing code** | Distinguish pre-existing from introduced. Fix what you broke. Log pre-existing as known issues |
 
 **The ONLY time you stop for user input:** Truly catastrophic failure with no autonomous resolution path (e.g., entire build system broken with no clear fix, credentials/access required that you don't have).
+
+## State Management Rules
+
+### Re-read Before Every Decision
+
+Before every milestone start, task dispatch, merge, or review cycle: read `progress.md`. This is the Manus pattern — your attention window drifts, the file doesn't.
+
+### Update After Every Action
+
+After every completed action (task merged, review done, fix applied): update `progress.md`. Include:
+- What happened
+- Decisions made and rationale
+- Current architecture state
+
+### Architecture State Summary
+
+At the end of each milestone, write an architecture summary in `progress.md`:
+- What components exist now
+- How they connect
+- Key patterns established
+- Tech debt or known limitations
+
+This enables recovery if the session is interrupted or context is compacted.
+
+### Decision Log
+
+Every non-trivial decision gets logged:
+```
+### Decision: [topic]
+- Options considered: [A, B, C]
+- Chose: [B]
+- Rationale: [why]
+- Trade-offs accepted: [what you gave up]
+```
+
+This prevents re-litigating decisions after context compaction.
+
+## Red Flags
+
+**Never:**
+- Skip architectural reviews after milestones
+- Merge code with failing tests
+- Let progress.md go stale (update after EVERY action)
+- Dispatch more than 5 parallel subagents (merge conflict hell)
+- Over-delegate trivial work (config tweaks, single-line fixes — just do them)
+- Under-delegate complex work (multi-file features MUST be subagents)
+- Ignore test failures hoping they'll resolve themselves
+- Skip the fix-review cycle (reviewer found issues = fix = re-review)
+- Make decisions without logging rationale
+
+**Always:**
+- Re-read progress.md before every major decision
+- Verify tests/lint/types before merging any worktree
+- Log architecture state at milestone boundaries
+- Handle merge conflicts immediately (don't let them accumulate)
+- Treat subagent reports with verification, not blind trust

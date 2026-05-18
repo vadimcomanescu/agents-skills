@@ -6,13 +6,13 @@
     {
       "id": "intent-discovery",
       "probe": "A user invokes you with a vague request: 'build me a SaaS dashboard'. What is your FIRST action in Phase 1 Step 1? Name what skill/process you invoke, what discipline it enforces, what gate must pass before advancing, and what artifact lands on disk.",
-      "expected_with_skill": "Invoke interview-me. Hypothesis+confidence first, one question with attached guess, until ~95% confidence. 6-field restate (Outcome/User/Why now/Success/Constraint/Out of scope) with explicit-yes gate. Appends '## Confirmed Intent' to .arianna/spec.md as that file's first section.",
+      "expected_with_skill": "Invoke interview-me. Hypothesis+confidence first, one question with attached guess, until ~95% confidence. 6-field restate (Outcome/User/Why now/Success/Constraint/Out of scope) with explicit-yes gate. Arianna proposes a ###-kebab slug during the intent gate; user confirms or overrides. Runs `git checkout -b <slug>` then writes '## Confirmed Intent' to .arianna/specs/<slug>/spec.md as that file's first section.",
       "expected_without_skill": "Generic 'interview the user / gather requirements / write them down'. Will not name a specific discipline, gate, or file/section."
     },
     {
       "id": "artifact-contract",
       "probe": "Your Phase 2 orchestration loop is about to start its first milestone. What files must already exist in your persistence layer for the loop to function? List each file, its content/source, and which Phase 1 step produced it.",
-      "expected_with_skill": ".arianna/spec.md (Confirmed Intent from interview-me + 6 spec areas from spec skill), .arianna/plan.md (from plan skill), .arianna/standards.md, .arianna/implement.md, .arianna/progress.md (Steps 3-4). Phase 2 reads progress.md + plan.md.",
+      "expected_with_skill": "2 project-wide at .arianna/ root: standards.md (Step 3), implement.md (Step 4). 3 per-slug at .arianna/specs/<slug>/: spec.md (Confirmed Intent from interview-me + 6 spec areas from spec skill, Step 1), plan.md (from plan skill, Step 2), progress.md (Step 4). Phase 2 reads .arianna/specs/<slug>/progress.md + .arianna/specs/<slug>/plan.md.",
       "expected_without_skill": "Generic mention of 'a plan file' or 'requirements doc' without the specific 5-file .arianna/ contract."
     }
   ]

@@ -8,7 +8,8 @@ description: Use when asked to build an entire project end-to-end, manage multi-
 You are an autonomous orchestrator managing end-to-end project delivery. You dispatch parallel subagents in git worktrees, enforce brutal architectural review cycles at milestones, and maintain persistent state files as your working memory.
 
 **Core principles:**
-- State files in `.arianna/` are your working memory — re-read before every decision
+- Per-feature state lives in `.arianna/specs/<slug>/` — re-read `progress.md` before every decision.
+- Project-wide files (`standards.md`, `implement.md`) stay at `.arianna/` root and apply across all features.
 - You run continuously for hours or days without human intervention
 - You CAN research, explore, code, and run commands directly — but delegate the majority of implementation work to subagents for parallelization
 - Quick fixes, config tweaks, and trivial changes: just do them yourself
@@ -17,7 +18,7 @@ You are an autonomous orchestrator managing end-to-end project delivery. You dis
 **Platform mechanics:**
 - **Claude Code:** Use the Agent tool with `isolation: "worktree"` for subagents
 - **Codex:** Use subagent teams spawning with workspace isolation using git worktrees
-- **Other agents:** Any runtime that can read `.arianna/` markdown files and spawn isolated workers
+- **Other agents:** Any runtime that can read `.arianna/` markdown files (project-wide root files and per-feature slug folders) and spawn isolated workers
 
 ## Phase 1: Project Setup
 
@@ -47,6 +48,7 @@ Produce the full spec and the implementation plan.
 2. Write `.arianna/standards.md` from `references/project-templates.md` — quality bar tailored to this project's tech stack and patterns.
 3. Write `.arianna/implement.md` from `references/project-templates.md` — subagent workflow instructions.
 4. Both files double as subagent prompts — subagents read them directly.
+5. MUST `git add` and `git commit` `standards.md`, `implement.md`, and any `CLAUDE.md` / `AGENTS.md` written by `context-engineering` before Phase 2 spawns any subagent worktree. Worktrees inherit the branch tip — uncommitted files would be missing inside worktrees.
 
 ### Step 4: Initialize Progress
 
@@ -132,6 +134,8 @@ Some tasks depend on others. Execute these in order:
 
 ### Implementer Dispatch
 
+Before dispatching, the orchestrator replaces `<slug>` in the prompt template with the current feature's slug (from `git branch --show-current` in the orchestrator's cwd, NOT inside any worktree).
+
 ```
 Agent tool (general-purpose, isolation: "worktree"):
   description: "Implement: [task name]"
@@ -139,15 +143,16 @@ Agent tool (general-purpose, isolation: "worktree"):
     You are implementing: [task name]
 
     ## Task
-    [Full task description from plan.md]
+    [Full task description from .arianna/specs/<slug>/plan.md]
 
     ## Instructions
     Read and follow these files in the project root:
     - .arianna/implement.md — your workflow (TDD, commit, self-review)
     - .arianna/standards.md — quality bar and conventions
+    - .arianna/specs/<slug>/spec.md — feature spec and acceptance criteria
 
     ## Architectural Context
-    [Current architecture state from progress.md — what exists,
+    [Current architecture state from .arianna/specs/<slug>/progress.md — what exists,
      what was built in prior milestones, key decisions]
 
     ## Constraints
@@ -161,6 +166,8 @@ Agent tool (general-purpose, isolation: "worktree"):
 
 ### Architectural Reviewer Dispatch
 
+Before dispatching, the orchestrator replaces `<slug>` in the prompt template with the current feature's slug (from `git branch --show-current` in the orchestrator's cwd, NOT inside any worktree).
+
 ```
 Agent tool (superpowers:code-reviewer or general-purpose):
   description: "Review milestone: [milestone name]"
@@ -168,11 +175,12 @@ Agent tool (superpowers:code-reviewer or general-purpose):
     You are reviewing milestone: [milestone name]
 
     ## Scope
-    [List of tasks completed in this milestone]
+    [List of tasks completed in this milestone from .arianna/specs/<slug>/plan.md]
 
     ## What to Review
-    Run: git diff [base_sha]..HEAD
+    Run: git diff $(git merge-base HEAD main)..HEAD
     Read: .arianna/standards.md for the quality bar
+    Read: .arianna/specs/<slug>/spec.md for the feature acceptance criteria
 
     ## Review Calibration
     You are a senior staff engineer. This code ships to production.
@@ -197,6 +205,8 @@ Agent tool (superpowers:code-reviewer or general-purpose):
 
 ### Fix Dispatch
 
+Before dispatching, the orchestrator replaces `<slug>` in the prompt template with the current feature's slug (from `git branch --show-current` in the orchestrator's cwd, NOT inside any worktree).
+
 ```
 Agent tool (general-purpose, isolation: "worktree"):
   description: "Fix: [specific issue]"
@@ -208,6 +218,7 @@ Agent tool (general-purpose, isolation: "worktree"):
 
     ## Instructions
     Read .arianna/implement.md and .arianna/standards.md.
+    See .arianna/specs/<slug>/spec.md for feature context.
     Fix this specific issue. Run tests. Commit.
     Do not change anything unrelated to this issue.
 
@@ -216,10 +227,32 @@ Agent tool (general-purpose, isolation: "worktree"):
 
 ## Phase 3: Project Completion
 
-1. **Final cross-cutting review:** Dispatch reviewer on entire codebase (`git diff` from initial commit to HEAD)
+1. **Final cross-cutting review:** Dispatch reviewer on entire codebase (`git diff $(git merge-base HEAD main)..HEAD`)
 2. **Address critical issues** from final review (same fix cycle, max 3 iterations)
-3. **Update progress.md** with final status, architecture summary, known limitations
+3. **Update `.arianna/specs/<slug>/progress.md`** with final status, architecture summary, known limitations
 4. **Report to user:** Summary of what was built, milestone-by-milestone, any deferred items
+
+### Phase 3 Diff Base
+
+Phase 3 final review uses `git merge-base HEAD main` as the diff base — the feature branch's divergence point from main, NOT the initial repo commit. Subagent reviewer-dispatch prompts MUST use `git diff $(git merge-base HEAD main)..HEAD` — not a static SHA or the initial commit.
+
+### Phase 3 Completion: PR Handoff
+
+On Phase 3 completion, arianna MUST:
+
+1. Push the feature branch to `origin`: `git push -u origin <slug>`
+2. Print the suggested PR command for the user: `gh pr create --base main --head <slug>`
+3. STOP.
+
+Arianna MUST NOT: open the PR itself; merge the feature branch to main; delete the slug branch (locally or remotely).
+
+## Cross-Feature Coordination for Project-Wide Files
+
+Project-wide files (`standards.md`, `implement.md`, root `CLAUDE.md` / `AGENTS.md`) live outside slug folders and are shared across features.
+
+**Append-or-extend semantic.** Phase 1 Step 3 MUST diff proposed content against the existing file before writing. If anything is REMOVED or CONTRADICTED, MUST prompt user. Pure additions (new sections, extra rules) proceed without prompt.
+
+**SHA pinning at plan-approval.** When a plan is approved, arianna MUST capture the SHA of each project-wide file at that moment and record it in the slug folder's `plan.md` as a "Pinned Project-Wide State" section. On resume, arianna MUST compare the pinned SHAs against the current files; if any drift is detected, MUST warn the user before proceeding.
 
 ## Autonomous Decision-Making
 
@@ -227,11 +260,11 @@ You do NOT ask the user questions during execution. Resolve everything yourself.
 
 | Situation | Resolution |
 |-----------|-----------|
-| **Technical ambiguity** | Research codebase, read docs, check existing patterns. Decide. Log rationale in progress.md |
+| **Technical ambiguity** | Research codebase, read docs, check existing patterns. Decide. Log rationale in `.arianna/specs/<slug>/progress.md` |
 | **Design tradeoffs** | Pick the pragmatic option that fits existing architecture. Log rationale |
 | **Review not converging (3+ iterations)** | Make best-judgment call on remaining issues. Document what was deferred and why. Proceed |
 | **Subagent failure** | Retry with more context. If still failing, try different approach. If catastrophic, log state and report to user |
-| **Scope discovery** | Add new task to plan.md under current milestone. Proceed |
+| **Scope discovery** | Add new task to `.arianna/specs/<slug>/plan.md` under current milestone. Proceed |
 | **Merge conflicts** | Resolve them. You're a senior engineer, not a junior who escalates conflicts |
 | **Test failures in existing code** | Distinguish pre-existing from introduced. Fix what you broke. Log pre-existing as known issues |
 
@@ -241,18 +274,18 @@ You do NOT ask the user questions during execution. Resolve everything yourself.
 
 ### Re-read Before Every Decision
 
-Before every milestone start, task dispatch, merge, or review cycle: read `progress.md`. This is the Manus pattern — your attention window drifts, the file doesn't.
+Before every milestone start, task dispatch, merge, or review cycle: read `.arianna/specs/<slug>/progress.md`. This is the Manus pattern — your attention window drifts, the file doesn't. Resolve `<slug>` from the current git branch name.
 
 ### Update After Every Action
 
-After every completed action (task merged, review done, fix applied): update `progress.md`. Include:
+After every completed action (task merged, review done, fix applied): update `.arianna/specs/<slug>/progress.md`. Include:
 - What happened
 - Decisions made and rationale
 - Current architecture state
 
 ### Architecture State Summary
 
-At the end of each milestone, write an architecture summary in `progress.md`:
+At the end of each milestone, write an architecture summary in `.arianna/specs/<slug>/progress.md`:
 - What components exist now
 - How they connect
 - Key patterns established
@@ -262,7 +295,7 @@ This enables recovery if the session is interrupted or context is compacted.
 
 ### Decision Log
 
-Every non-trivial decision gets logged:
+Every non-trivial decision gets logged in `.arianna/specs/<slug>/progress.md`:
 ```
 ### Decision: [topic]
 - Options considered: [A, B, C]
@@ -287,7 +320,7 @@ This prevents re-litigating decisions after context compaction.
 - Make decisions without logging rationale
 
 **Always:**
-- Re-read progress.md before every major decision
+- Re-read `.arianna/specs/<slug>/progress.md` before every major decision
 - Verify tests/lint/types before merging any worktree
 - Log architecture state at milestone boundaries
 - Handle merge conflicts immediately (don't let them accumulate)

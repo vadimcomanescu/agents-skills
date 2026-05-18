@@ -76,12 +76,12 @@ When proposing a slug:
 digraph orchestration {
     rankdir=TB;
 
-    "Read progress.md + plan.md" [shape=box];
+    "Read .arianna/specs/<slug>/{progress,plan}.md" [shape=box];
     "Identify current milestone" [shape=box];
     "Categorize tasks: parallel vs sequential" [shape=box];
     "Dispatch implementer subagents (worktrees)" [shape=box];
     "Collect results, verify (tests/lint/types)" [shape=box];
-    "Merge to main" [shape=box];
+    "Merge to feature branch" [shape=box];
     "Dispatch architectural reviewer" [shape=box];
     "Review passes?" [shape=diamond];
     "Dispatch fix subagents" [shape=box];
@@ -91,12 +91,12 @@ digraph orchestration {
     "More milestones?" [shape=diamond];
     "Phase 3: Completion" [shape=box style=filled fillcolor=lightgreen];
 
-    "Read progress.md + plan.md" -> "Identify current milestone";
+    "Read .arianna/specs/<slug>/{progress,plan}.md" -> "Identify current milestone";
     "Identify current milestone" -> "Categorize tasks: parallel vs sequential";
     "Categorize tasks: parallel vs sequential" -> "Dispatch implementer subagents (worktrees)";
     "Dispatch implementer subagents (worktrees)" -> "Collect results, verify (tests/lint/types)";
-    "Collect results, verify (tests/lint/types)" -> "Merge to main";
-    "Merge to main" -> "Dispatch architectural reviewer";
+    "Collect results, verify (tests/lint/types)" -> "Merge to feature branch";
+    "Merge to feature branch" -> "Dispatch architectural reviewer";
     "Dispatch architectural reviewer" -> "Review passes?";
     "Review passes?" -> "Update progress.md" [label="yes"];
     "Review passes?" -> "Dispatch fix subagents" [label="no"];
@@ -105,18 +105,18 @@ digraph orchestration {
     "Iteration < 3?" -> "Best-judgment call, log decision, proceed" [label="no"];
     "Best-judgment call, log decision, proceed" -> "Update progress.md";
     "Update progress.md" -> "More milestones?";
-    "More milestones?" -> "Read progress.md + plan.md" [label="yes"];
+    "More milestones?" -> "Read .arianna/specs/<slug>/{progress,plan}.md" [label="yes"];
     "More milestones?" -> "Phase 3: Completion" [label="no"];
 }
 ```
 
 ### Per-Milestone Execution
 
-1. **Re-read state:** Read `progress.md` and `plan.md` before every milestone
+1. **Re-read state:** Read `.arianna/specs/<slug>/progress.md` and `.arianna/specs/<slug>/plan.md` before every milestone. Slug is resolved from `git branch --show-current` in the orchestrator's cwd (NOT inside any worktree). This is the Manus pattern — your attention window drifts, the file doesn't.
 2. **Identify tasks:** Extract current milestone's tasks, categorize as parallel/sequential
 3. **Dispatch implementers:** One subagent per parallel task, each in its own git worktree. Max 5 parallel subagents to limit merge conflicts
 4. **Verify results:** After each subagent completes, run tests, linter, type checker in the worktree
-5. **Merge:** Merge completed worktrees to main branch. Handle conflicts immediately
+5. **Merge:** Merge completed worktrees to the feature branch (the slug branch the orchestrator is running on). Handle conflicts immediately
 6. **Architectural review:** Dispatch reviewer subagent on the merged milestone code
 7. **Fix cycle:** Route review feedback to fix subagents (parallel, in worktrees). Re-review until approved or 3 iterations reached
 8. **Update state:** Write milestone summary, decisions, and architecture state to `progress.md`
@@ -124,8 +124,8 @@ digraph orchestration {
 ### Sequential Tasks Within a Milestone
 
 Some tasks depend on others. Execute these in order:
-1. Complete prerequisite task and merge
-2. Create new worktree from updated main for dependent task
+1. Complete prerequisite task and merge to feature branch
+2. Create new worktree from updated feature branch tip for dependent task
 3. Dispatch dependent task's subagent
 
 ## Subagent Dispatch Patterns

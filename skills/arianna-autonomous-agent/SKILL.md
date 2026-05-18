@@ -23,40 +23,30 @@ You are an autonomous orchestrator managing end-to-end project delivery. You dis
 
 User interaction happens HERE — get everything upfront, then go autonomous.
 
-### Step 1: Goal Discovery
+### Step 1: Intent Discovery
 
-Interview the user thoroughly. Resolve ALL ambiguity now. You will not ask again.
+Invoke the `interview-me` skill. Run its full process: hypothesis with confidence number, one question at a time with attached guess, the "what would you actually want if you didn't have to justify it?" probe, and the 6-line restate (Outcome / User / Why now / Success / Constraint / Out of scope).
 
-1. Understand the problem, desired outcome, constraints, tech stack
-2. Identify acceptance criteria — what does "done" look like?
-3. Document non-goals explicitly — what are you NOT building?
-4. Write `.arianna/goal.md`
+Do not advance until the user gives an explicit "yes" on the restate. Vague answers ("whatever you think", "sounds good", silence) are not yes — re-engage per the skill's Step 5.
 
-Use the `AskUserQuestionTool` heavily to get the user's input, gain as clear an understanding of the goal as possible.
+Once the gate clears, write the Confirmed Intent block to `.arianna/spec.md` as its first section. This intent is the locked input for everything downstream.
 
-Read `references/project-templates.md` for the template structure.
+### Step 2: Spec & Plan
 
-### Step 2: Technical Planning
+Produce the full spec and the implementation plan.
 
-Convert the goal into an executable plan.
+**Spec.** Invoke the `spec` skill. It reads `## Confirmed Intent` from `.arianna/spec.md` as locked input and writes the remaining sections (Tech Stack, Commands, Project Structure, Code Style, Testing Strategy, Boundaries, Success Criteria, Open Questions). Surface assumptions explicitly. Present for human review per the skill's gate. Do not advance until reviewed and approved.
 
-1. Design high-level architecture
-2. Break into milestones (sequential phases of delivery)
-3. Break milestones into tasks — flag each as parallel or sequential
-4. Each task gets: files involved, approach, tests needed, acceptance criteria
-5. Write `.arianna/plans.md`
-6. Present plan to user for final sign-off
+**Plan.** Invoke the `plan` skill. It consumes `.arianna/spec.md` and produces `.arianna/plan.md` — dependency graph, vertical slices, XS–XL task sizing, per-task acceptance and verification, checkpoints every 2-3 tasks. Present for human review per the skill's gate. Do not advance until reviewed and approved.
 
-**This is the last user interaction.** After approval, you execute autonomously.
+**This is the last user interaction.** After plan approval, you execute autonomously.
 
-### Step 3: Standards & Workflow
+### Step 3: Standards & Context
 
-1. Assess the codebase (or define conventions for greenfield)
-2. Create `.arianna/standards.md` — tailored to this project's tech stack and patterns
-3. Create `.arianna/implement.md` — subagent workflow instructions
-4. Both files double as subagent prompts — subagents read them directly
-
-Read `references/project-templates.md` for initial structures, then customize.
+1. Invoke the `context-engineering` skill to set up project context: build or extend the rules file (CLAUDE.md / AGENTS.md), apply the 5-level context hierarchy, write a project map if the codebase is large.
+2. Write `.arianna/standards.md` from `references/project-templates.md` — quality bar tailored to this project's tech stack and patterns.
+3. Write `.arianna/implement.md` from `references/project-templates.md` — subagent workflow instructions.
+4. Both files double as subagent prompts — subagents read them directly.
 
 ### Step 4: Initialize Progress
 
@@ -70,7 +60,7 @@ Read `references/project-templates.md` for initial structures, then customize.
 digraph orchestration {
     rankdir=TB;
 
-    "Read progress.md + plans.md" [shape=box];
+    "Read progress.md + plan.md" [shape=box];
     "Identify current milestone" [shape=box];
     "Categorize tasks: parallel vs sequential" [shape=box];
     "Dispatch implementer subagents (worktrees)" [shape=box];
@@ -85,7 +75,7 @@ digraph orchestration {
     "More milestones?" [shape=diamond];
     "Phase 3: Completion" [shape=box style=filled fillcolor=lightgreen];
 
-    "Read progress.md + plans.md" -> "Identify current milestone";
+    "Read progress.md + plan.md" -> "Identify current milestone";
     "Identify current milestone" -> "Categorize tasks: parallel vs sequential";
     "Categorize tasks: parallel vs sequential" -> "Dispatch implementer subagents (worktrees)";
     "Dispatch implementer subagents (worktrees)" -> "Collect results, verify (tests/lint/types)";
@@ -99,14 +89,14 @@ digraph orchestration {
     "Iteration < 3?" -> "Best-judgment call, log decision, proceed" [label="no"];
     "Best-judgment call, log decision, proceed" -> "Update progress.md";
     "Update progress.md" -> "More milestones?";
-    "More milestones?" -> "Read progress.md + plans.md" [label="yes"];
+    "More milestones?" -> "Read progress.md + plan.md" [label="yes"];
     "More milestones?" -> "Phase 3: Completion" [label="no"];
 }
 ```
 
 ### Per-Milestone Execution
 
-1. **Re-read state:** Read `progress.md` and `plans.md` before every milestone
+1. **Re-read state:** Read `progress.md` and `plan.md` before every milestone
 2. **Identify tasks:** Extract current milestone's tasks, categorize as parallel/sequential
 3. **Dispatch implementers:** One subagent per parallel task, each in its own git worktree. Max 5 parallel subagents to limit merge conflicts
 4. **Verify results:** After each subagent completes, run tests, linter, type checker in the worktree
@@ -133,7 +123,7 @@ Agent tool (general-purpose, isolation: "worktree"):
     You are implementing: [task name]
 
     ## Task
-    [Full task description from plans.md]
+    [Full task description from plan.md]
 
     ## Instructions
     Read and follow these files in the project root:
@@ -225,7 +215,7 @@ You do NOT ask the user questions during execution. Resolve everything yourself.
 | **Design tradeoffs** | Pick the pragmatic option that fits existing architecture. Log rationale |
 | **Review not converging (3+ iterations)** | Make best-judgment call on remaining issues. Document what was deferred and why. Proceed |
 | **Subagent failure** | Retry with more context. If still failing, try different approach. If catastrophic, log state and report to user |
-| **Scope discovery** | Add new task to plans.md under current milestone. Proceed |
+| **Scope discovery** | Add new task to plan.md under current milestone. Proceed |
 | **Merge conflicts** | Resolve them. You're a senior engineer, not a junior who escalates conflicts |
 | **Test failures in existing code** | Distinguish pre-existing from introduced. Fix what you broke. Log pre-existing as known issues |
 

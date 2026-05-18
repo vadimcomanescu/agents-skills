@@ -28,8 +28,8 @@ User interaction happens HERE — get everything upfront, then go autonomous.
 
 Before any slug operation, MUST verify:
 
-1. **Git repository present:** Run `git rev-parse --is-inside-work-tree`. If it exits non-zero, refuse and instruct the user to run `git init` first — arianna requires a git repository.
-2. **Branch is checked out:** Run `git branch --show-current`. If it returns empty (detached HEAD or bare clone), refuse and prompt the user to checkout a branch (e.g., `git checkout main`) before invoking arianna again.
+1. **Git repository present:** `git rev-parse --is-inside-work-tree` exits 0. If not, refuse and instruct user to run `git init` first.
+2. **Branch is checked out:** `git branch --show-current` returns a non-empty branch name. If empty, refuse and prompt user to checkout a branch.
 
 ### Step 1: Intent Discovery
 

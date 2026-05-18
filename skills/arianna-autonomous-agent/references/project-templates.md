@@ -49,7 +49,7 @@ You are a subagent implementing a specific task. Follow this workflow exactly.
 
 ## Before You Start
 
-1. Read `.arianna/spec.md` — understand the project's purpose and the locked Confirmed Intent
+1. Read `.arianna/specs/<slug>/spec.md` (slug resolved from current git branch name) — understand the project's purpose and the locked Confirmed Intent
 2. Read `.arianna/standards.md` — understand the quality bar
 3. Read your task description carefully — understand exactly what to build
 4. If anything is unclear, state your assumptions in your report

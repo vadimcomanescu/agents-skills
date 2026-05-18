@@ -1,0 +1,35 @@
+{
+  "skill_name": "using-agents-skills",
+  "iteration": 1,
+  "eval_type": "trigger-discrimination",
+  "summary": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0,
+    "true_positives": 8,
+    "true_negatives": 8,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0
+  },
+  "results": [
+    {"id": 1,  "expected": "TRIGGER",    "actual": "TRIGGER",    "passed": true, "evidence": "Session start with uncertainty about where to begin matches the navigation use case exactly."},
+    {"id": 2,  "expected": "TRIGGER",    "actual": "TRIGGER",    "passed": true, "evidence": "Asking what skills are available is a direct navigation-map request."},
+    {"id": 3,  "expected": "TRIGGER",    "actual": "TRIGGER",    "passed": true, "evidence": "Explicit ambiguity between skills is the core dispatch trigger."},
+    {"id": 4,  "expected": "TRIGGER",    "actual": "TRIGGER",    "passed": true, "evidence": "'Lay of the land for this skill pack' is a navigation map request."},
+    {"id": 5,  "expected": "TRIGGER",    "actual": "TRIGGER",    "passed": true, "evidence": "Verbatim match to the description's 'navigation map of what's installed' phrasing."},
+    {"id": 6,  "expected": "TRIGGER",    "actual": "TRIGGER",    "passed": true, "evidence": "Generic skill-selection question maps to the dispatcher role."},
+    {"id": 7,  "expected": "TRIGGER",    "actual": "TRIGGER",    "passed": true, "evidence": "Asking how to pick a skill is exactly the discovery use case."},
+    {"id": 8,  "expected": "TRIGGER",    "actual": "TRIGGER",    "passed": true, "evidence": "New-user disorientation aligns with session-start uncertainty trigger."},
+    {"id": 9,  "expected": "NO_TRIGGER", "actual": "NO_TRIGGER", "passed": true, "evidence": "Concrete edit task; router would pick no skill or a code-edit skill."},
+    {"id": 10, "expected": "NO_TRIGGER", "actual": "NO_TRIGGER", "passed": true, "evidence": "Failing test debugging routes to systematic-debugging."},
+    {"id": 11, "expected": "NO_TRIGGER", "actual": "NO_TRIGGER", "passed": true, "evidence": "Explicit TDD request routes to tdd-mutation."},
+    {"id": 12, "expected": "NO_TRIGGER", "actual": "NO_TRIGGER", "passed": true, "evidence": "Writing a spec routes to the spec skill."},
+    {"id": 13, "expected": "NO_TRIGGER", "actual": "NO_TRIGGER", "passed": true, "evidence": "Pre-commit verification routes to verification-before-completion."},
+    {"id": 14, "expected": "NO_TRIGGER", "actual": "NO_TRIGGER", "passed": true, "evidence": "Creating a new skill routes to creating-skills."},
+    {"id": 15, "expected": "NO_TRIGGER", "actual": "NO_TRIGGER", "passed": true, "evidence": "Framework choice is a language/tooling question, not skill dispatch."},
+    {"id": 16, "expected": "NO_TRIGGER", "actual": "NO_TRIGGER", "passed": true, "evidence": "Style guide question is language-specific, not skill navigation."}
+  ]
+}

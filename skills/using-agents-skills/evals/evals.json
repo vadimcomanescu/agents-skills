@@ -1,0 +1,23 @@
+{
+  "skill_name": "using-agents-skills",
+  "eval_type": "trigger-discrimination",
+  "rationale": "Description-shaped skill: triggering correctly is the entire job (it's a navigation map, no workflow body to evaluate behaviorally). Eval tests whether the description fires on real session-start / which-skill-applies prompts and stays quiet on near-miss prompts that should route to a specific skill instead.",
+  "evals": [
+    {"id": 1,  "prompt": "I'm starting a session in this repo, where do I begin?",                   "expected": "TRIGGER",    "category": "session-start"},
+    {"id": 2,  "prompt": "What skills are available for me to use here?",                            "expected": "TRIGGER",    "category": "discovery"},
+    {"id": 3,  "prompt": "I'm not sure which skill applies to my task — help me pick.",              "expected": "TRIGGER",    "category": "uncertainty"},
+    {"id": 4,  "prompt": "Give me the lay of the land for this skill pack.",                         "expected": "TRIGGER",    "category": "discovery"},
+    {"id": 5,  "prompt": "I want a navigation map of what's installed from agents-skills.",          "expected": "TRIGGER",    "category": "explicit-ask"},
+    {"id": 6,  "prompt": "Which skill should I use for my work?",                                    "expected": "TRIGGER",    "category": "uncertainty"},
+    {"id": 7,  "prompt": "How do I figure out which skill fits my situation?",                       "expected": "TRIGGER",    "category": "uncertainty"},
+    {"id": 8,  "prompt": "I'm new here and don't know where to start.",                              "expected": "TRIGGER",    "category": "session-start"},
+    {"id": 9,  "prompt": "Fix this typo in foo.py.",                                                 "expected": "NO_TRIGGER", "category": "specific-edit"},
+    {"id": 10, "prompt": "Help me debug a failing test in test_users.py.",                           "expected": "NO_TRIGGER", "category": "near-miss-debugging"},
+    {"id": 11, "prompt": "Start a TDD cycle for the new validation function.",                       "expected": "NO_TRIGGER", "category": "near-miss-tdd"},
+    {"id": 12, "prompt": "I want to write a spec for the auth flow.",                                "expected": "NO_TRIGGER", "category": "near-miss-spec"},
+    {"id": 13, "prompt": "Verify the build is green before I commit.",                               "expected": "NO_TRIGGER", "category": "near-miss-verification"},
+    {"id": 14, "prompt": "Create a new skill called export-md.",                                     "expected": "NO_TRIGGER", "category": "near-miss-creating-skills"},
+    {"id": 15, "prompt": "Which test framework should I use for this Python project?",               "expected": "NO_TRIGGER", "category": "near-miss-tooling-question"},
+    {"id": 16, "prompt": "I'm starting work on a new file — which Python style guide applies?",      "expected": "NO_TRIGGER", "category": "near-miss-style-question"}
+  ]
+}

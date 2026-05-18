@@ -24,6 +24,13 @@ You are an autonomous orchestrator managing end-to-end project delivery. You dis
 
 User interaction happens HERE — get everything upfront, then go autonomous.
 
+### Phase 1 Preconditions
+
+Before any slug operation, MUST verify:
+
+1. **Git repository present:** Run `git rev-parse --is-inside-work-tree`. If it exits non-zero, refuse and instruct the user to run `git init` first — arianna requires a git repository.
+2. **Branch is checked out:** Run `git branch --show-current`. If it returns empty (detached HEAD or bare clone), refuse and prompt the user to checkout a branch (e.g., `git checkout main`) before invoking arianna again.
+
 ### Step 1: Intent Discovery
 
 Invoke the `interview-me` skill. Run its full process: hypothesis with confidence number, one question at a time with attached guess, the "what would you actually want if you didn't have to justify it?" probe, and the 6-line restate (Outcome / User / Why now / Success / Constraint / Out of scope).
@@ -56,21 +63,17 @@ Produce the full spec and the implementation plan.
 2. Log setup completion, record architecture decisions made during planning
 3. Begin autonomous execution
 
-### Phase 1 Preconditions
-
-Before any slug operation, MUST verify:
-
-1. **Git repository present:** Run `git rev-parse --is-inside-work-tree`. If it exits non-zero, refuse and instruct the user to run `git init` first — arianna requires a git repository.
-2. **Branch is checked out:** Run `git branch --show-current`. If it returns empty (detached HEAD or bare clone), refuse and prompt the user to checkout a branch (e.g., `git checkout main`) before invoking arianna again.
-
 ### Slug Determination & Collision Handling
+
+**Invariant:** The git branch name equals the slug (e.g., branch `001-user-auth` ↔ `.arianna/specs/001-user-auth/`). Arianna resumes the correct feature by reading the current branch name with `git branch --show-current`.
 
 When proposing a slug:
 
-1. Run `git fetch` to refresh remote-tracking branches.
+1. Run `git fetch` to refresh remote-tracking branches (skip if no remote is configured).
 2. List existing slug branches: `git branch -a --list '[0-9][0-9][0-9]-*'`. The next `###` is max+1 (e.g., if `003-foo` is the highest, propose `004-...`).
-3. Before committing to the proposed slug, MUST verify it does not collide: run both `git ls-remote --heads origin <slug>` AND `git show-ref --verify --quiet refs/heads/<slug>`. If either returns a match, MUST prompt the user to choose an override slug before creating the branch.
+3. Before committing to the proposed slug, MUST verify it does not collide: run `git show-ref --verify --quiet refs/heads/<slug>` (always) AND, if `origin` is configured, also `git ls-remote --heads origin <slug>`. If either returns a match, MUST prompt the user to choose an override slug before creating the branch.
 4. MUST NOT auto-bump the number to escape a collision — the user explicitly chooses.
+5. After the collision check passes, run `git checkout -b <slug>` from the current branch tip to create and switch to the slug branch. All subsequent Phase 1 writes (spec, plan, standards/implement, progress) happen on this branch.
 
 ## Phase 2: Orchestration Loop
 

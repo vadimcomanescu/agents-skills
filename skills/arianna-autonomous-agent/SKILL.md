@@ -29,15 +29,15 @@ Invoke the `interview-me` skill. Run its full process: hypothesis with confidenc
 
 Do not advance until the user gives an explicit "yes" on the restate. Vague answers ("whatever you think", "sounds good", silence) are not yes — re-engage per the skill's Step 5.
 
-Once the gate clears, write the Confirmed Intent block to `.arianna/spec.md` as its first section. This intent is the locked input for everything downstream.
+Once the gate clears, propose a `###-kebab` slug derived from intent keywords (e.g., `001-user-auth`). Present it to the user; they MAY override before confirming. See **Slug Determination & Collision Handling** below for numbering and collision rules. Once the slug is confirmed, write the Confirmed Intent block to `.arianna/specs/<slug>/spec.md` as its first section. This intent is the locked input for everything downstream.
 
 ### Step 2: Spec & Plan
 
 Produce the full spec and the implementation plan.
 
-**Spec.** Invoke the `spec` skill. It reads `## Confirmed Intent` from `.arianna/spec.md` as locked input and writes the remaining sections (Tech Stack, Commands, Project Structure, Code Style, Testing Strategy, Boundaries, Success Criteria, Open Questions). Surface assumptions explicitly. Present for human review per the skill's gate. Do not advance until reviewed and approved.
+**Spec.** Invoke the `spec` skill. It reads `## Confirmed Intent` from `.arianna/specs/<slug>/spec.md` as locked input and writes the remaining sections (Tech Stack, Commands, Project Structure, Code Style, Testing Strategy, Boundaries, Success Criteria, Open Questions). Surface assumptions explicitly. Present for human review per the skill's gate. Do not advance until reviewed and approved.
 
-**Plan.** Invoke the `plan` skill. It consumes `.arianna/spec.md` and produces `.arianna/plan.md` — dependency graph, vertical slices, XS–XL task sizing, per-task acceptance and verification, checkpoints every 2-3 tasks. Present for human review per the skill's gate. Do not advance until reviewed and approved.
+**Plan.** Invoke the `plan` skill. It consumes `.arianna/specs/<slug>/spec.md` and produces `.arianna/specs/<slug>/plan.md` — dependency graph, vertical slices, XS–XL task sizing, per-task acceptance and verification, checkpoints every 2-3 tasks. Present for human review per the skill's gate. Do not advance until reviewed and approved.
 
 **This is the last user interaction.** After plan approval, you execute autonomously.
 
@@ -50,9 +50,25 @@ Produce the full spec and the implementation plan.
 
 ### Step 4: Initialize Progress
 
-1. Create `.arianna/progress.md` with initial state
+1. Create `.arianna/specs/<slug>/progress.md` with initial state
 2. Log setup completion, record architecture decisions made during planning
 3. Begin autonomous execution
+
+### Phase 1 Preconditions
+
+Before any slug operation, MUST verify:
+
+1. **Git repository present:** Run `git rev-parse --is-inside-work-tree`. If it exits non-zero, refuse and instruct the user to run `git init` first — arianna requires a git repository.
+2. **Branch is checked out:** Run `git branch --show-current`. If it returns empty (detached HEAD or bare clone), refuse and prompt the user to checkout a branch (e.g., `git checkout main`) before invoking arianna again.
+
+### Slug Determination & Collision Handling
+
+When proposing a slug:
+
+1. Run `git fetch` to refresh remote-tracking branches.
+2. List existing slug branches: `git branch -a --list '[0-9][0-9][0-9]-*'`. The next `###` is max+1 (e.g., if `003-foo` is the highest, propose `004-...`).
+3. Before committing to the proposed slug, MUST verify it does not collide: run both `git ls-remote --heads origin <slug>` AND `git show-ref --verify --quiet refs/heads/<slug>`. If either returns a match, MUST prompt the user to choose an override slug before creating the branch.
+4. MUST NOT auto-bump the number to escape a collision — the user explicitly chooses.
 
 ## Phase 2: Orchestration Loop
 

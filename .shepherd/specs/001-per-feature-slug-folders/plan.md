@@ -1,12 +1,12 @@
-# Implementation Plan: Per-Feature Slug Folders for Arianna
+# Implementation Plan: Per-Feature Slug Folders for Shepherd
 
 ## Overview
 
-Refactor the `arianna-autonomous-agent` skill so its per-feature artifacts (`spec.md`, `plan.md`, `progress.md`) live in `.arianna/specs/<slug>/` rather than at `.arianna/` root, enabling multi-feature iterative workflows. Project-wide files (`standards.md`, `implement.md`) stay at root. The refactor touches one SKILL.md, one reference template, one evals.json, and adds one new evals iteration directory. The dogfood spec+plan in this very folder are the proof-of-concept artifacts; the plan tasks below mutate the skill source so future arianna invocations produce the new layout.
+Refactor the `shepherd` skill so its per-feature artifacts (`spec.md`, `plan.md`, `progress.md`) live in `.shepherd/specs/<slug>/` rather than at `.shepherd/` root, enabling multi-feature iterative workflows. Project-wide files (`standards.md`, `implement.md`) stay at root. The refactor touches one SKILL.md, one reference template, one evals.json, and adds one new evals iteration directory. The dogfood spec+plan in this very folder are the proof-of-concept artifacts; the plan tasks below mutate the skill source so future shepherd invocations produce the new layout.
 
 ## Meta-Notes
 
-- **Branch policy for this refactor:** Implementation proceeds on `main` (per the dogfood-on-main decision earlier in the conversation). Branch-folder coupling is what arianna will do for *future* features after this refactor lands — it does not apply retroactively to this refactor itself.
+- **Branch policy for this refactor:** Implementation proceeds on `main` (per the dogfood-on-main decision earlier in the conversation). Branch-folder coupling is what shepherd will do for *future* features after this refactor lands — it does not apply retroactively to this refactor itself.
 - **Iteration-1 untouchable:** Per spec Boundaries, `evals/iteration-1/**` is historical record and must NOT be modified. Any change there is a refactor failure.
 - **Traceability:** Each task names which spec Success Criteria items (`SC#`) it satisfies.
 
@@ -50,29 +50,29 @@ T4 can parallelize with T1-T3 since project-templates.md is a separate file and 
 
 #### Task 1: Update SKILL.md Phase 1 paths + add slug-determination
 
-**Description:** Rewrite SKILL.md's Phase 1 (Step 1: Intent Discovery, Step 2: Spec & Plan, Step 4: Initialize Progress) to write per-feature artifacts to `.arianna/specs/<slug>/{spec,plan,progress}.md`. Add the slug-determination sub-step at the end of Step 1 (arianna proposes `###-kebab` slug after the user's yes; user can override). Leave Step 3 (Standards & Context) writing `standards.md`/`implement.md` to `.arianna/` root unchanged.
+**Description:** Rewrite SKILL.md's Phase 1 (Step 1: Intent Discovery, Step 2: Spec & Plan, Step 4: Initialize Progress) to write per-feature artifacts to `.shepherd/specs/<slug>/{spec,plan,progress}.md`. Add the slug-determination sub-step at the end of Step 1 (shepherd proposes `###-kebab` slug after the user's yes; user can override). Leave Step 3 (Standards & Context) writing `standards.md`/`implement.md` to `.shepherd/` root unchanged.
 
 **Acceptance criteria:**
-- [ ] Step 1 ends with: arianna proposes a `###-kebab` slug derived from intent keywords; user can override; then writes Confirmed Intent to `.arianna/specs/<slug>/spec.md`
-- [ ] Step 2 spec section writes to `.arianna/specs/<slug>/spec.md`; plan section writes to `.arianna/specs/<slug>/plan.md`
-- [ ] Step 4 creates `.arianna/specs/<slug>/progress.md`
+- [ ] Step 1 ends with: shepherd proposes a `###-kebab` slug derived from intent keywords; user can override; then writes Confirmed Intent to `.shepherd/specs/<slug>/spec.md`
+- [ ] Step 2 spec section writes to `.shepherd/specs/<slug>/spec.md`; plan section writes to `.shepherd/specs/<slug>/plan.md`
+- [ ] Step 4 creates `.shepherd/specs/<slug>/progress.md`
 - [ ] Step 3 unchanged (standards/implement remain at root)
-- [ ] No stale `.arianna/spec.md`, `.arianna/plan.md`, `.arianna/progress.md` references in Phase 1
+- [ ] No stale `.shepherd/spec.md`, `.shepherd/plan.md`, `.shepherd/progress.md` references in Phase 1
 
 **Verification:**
 - [ ] Phase-1-scoped grep returns empty:
   ```bash
-  awk '/^## Phase 1/,/^## Phase 2/' skills/arianna-autonomous-agent/SKILL.md | \
-    grep -nE '\.arianna/(spec|plan|progress)\.md'
+  awk '/^## Phase 1/,/^## Phase 2/' skills/shepherd/SKILL.md | \
+    grep -nE '\.shepherd/(spec|plan|progress)\.md'
   # Expected: empty
   ```
-- [ ] `head -5 skills/arianna-autonomous-agent/SKILL.md` shows unchanged frontmatter
+- [ ] `head -5 skills/shepherd/SKILL.md` shows unchanged frontmatter
 - [ ] Phase 1 still has Steps 1-4 in the same order
 
 **Dependencies:** None
 
 **Files likely touched:**
-- `skills/arianna-autonomous-agent/SKILL.md` (Phase 1 section)
+- `skills/shepherd/SKILL.md` (Phase 1 section)
 
 **Estimated scope:** Medium (one coherent section, multiple intermixed edits)
 
@@ -82,23 +82,23 @@ T4 can parallelize with T1-T3 since project-templates.md is a separate file and 
 
 #### Task 2: Update SKILL.md Phase 2 paths + change merge target
 
-**Description:** Rewrite Phase 2 orchestration so the loop's "Read progress.md + plan.md" node resolves the slug from the current git branch and reads `.arianna/specs/<slug>/{progress,plan}.md`. Change "Merge to main" → "Merge to feature branch". Update the dot diagram, the Per-Milestone Execution list, and the Sequential Tasks Within a Milestone section.
+**Description:** Rewrite Phase 2 orchestration so the loop's "Read progress.md + plan.md" node resolves the slug from the current git branch and reads `.shepherd/specs/<slug>/{progress,plan}.md`. Change "Merge to main" → "Merge to feature branch". Update the dot diagram, the Per-Milestone Execution list, and the Sequential Tasks Within a Milestone section.
 
 **Acceptance criteria:**
 - [ ] The dot diagram's "Read progress.md + plan.md" node text is updated (or a note appears immediately below the diagram explaining the path resolution)
-- [ ] Per-Milestone Execution step 1 says: "Read `.arianna/specs/<slug>/progress.md` and `.arianna/specs/<slug>/plan.md` (slug resolved from current git branch name)"
+- [ ] Per-Milestone Execution step 1 says: "Read `.shepherd/specs/<slug>/progress.md` and `.shepherd/specs/<slug>/plan.md` (slug resolved from current git branch name)"
 - [ ] Per-Milestone Execution step 5 says: "Merge completed worktrees to feature branch" (not "to main")
 - [ ] Sequential Tasks Within a Milestone updated similarly if it mentions merge target
 
 **Verification:**
-- [ ] `grep -nE '\.arianna/(progress|plan)\.md' skills/arianna-autonomous-agent/SKILL.md` returns no matches in Phase 2
-- [ ] `grep -n 'Merge to main' skills/arianna-autonomous-agent/SKILL.md` returns no matches in Phase 2
+- [ ] `grep -nE '\.shepherd/(progress|plan)\.md' skills/shepherd/SKILL.md` returns no matches in Phase 2
+- [ ] `grep -n 'Merge to main' skills/shepherd/SKILL.md` returns no matches in Phase 2
 - [ ] Phase 2's Phase 3 transition still references the autonomous Completion phase
 
 **Dependencies:** None (independent section)
 
 **Files likely touched:**
-- `skills/arianna-autonomous-agent/SKILL.md` (Phase 2 section, lines ~57-113)
+- `skills/shepherd/SKILL.md` (Phase 2 section, lines ~57-113)
 
 **Estimated scope:** Medium
 
@@ -108,27 +108,27 @@ T4 can parallelize with T1-T3 since project-templates.md is a separate file and 
 
 #### Task 3: Update SKILL.md Subagent Dispatch + State Management + Red Flags
 
-**Description:** Update the three Subagent Dispatch examples (Implementer, Reviewer, Fix) so their prompt blocks reference `.arianna/specs/<slug>/...` paths. Update the State Management Rules section to reference slug-scoped progress.md. Audit Red Flags for any stale path references.
+**Description:** Update the three Subagent Dispatch examples (Implementer, Reviewer, Fix) so their prompt blocks reference `.shepherd/specs/<slug>/...` paths. Update the State Management Rules section to reference slug-scoped progress.md. Audit Red Flags for any stale path references.
 
 **Acceptance criteria:**
-- [ ] Implementer dispatch prompt's "Instructions" block references `.arianna/specs/<slug>/...` for spec context (NOT `.arianna/spec.md`); standards.md and implement.md references stay at root
+- [ ] Implementer dispatch prompt's "Instructions" block references `.shepherd/specs/<slug>/...` for spec context (NOT `.shepherd/spec.md`); standards.md and implement.md references stay at root
 - [ ] Reviewer dispatch prompt references slug-scoped paths where appropriate
 - [ ] Fix dispatch prompt references slug-scoped paths where appropriate
-- [ ] State Management Rules section says "Read `.arianna/specs/<slug>/progress.md`" (not `.arianna/progress.md`)
+- [ ] State Management Rules section says "Read `.shepherd/specs/<slug>/progress.md`" (not `.shepherd/progress.md`)
 - [ ] Red Flags section has no stale path references (currently mentions "let progress.md go stale" — that's fine, it's the filename not the path)
-- [ ] SKILL.md preamble (Core principles + Platform mechanics, ~lines 10-21) updated to disambiguate per-feature vs project-wide state. The line "State files in `.arianna/` are your working memory" becomes something like "Per-feature state lives in `.arianna/specs/<slug>/`; project-wide files (standards.md, implement.md) stay at `.arianna/` root."
+- [ ] SKILL.md preamble (Core principles + Platform mechanics, ~lines 10-21) updated to disambiguate per-feature vs project-wide state. The line "State files in `.shepherd/` are your working memory" becomes something like "Per-feature state lives in `.shepherd/specs/<slug>/`; project-wide files (standards.md, implement.md) stay at `.shepherd/` root."
 - [ ] Above each subagent dispatch block (Implementer / Reviewer / Fix), SKILL.md states the substitution rule: "Before dispatching, the orchestrator replaces `<slug>` with the current feature's slug (from `git branch --show-current` in the orchestrator's cwd, not inside any worktree)."
 - [ ] SKILL.md Step 3 (Standards & Context) explicitly says "Commit standards.md / implement.md / CLAUDE.md / AGENTS.md before Phase 2 spawns any subagent worktree."
 
 **Verification:**
-- [ ] `grep -nE '\.arianna/(spec|plan|progress)\.md' skills/arianna-autonomous-agent/SKILL.md` returns ZERO matches in the whole file (this is the cumulative end-state for SKILL.md)
-- [ ] `grep -c 'standards\.md\|implement\.md' skills/arianna-autonomous-agent/SKILL.md` shows these are still referenced (they're project-wide, unchanged)
-- [ ] `wc -l skills/arianna-autonomous-agent/SKILL.md` < 500
+- [ ] `grep -nE '\.shepherd/(spec|plan|progress)\.md' skills/shepherd/SKILL.md` returns ZERO matches in the whole file (this is the cumulative end-state for SKILL.md)
+- [ ] `grep -c 'standards\.md\|implement\.md' skills/shepherd/SKILL.md` shows these are still referenced (they're project-wide, unchanged)
+- [ ] `wc -l skills/shepherd/SKILL.md` < 500
 
 **Dependencies:** T1, T2 (this is the final SKILL.md task)
 
 **Files likely touched:**
-- `skills/arianna-autonomous-agent/SKILL.md` (preamble, Subagent Dispatch, State Management, Red Flags)
+- `skills/shepherd/SKILL.md` (preamble, Subagent Dispatch, State Management, Red Flags)
 
 **Estimated scope:** Medium
 
@@ -138,21 +138,21 @@ T4 can parallelize with T1-T3 since project-templates.md is a separate file and 
 
 #### Task 4: Update references/project-templates.md paths
 
-**Description:** Update the 2 path references in `references/project-templates.md` (lines 3 and 52). Line 3 is an intro mentioning `.arianna/` (likely fine, that's the root). Line 52 reads `Read .arianna/spec.md` — this becomes `Read .arianna/specs/<slug>/spec.md` (slug resolved from git branch).
+**Description:** Update the 2 path references in `references/project-templates.md` (lines 3 and 52). Line 3 is an intro mentioning `.shepherd/` (likely fine, that's the root). Line 52 reads `Read .shepherd/spec.md` — this becomes `Read .shepherd/specs/<slug>/spec.md` (slug resolved from git branch).
 
 **Acceptance criteria:**
-- [ ] Line 52 ("Read `.arianna/spec.md`") becomes "Read `.arianna/specs/<slug>/spec.md` (slug resolved from current git branch name)"
-- [ ] Line 53 ("Read `.arianna/standards.md`") is unchanged (standards.md stays at root)
-- [ ] Intro line 3 mentioning "`.arianna/`" is reviewed — if it implies flat layout, update; if it just names the directory, leave
+- [ ] Line 52 ("Read `.shepherd/spec.md`") becomes "Read `.shepherd/specs/<slug>/spec.md` (slug resolved from current git branch name)"
+- [ ] Line 53 ("Read `.shepherd/standards.md`") is unchanged (standards.md stays at root)
+- [ ] Intro line 3 mentioning "`.shepherd/`" is reviewed — if it implies flat layout, update; if it just names the directory, leave
 
 **Verification:**
-- [ ] `grep -nE '\.arianna/(spec|plan|progress)\.md' skills/arianna-autonomous-agent/references/project-templates.md` returns ZERO matches
-- [ ] `grep -n 'standards\.md\|implement\.md' skills/arianna-autonomous-agent/references/project-templates.md` shows root-scoped references unchanged
+- [ ] `grep -nE '\.shepherd/(spec|plan|progress)\.md' skills/shepherd/references/project-templates.md` returns ZERO matches
+- [ ] `grep -n 'standards\.md\|implement\.md' skills/shepherd/references/project-templates.md` shows root-scoped references unchanged
 
 **Dependencies:** None (independent file, can run in parallel with T1-T3)
 
 **Files likely touched:**
-- `skills/arianna-autonomous-agent/references/project-templates.md` (2 lines)
+- `skills/shepherd/references/project-templates.md` (2 lines)
 
 **Estimated scope:** Small
 
@@ -175,7 +175,7 @@ T4 can parallelize with T1-T3 since project-templates.md is a separate file and 
 **Dependencies:** None (run before T5)
 
 **Files likely touched:**
-- `skills/arianna-autonomous-agent/evals/iteration-1/evals.json` (new)
+- `skills/shepherd/evals/iteration-1/evals.json` (new)
 
 **Estimated scope:** XS
 
@@ -185,10 +185,10 @@ T4 can parallelize with T1-T3 since project-templates.md is a separate file and 
 
 ### Checkpoint 1: Path Coherence (after T1-T4)
 
-- [ ] `grep -nE '\.arianna/(spec|plan|progress)\.md' skills/arianna-autonomous-agent/SKILL.md skills/arianna-autonomous-agent/references/project-templates.md` returns ZERO matches (this is spec SC2)
-- [ ] `wc -l skills/arianna-autonomous-agent/SKILL.md` < 500 (spec SC12)
-- [ ] `python3 skills/creating-skills/scripts/quick_validate.py skills/arianna-autonomous-agent` exits 0 (spec SC11)
-- [ ] Frontmatter unchanged: `head -5 skills/arianna-autonomous-agent/SKILL.md` shows description field untouched (spec Open Question #6 default)
+- [ ] `grep -nE '\.shepherd/(spec|plan|progress)\.md' skills/shepherd/SKILL.md skills/shepherd/references/project-templates.md` returns ZERO matches (this is spec SC2)
+- [ ] `wc -l skills/shepherd/SKILL.md` < 500 (spec SC12)
+- [ ] `python3 skills/creating-skills/scripts/quick_validate.py skills/shepherd` exits 0 (spec SC11)
+- [ ] Frontmatter unchanged: `head -5 skills/shepherd/SKILL.md` shows description field untouched (spec Open Question #6 default)
 - [ ] **Manual review with human before proceeding to evals** — read the diff and confirm path contract reads naturally
 
 ---
@@ -197,23 +197,23 @@ T4 can parallelize with T1-T3 since project-templates.md is a separate file and 
 
 #### Task 5: Update evals/evals.json expected_with_skill strings
 
-**Description:** Update the `expected_with_skill` fields in `evals/evals.json` so they describe the new artifact contract: 2 project-wide files (`standards.md`, `implement.md`) at `.arianna/` root + 3 per-slug files (`spec.md`, `plan.md`, `progress.md`) at `.arianna/specs/<slug>/`. The intent-discovery eval's expected_with_skill should reflect writing to `.arianna/specs/<slug>/spec.md`.
+**Description:** Update the `expected_with_skill` fields in `evals/evals.json` so they describe the new artifact contract: 2 project-wide files (`standards.md`, `implement.md`) at `.shepherd/` root + 3 per-slug files (`spec.md`, `plan.md`, `progress.md`) at `.shepherd/specs/<slug>/`. The intent-discovery eval's expected_with_skill should reflect writing to `.shepherd/specs/<slug>/spec.md`.
 
 **Acceptance criteria:**
 - [ ] T4.5 has completed (`evals/iteration-1/evals.json` snapshot exists) BEFORE this task mutates the canonical evals.json
-- [ ] Intent-discovery eval `expected_with_skill` mentions writing Confirmed Intent to `.arianna/specs/<slug>/spec.md` (not `.arianna/spec.md`)
+- [ ] Intent-discovery eval `expected_with_skill` mentions writing Confirmed Intent to `.shepherd/specs/<slug>/spec.md` (not `.shepherd/spec.md`)
 - [ ] Artifact-contract eval `expected_with_skill` describes "2 project-wide + 3 per-slug" structure with concrete paths
 - [ ] `expected_without_skill` strings are NOT updated (they describe what a model without the skill would say, which is unchanged by this refactor)
 
 **Verification:**
-- [ ] `grep -nE '\.arianna/(spec|plan|progress)\.md' skills/arianna-autonomous-agent/evals/evals.json` returns matches ONLY inside `expected_without_skill` strings (those stay), zero matches in `expected_with_skill`
-- [ ] `jq . skills/arianna-autonomous-agent/evals/evals.json` exits 0 (valid JSON)
-- [ ] `diff skills/arianna-autonomous-agent/evals/iteration-1/evals.json skills/arianna-autonomous-agent/evals/evals.json` is NON-empty (confirms canonical diverged from snapshot, proving T4.5 ran first)
+- [ ] `grep -nE '\.shepherd/(spec|plan|progress)\.md' skills/shepherd/evals/evals.json` returns matches ONLY inside `expected_without_skill` strings (those stay), zero matches in `expected_with_skill`
+- [ ] `jq . skills/shepherd/evals/evals.json` exits 0 (valid JSON)
+- [ ] `diff skills/shepherd/evals/iteration-1/evals.json skills/shepherd/evals/evals.json` is NON-empty (confirms canonical diverged from snapshot, proving T4.5 ran first)
 
 **Dependencies:** Checkpoint 1 passed, T4.5 completed
 
 **Files likely touched:**
-- `skills/arianna-autonomous-agent/evals/evals.json`
+- `skills/shepherd/evals/evals.json`
 
 **Estimated scope:** Small
 
@@ -233,21 +233,21 @@ T4 can parallelize with T1-T3 since project-templates.md is a separate file and 
 - [ ] benchmark.md cites SKILL.md by SECTION HEADING (e.g., "Phase 1, Step 1: Intent Discovery") + nearest stable text snippet, NEVER by line number. Iteration-1 uses line numbers (historical, untouchable); iteration-2 doesn't repeat that mistake.
 
 **Verification:**
-- [ ] `ls skills/arianna-autonomous-agent/evals/iteration-2/` shows at least `benchmark.md` and `eval-artifact-contract/`
-- [ ] `git diff skills/arianna-autonomous-agent/evals/iteration-1/` shows only the new `evals.json` file added (spec SC10 — existing iteration-1 content unchanged)
+- [ ] `ls skills/shepherd/evals/iteration-2/` shows at least `benchmark.md` and `eval-artifact-contract/`
+- [ ] `git diff skills/shepherd/evals/iteration-1/` shows only the new `evals.json` file added (spec SC10 — existing iteration-1 content unchanged)
 - [ ] Structural greps confirm benchmark.md documents the 5-file contract:
   ```bash
-  grep -c 'standards\.md' skills/arianna-autonomous-agent/evals/iteration-2/benchmark.md  # >= 1
-  grep -c 'implement\.md' skills/arianna-autonomous-agent/evals/iteration-2/benchmark.md  # >= 1
-  grep -ciE 'slug.determination|slug.proposal' skills/arianna-autonomous-agent/evals/iteration-2/benchmark.md  # >= 1
-  grep -E '\.arianna/specs/<slug>/' skills/arianna-autonomous-agent/evals/iteration-2/benchmark.md  # >= 1 match
+  grep -c 'standards\.md' skills/shepherd/evals/iteration-2/benchmark.md  # >= 1
+  grep -c 'implement\.md' skills/shepherd/evals/iteration-2/benchmark.md  # >= 1
+  grep -ciE 'slug.determination|slug.proposal' skills/shepherd/evals/iteration-2/benchmark.md  # >= 1
+  grep -E '\.shepherd/specs/<slug>/' skills/shepherd/evals/iteration-2/benchmark.md  # >= 1 match
   ```
 
 **Dependencies:** Checkpoint 1 passed (can run in parallel with T5)
 
 **Files likely touched:**
-- `skills/arianna-autonomous-agent/evals/iteration-2/benchmark.md` (new)
-- `skills/arianna-autonomous-agent/evals/iteration-2/eval-artifact-contract/with_skill/output.md` (new)
+- `skills/shepherd/evals/iteration-2/benchmark.md` (new)
+- `skills/shepherd/evals/iteration-2/eval-artifact-contract/with_skill/output.md` (new)
 
 **Estimated scope:** Large (new directory + two substantive files)
 
@@ -257,8 +257,8 @@ T4 can parallelize with T1-T3 since project-templates.md is a separate file and 
 
 ### Checkpoint 2: Eval Coherence (after T5-T6)
 
-- [ ] `jq . skills/arianna-autonomous-agent/evals/evals.json` valid
-- [ ] `git diff skills/arianna-autonomous-agent/evals/iteration-1/` empty
+- [ ] `jq . skills/shepherd/evals/evals.json` valid
+- [ ] `git diff skills/shepherd/evals/iteration-1/` empty
 - [ ] iteration-2 has benchmark + at least one eval output
 - [ ] **Optional behavioral-eval run** — invoke a fresh model on the updated skill, ask it to describe the artifact contract, verify response matches iteration-2's expected output (per CLAUDE.md Skill Editing Gate)
 
@@ -268,7 +268,7 @@ T4 can parallelize with T1-T3 since project-templates.md is a separate file and 
 
 #### Task 7: Run full verification battery
 
-**Description:** Execute every verification command listed in the spec's Commands section, plus the dogfood-existence check. Capture results in a short verification note (can be appended to progress.md if/when arianna writes one for this refactor).
+**Description:** Execute every verification command listed in the spec's Commands section, plus the dogfood-existence check. Capture results in a short verification note (can be appended to progress.md if/when shepherd writes one for this refactor).
 
 **Acceptance criteria:**
 - [ ] All 16 Success Criteria items in spec pass
@@ -276,63 +276,63 @@ T4 can parallelize with T1-T3 since project-templates.md is a separate file and 
 **Verification (the battery itself):**
 ```bash
 # SC1: Dogfood artifacts exist
-test -f /home/vadim/Code/agents-skills/.arianna/specs/001-per-feature-slug-folders/spec.md
-test -f /home/vadim/Code/agents-skills/.arianna/specs/001-per-feature-slug-folders/plan.md
-# Note: The dogfood spec/plan (this very directory) has NO progress.md because arianna
+test -f /home/vadim/Code/agents-skills/.shepherd/specs/001-per-feature-slug-folders/spec.md
+test -f /home/vadim/Code/agents-skills/.shepherd/specs/001-per-feature-slug-folders/plan.md
+# Note: The dogfood spec/plan (this very directory) has NO progress.md because shepherd
 # did not orchestrate this refactor — the artifacts were authored by hand. SC1 is
 # satisfied by spec.md + plan.md being present.
 
 # SC2: Zero stale paths in active text
-grep -nE '\.arianna/(spec|plan|progress)\.md' \
-  skills/arianna-autonomous-agent/SKILL.md \
-  skills/arianna-autonomous-agent/references/project-templates.md
+grep -nE '\.shepherd/(spec|plan|progress)\.md' \
+  skills/shepherd/SKILL.md \
+  skills/shepherd/references/project-templates.md
 # expected: no output
 
 # SC3, SC4, SC5, SC6, SC7: structural — verified by reading the updated files
 # (no automated check; manual diff review)
 
 # SC8: evals.json reflects new contract
-grep -nE '\.arianna/(spec|plan|progress)\.md' skills/arianna-autonomous-agent/evals/evals.json
+grep -nE '\.shepherd/(spec|plan|progress)\.md' skills/shepherd/evals/evals.json
 # expected: matches only in expected_without_skill values
-jq . skills/arianna-autonomous-agent/evals/evals.json
+jq . skills/shepherd/evals/evals.json
 # expected: exit 0
 
 # SC9: iteration-2 exists
-test -d skills/arianna-autonomous-agent/evals/iteration-2
+test -d skills/shepherd/evals/iteration-2
 
 # SC10: iteration-1 existing content untouched
-git diff skills/arianna-autonomous-agent/evals/iteration-1/benchmark.md \
-         skills/arianna-autonomous-agent/evals/iteration-1/eval-artifact-contract \
-         skills/arianna-autonomous-agent/evals/iteration-1/eval-intent-discovery \
-         skills/arianna-autonomous-agent/evals/iteration-1/live-run
+git diff skills/shepherd/evals/iteration-1/benchmark.md \
+         skills/shepherd/evals/iteration-1/eval-artifact-contract \
+         skills/shepherd/evals/iteration-1/eval-intent-discovery \
+         skills/shepherd/evals/iteration-1/live-run
 # expected: empty (existing files unchanged; the new evals.json snapshot is an addition)
 
 # SC11: packaging valid
-python3 skills/creating-skills/scripts/quick_validate.py skills/arianna-autonomous-agent
+python3 skills/creating-skills/scripts/quick_validate.py skills/shepherd
 
 # SC12: line budget
-wc -l skills/arianna-autonomous-agent/SKILL.md
+wc -l skills/shepherd/SKILL.md
 # expected: < 500
 
 # SC13: Phase 1 has the new preconditions
 grep -n 'git rev-parse --is-inside-work-tree\|git branch --show-current' \
-  skills/arianna-autonomous-agent/SKILL.md
+  skills/shepherd/SKILL.md
 # expected: matches in Phase 1 section
 
 # SC14: Phase 3 PR handoff
-grep -n 'gh pr create --base main --head' skills/arianna-autonomous-agent/SKILL.md
+grep -n 'gh pr create --base main --head' skills/shepherd/SKILL.md
 # expected: >= 1 match
 
 # SC15: Cross-feature coordination
-grep -niE 'diff.before|SHA pinning|append.or.extend' skills/arianna-autonomous-agent/SKILL.md
+grep -niE 'diff.before|SHA pinning|append.or.extend' skills/shepherd/SKILL.md
 # expected: >= 1 match
 
 # SC16: iteration-1 evals.json snapshot
-test -f skills/arianna-autonomous-agent/evals/iteration-1/evals.json
+test -f skills/shepherd/evals/iteration-1/evals.json
 
 # Bonus: symlink parity
-readlink .agents/skills/arianna-autonomous-agent
-# expected: ../../skills/arianna-autonomous-agent
+readlink .agents/skills/shepherd
+# expected: ../../skills/shepherd
 ```
 
 **Dependencies:** Checkpoint 2 passed
@@ -371,15 +371,15 @@ Practical sequencing for a single agent: `T1 → T2 → T3 → T4 → T4.5 → C
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Stale `.arianna/spec.md` reference in an example or instruction leaks through | High — refactor visibly incomplete | Path-coherence grep gate at Checkpoint 1; cumulative grep in T3's verification |
+| Stale `.shepherd/spec.md` reference in an example or instruction leaks through | High — refactor visibly incomplete | Path-coherence grep gate at Checkpoint 1; cumulative grep in T3's verification |
 | SKILL.md exceeds 500 lines after new slug-determination + branch-coupling prose | Medium — CLAUDE.md gate fails | `wc -l` check at Checkpoint 1; if over, trim verbose explanations before adding new ones |
 | Accidental edit to `evals/iteration-1/` | High — falsifies historical record | `git diff iteration-1/` check at Checkpoint 2; T6 acceptance criterion explicitly forbids it |
 | Subagent dispatch prompt example breaks because the path no longer resolves at dispatch time | Medium — subagents fail at runtime | T3 must verify dispatch prompts reference `<slug>` placeholder, and orchestrator resolves it from branch before substituting |
 | Description-field drift creates a new triggers contract | Low — but invalidates discovery | T1-T3 explicitly leave frontmatter alone; Checkpoint 1 verifies with `head -5` |
 | Behavioral eval at Checkpoint 2 catches divergence between SKILL.md text and what a model actually produces | Medium — design vs runtime mismatch | If divergence found, revise SKILL.md text (not the eval); CLAUDE.md gate `feedback_designed_is_not_verified` applies |
-| Orchestrator forgets to pre-substitute `<slug>`, dispatch prompts contain literal placeholder | High — subagents fail at runtime trying to access `.arianna/specs/<slug>/...` | T3 AC explicitly requires the substitution rule to appear above each dispatch block in SKILL.md; behavioral eval can detect literal `<slug>` in actual dispatched prompts |
-| Project-wide file SHA pinning drifts silently and arianna proceeds without warning | Medium — quality bar shifts mid-feature | T2 / T3 must verify the resume-warning path in updated Phase 2 |
-| User invokes arianna in non-git directory or detached HEAD | High — branch-coupled model breaks | Phase 1 preconditions (F5, F20) added; verified by SC13 grep |
+| Orchestrator forgets to pre-substitute `<slug>`, dispatch prompts contain literal placeholder | High — subagents fail at runtime trying to access `.shepherd/specs/<slug>/...` | T3 AC explicitly requires the substitution rule to appear above each dispatch block in SKILL.md; behavioral eval can detect literal `<slug>` in actual dispatched prompts |
+| Project-wide file SHA pinning drifts silently and shepherd proceeds without warning | Medium — quality bar shifts mid-feature | T2 / T3 must verify the resume-warning path in updated Phase 2 |
+| User invokes shepherd in non-git directory or detached HEAD | High — branch-coupled model breaks | Phase 1 preconditions (F5, F20) added; verified by SC13 grep |
 
 ## Open Questions
 
@@ -389,4 +389,4 @@ If new ambiguity surfaces during implementation (e.g., a path reference whose co
 
 ---
 
-*This plan lives at `.arianna/specs/001-per-feature-slug-folders/plan.md` — alongside its spec, inside the very directory structure both files specify.*
+*This plan lives at `.shepherd/specs/001-per-feature-slug-folders/plan.md` — alongside its spec, inside the very directory structure both files specify.*

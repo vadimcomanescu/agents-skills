@@ -27,7 +27,7 @@
 
 ## Caveats — what this eval doesn't prove
 
-- **Near-misses were unambiguous.** Every NO_TRIGGER prompt had a clear single-skill destination. A harder set with genuinely ambiguous prompts (e.g., *"I want to start a new feature"* — could route to `interview-me`, `spec`, `arianna-autonomous-agent`, OR the navigation map) would test how the description competes when multiple skills plausibly match.
+- **Near-misses were unambiguous.** Every NO_TRIGGER prompt had a clear single-skill destination. A harder set with genuinely ambiguous prompts (e.g., *"I want to start a new feature"* — could route to `interview-me`, `spec`, `shepherd`, OR the navigation map) would test how the description competes when multiple skills plausibly match.
 - **Subagent ≠ production router.** The eval subagent (general-purpose Claude model) simulated the router. Actual Claude Code / Codex / Gemini CLI / OpenCode routers may use different matching logic or different model versions. The eval establishes the description is well-shaped; it doesn't guarantee identical behavior in production.
 - **Single-skill scope.** The eval tested `using-agents-skills` in isolation against ~12 other named skill descriptions in context. Behavior with additional installed skill packs (e.g., Osmani's `agent-skills` installed alongside) wasn't tested — could surface description-collision edge cases.
 

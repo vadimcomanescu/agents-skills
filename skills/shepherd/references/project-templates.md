@@ -1,6 +1,77 @@
 # Project File Templates
 
-Templates for `.arianna/` project files. Customize to your project's tech stack and patterns.
+Templates for `.shepherd/` project files. Customize to your project's tech stack and patterns.
+
+## goal.md
+
+```markdown
+# Project Goal
+
+## Problem Statement
+[What problem are we solving? Why does it matter?]
+
+## Desired Outcome
+[What does the finished product look like? Be specific.]
+
+## Acceptance Criteria
+- [ ] [Criterion 1 — measurable, verifiable]
+- [ ] [Criterion 2]
+- [ ] [Criterion 3]
+
+## Non-Goals
+- [Thing we are explicitly NOT building]
+- [Scope boundary we will not cross]
+
+## Constraints
+- [Technical constraint: language, framework, deployment target]
+- [Business constraint: timeline, compatibility, licensing]
+
+## Tech Stack
+- Language: [e.g., TypeScript]
+- Framework: [e.g., Next.js 14]
+- Database: [e.g., PostgreSQL]
+- Other: [e.g., Redis, Docker]
+```
+
+## plans.md
+
+```markdown
+# Project Plan
+
+## Architecture Overview
+[High-level description of the system. Components, data flow, key boundaries.]
+
+## Milestones
+
+### Milestone 1: [Name]
+**Goal:** [What this milestone delivers]
+**Depends on:** None
+
+#### Tasks
+
+##### Task 1.1: [Name]
+- **Parallel:** yes/no
+- **Files:** [src/auth/*, src/middleware/auth.ts]
+- **Approach:** [How to implement — specific enough for a subagent]
+- **Tests:** [What to test — happy path, error cases, edge cases]
+- **Acceptance criteria:** [When is this task done?]
+- **Status:** pending
+
+##### Task 1.2: [Name]
+- **Parallel:** yes (with 1.1) / no (depends on 1.1)
+- **Files:** [...]
+- **Approach:** [...]
+- **Tests:** [...]
+- **Acceptance criteria:** [...]
+- **Status:** pending
+
+### Milestone 2: [Name]
+**Goal:** [...]
+**Depends on:** Milestone 1
+
+#### Tasks
+[Same structure as above]
+```
 
 ## standards.md
 
@@ -49,8 +120,8 @@ You are a subagent implementing a specific task. Follow this workflow exactly.
 
 ## Before You Start
 
-1. Read `.arianna/specs/<slug>/spec.md` (slug resolved from current git branch name) — understand the project's purpose and the locked Confirmed Intent
-2. Read `.arianna/standards.md` — understand the quality bar
+1. Read `.shepherd/goal.md` — understand the project's purpose
+2. Read `.shepherd/standards.md` — understand the quality bar
 3. Read your task description carefully — understand exactly what to build
 4. If anything is unclear, state your assumptions in your report
 

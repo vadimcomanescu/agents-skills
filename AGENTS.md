@@ -63,5 +63,5 @@ jq . .codex-plugin/plugin.json        # valid JSON
 | `skills/creating-skills/SKILL.md` | Authoring or editing any skill — directory layout, frontmatter, descriptions, evals |
 | `skills/agents-md/SKILL.md` | Auditing and refactoring this file |
 | `skills/slap/SKILL.md` | User-invoked correction protocol when steering fails |
-| `skills/arianna-autonomous-agent/SKILL.md` | End-to-end autonomous multi-milestone builds |
+| `skills/shepherd/SKILL.md` | End-to-end autonomous multi-milestone builds |
 | `skills/tdd-mutation/SKILL.md` | Test-first implementation with mutation-backed verification |

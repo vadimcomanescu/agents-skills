@@ -1,7 +1,7 @@
 {
   "skill_name": "creating-skills",
   "iteration": 2,
-  "eval_set": "evals 4-10 (added 2026-05 to catch the failure modes from the arianna-autonomous-agent redesign session)",
+  "eval_set": "evals 4-10 (added 2026-05 to catch the failure modes from the shepherd redesign session)",
   "method": "Two batched subagents in parallel: one loaded creating-skills/SKILL.md (with_skill), one explicitly forbidden from reading any skill or memory file (baseline). Outputs at iteration-2/{with_skill,without_skill}/output.md.",
   "grading_per_eval": [
     {

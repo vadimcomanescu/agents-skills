@@ -16,7 +16,7 @@ Decide top to bottom; the first match wins.
 ```
 Task arrives
 
-├── Build a whole project end-to-end? ─────────────→ arianna-autonomous-agent
+├── Build a whole project end-to-end? ─────────────→ shepherd
 │
 ├── Don't know what you want yet? ────────────────→ interview-me
 ├── Have intent, need a spec? ────────────────────→ spec
@@ -39,7 +39,7 @@ Task arrives
 
 Most non-trivial work isn't a single skill — it composes. Two sequences come up often enough to name:
 
-**Front-of-pipeline (pre-build):** `interview-me → spec → plan`. Each gate hands off to the next; the Confirmed Intent block from `interview-me` becomes the locked first section of the spec file, and that spec file becomes the planner's input. Arianna's Phase 1 chains these three internally when you invoke `arianna-autonomous-agent` — invoke them individually when you want the artifacts without the autonomous multi-milestone build that follows.
+**Front-of-pipeline (pre-build):** `interview-me → spec → plan`. Each gate hands off to the next; the Confirmed Intent block from `interview-me` becomes the locked first section of the spec file, and that spec file becomes the planner's input. Shepherd's Phase 1 chains these three internally when you invoke `shepherd` — invoke them individually when you want the artifacts without the autonomous multi-milestone build that follows.
 
 **Authoring a new skill:** `creating-skills`. It embeds its own iterate-and-eval loop; run its `scripts/quick_validate.py` before declaring done.
 
@@ -49,7 +49,7 @@ When the dispatch tree's question doesn't fit cleanly, the one-line summaries he
 
 | Cluster | Skill | One-line |
 |---|---|---|
-| Build pipeline | arianna-autonomous-agent | End-to-end autonomous multi-milestone build with worktree dispatch |
+| Build pipeline | shepherd | End-to-end autonomous multi-milestone build with worktree dispatch |
 | Build pipeline | interview-me | Extract the user's actual want via one-question-at-a-time, ~95%-confidence stop |
 | Build pipeline | spec | Six-area spec (Confirmed Intent + Commands + Project Structure + Code Style + Testing + Boundaries) |
 | Build pipeline | plan | Dependency graph, vertical slicing, XS–XL task sizing, checkpoints |

@@ -23,35 +23,27 @@ You are an autonomous orchestrator managing end-to-end project delivery. You dis
 
 User interaction happens HERE — get everything upfront, then go autonomous.
 
-### Step 1: Goal Discovery
+### Step 1: Intent
 
-Invoke the `interview-me` skill. Run its full process: hypothesis with confidence number, one question at a time with attached guess, the "what would you actually want if you didn't have to justify it?" probe, and the 6-line restate (Outcome / User / Why now / Success / Constraint / Out of scope).
+Invoke `interview-me`. Write its Confirmed Intent verbatim into `.shepherd/spec.md` as the `## Confirmed Intent` section (matches the `spec` skill's locked-input protocol).
 
-Do not advance until the user gives an explicit "yes" on the restate. Vague answers ("whatever you think", "sounds good", silence) are not yes — re-engage per the skill's Step 5.
-
-Once the gate clears, write the locked intent to `.shepherd/goal.md` using the template in `references/project-templates.md`. Populate the template's sections from the restate.
-
-### Step 2: Technical Planning
-
-Convert the goal into an executable plan.
-
-1. Design high-level architecture
-2. Break into milestones (sequential phases of delivery)
-3. Break milestones into tasks — flag each as parallel or sequential
-4. Each task gets: files involved, approach, tests needed, acceptance criteria
-5. Write `.shepherd/plans.md`
-6. Present plan to user for final sign-off
-
-**This is the last user interaction.** After approval, you execute autonomously.
-
-### Step 3: Standards & Workflow
+### Step 2: Explore and Standards
 
 1. Assess the codebase (or define conventions for greenfield)
-2. Create `.shepherd/standards.md` — tailored to this project's tech stack and patterns
-3. Create `.shepherd/implement.md` — subagent workflow instructions
-4. Both files double as subagent prompts — subagents read them directly
+2. Write `.shepherd/exploration.md` — tech stack, key directories, conventions, integration points, constraints (brownfield only)
+3. Write `.shepherd/standards.md` — tailored to this project's tech stack and patterns
 
 Read `references/project-templates.md` for initial structures, then customize.
+
+### Step 3: Plan
+
+Convert intent + exploration into an executable plan.
+
+1. Invoke the `spec` skill. It reads its `## Confirmed Intent` from `.shepherd/spec.md` (written by Step 1) and `.shepherd/exploration.md` for tech-stack details. Elaborates the remaining spec sections (Tech Stack, Commands, Project Structure, Code Style, Testing Strategy, Boundaries, Success Criteria, Open Questions) into the same file.
+2. Invoke the `plan` skill. Direct it to read `.shepherd/spec.md` and write the implementation plan to `.shepherd/plans.md` (vertical slices, milestones, parallel/sequential flags per task).
+3. Present `.shepherd/plans.md` to the user for final sign-off.
+
+**This is the last user interaction.** After approval, you execute autonomously.
 
 ### Step 4: Initialize Progress
 
@@ -121,87 +113,30 @@ Some tasks depend on others. Execute these in order:
 
 ### Implementer Dispatch
 
-```
-Agent tool (general-purpose, isolation: "worktree"):
-  description: "Implement: [task name]"
-  prompt: |
-    You are implementing: [task name]
-
-    ## Task
-    [Full task description from plans.md]
-
-    ## Instructions
-    Read and follow these files in the project root:
-    - .shepherd/implement.md — your workflow (TDD, commit, self-review)
-    - .shepherd/standards.md — quality bar and conventions
-
-    ## Architectural Context
-    [Current architecture state from progress.md — what exists,
-     what was built in prior milestones, key decisions]
-
-    ## Constraints
-    - Stay in your worktree. Do not modify files outside your task scope.
-    - No new dependencies without documenting justification.
-    - Commit working code with passing tests before reporting back.
-
-    ## Report Format
-    When done: what you built, tests passing, files changed, concerns.
-```
+1. Read `prompts/implementer-prompt.md` from the skill directory.
+2. Substitute: `{TASK_NAME}`, `{TASK_DESCRIPTION}`, `{ARCH_CONTEXT}`, `{WORKTREE_PATH}`.
+3. Dispatch with `isolation: "worktree"`:
+   - **Claude Code:** `Agent` tool, `subagent_type: "general-purpose"`
+   - **Codex:** `spawn_agent` with worktree isolation
+   - **Kimi / OpenCode:** native subagent
 
 ### Architectural Reviewer Dispatch
 
-```
-Agent tool (superpowers:code-reviewer or general-purpose):
-  description: "Review milestone: [milestone name]"
-  prompt: |
-    You are reviewing milestone: [milestone name]
-
-    ## Scope
-    [List of tasks completed in this milestone]
-
-    ## What to Review
-    Run: git diff [base_sha]..HEAD
-    Read: .shepherd/standards.md for the quality bar
-
-    ## Review Calibration
-    You are a senior staff engineer. This code ships to production.
-    Be ruthless. Flag:
-    - Architecture violations or inconsistencies
-    - Missing error handling, edge cases, security issues
-    - Test gaps — untested paths, weak assertions
-    - Abstraction problems — wrong level, leaky, premature
-    - Naming that misleads or obscures intent
-
-    Do NOT flag: style preferences, minor formatting, subjective taste.
-
-    ## Output Format
-    For each issue:
-    - File and line
-    - Severity: critical / important / minor
-    - What's wrong and why it matters
-    - Suggested fix
-
-    Final verdict: APPROVE or REQUEST CHANGES
-```
+1. Read `prompts/reviewer-prompt.md` from the skill directory.
+2. Substitute: `{MILESTONE_NAME}`, `{TASKS_COMPLETED}`, `{BASE_SHA}`.
+3. Dispatch:
+   - **Claude Code:** `Agent` tool, `subagent_type: "superpowers:code-reviewer"` or `"general-purpose"`
+   - **Codex:** `spawn_agent`
+   - **Kimi / OpenCode:** native subagent
 
 ### Fix Dispatch
 
-```
-Agent tool (general-purpose, isolation: "worktree"):
-  description: "Fix: [specific issue]"
-  prompt: |
-    You are fixing a review issue.
-
-    ## Issue
-    [Exact reviewer feedback — file, line, description, suggested fix]
-
-    ## Instructions
-    Read .shepherd/implement.md and .shepherd/standards.md.
-    Fix this specific issue. Run tests. Commit.
-    Do not change anything unrelated to this issue.
-
-    Report: what you changed, tests passing, files modified.
-```
+1. Read `prompts/fixer-prompt.md` from the skill directory.
+2. Substitute: `{ISSUE_DESCRIPTION}`, `{WORKTREE_PATH}`.
+3. Dispatch with `isolation: "worktree"`:
+   - **Claude Code:** `Agent` tool, `subagent_type: "general-purpose"`
+   - **Codex:** `spawn_agent` with worktree isolation
+   - **Kimi / OpenCode:** native subagent
 
 ## Phase 3: Project Completion
 

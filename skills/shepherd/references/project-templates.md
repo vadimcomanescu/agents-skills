@@ -2,35 +2,37 @@
 
 Templates for `.shepherd/` project files. Customize to your project's tech stack and patterns.
 
-## goal.md
+## exploration.md
 
 ```markdown
-# Project Goal
-
-## Problem Statement
-[What problem are we solving? Why does it matter?]
-
-## Desired Outcome
-[What does the finished product look like? Be specific.]
-
-## Acceptance Criteria
-- [ ] [Criterion 1 — measurable, verifiable]
-- [ ] [Criterion 2]
-- [ ] [Criterion 3]
-
-## Non-Goals
-- [Thing we are explicitly NOT building]
-- [Scope boundary we will not cross]
-
-## Constraints
-- [Technical constraint: language, framework, deployment target]
-- [Business constraint: timeline, compatibility, licensing]
+# Codebase Exploration
 
 ## Tech Stack
-- Language: [e.g., TypeScript]
+- Language: [e.g., TypeScript 5.x]
 - Framework: [e.g., Next.js 14]
-- Database: [e.g., PostgreSQL]
-- Other: [e.g., Redis, Docker]
+- Database: [e.g., PostgreSQL with Prisma]
+- Test framework: [e.g., Vitest]
+- Build tools: [e.g., Vite, tsc]
+
+## Key Directories
+- `src/...`: [purpose]
+- `tests/...`: [purpose]
+- ...
+
+## Conventions Observed
+- Naming: [patterns used in this codebase]
+- Layering: [how concerns are separated]
+- Testing patterns: [TDD? snapshot? e2e?]
+- Error handling: [conventions]
+
+## Integration Points
+- External services: [APIs, databases, queues]
+- Internal dependencies: [shared libraries, modules]
+
+## Constraints Discovered
+- Legacy code: [areas to avoid or handle carefully]
+- Deprecation paths: [things being phased out]
+- Compatibility requirements: [browser support, runtime targets]
 ```
 
 ## plans.md
@@ -109,49 +111,6 @@ Write code that a senior staff engineer would be proud of. Not "good enough" —
 - Each commit is a single logical change that compiles and passes tests.
 - Commit messages explain WHY, not WHAT. The diff shows what changed.
 - No merge commits in feature work. Rebase onto main.
-```
-
-## implement.md
-
-```markdown
-# Subagent Workflow
-
-You are a subagent implementing a specific task. Follow this workflow exactly.
-
-## Before You Start
-
-1. Read `.shepherd/goal.md` — understand the project's purpose
-2. Read `.shepherd/standards.md` — understand the quality bar
-3. Read your task description carefully — understand exactly what to build
-4. If anything is unclear, state your assumptions in your report
-
-## Implementation Workflow
-
-1. **Design:** Think through the approach before writing code. Identify edge cases.
-2. **Test first:** Write a failing test for the first behavior.
-3. **Implement:** Write minimal code to pass the test.
-4. **Refactor:** Clean up while tests pass.
-5. **Repeat:** Next behavior, next test, next implementation.
-6. **Verify:** Run full test suite. Run linter. Run type checker. All must pass.
-7. **Commit:** One commit per logical change. Message explains why.
-8. **Self-review:** Read your own diff. Would you approve this in code review?
-
-## Rules
-
-- **No scope creep.** Build exactly what the task specifies. Nothing more.
-- **No new dependencies** without documenting justification in your report.
-- **Stay in your worktree.** Do not modify files outside your task scope.
-- **No shortcuts.** No `// TODO`, no `any`, no skipped tests, no "fix later".
-- **Ask rather than assume.** If a requirement is ambiguous, state your assumption explicitly.
-
-## Report Format
-
-When done, report:
-- What you implemented (brief summary)
-- Test results (passing count, any notable coverage)
-- Files changed (list)
-- Assumptions made (if any)
-- Concerns or risks (if any)
 ```
 
 ## progress.md

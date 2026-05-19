@@ -85,6 +85,15 @@ To refetch from `vadimcomanescu/agents-skills` by re-running the install (equiva
 npx skills@latest add vadimcomanescu/agents-skills -g -y -a claude-code codex gemini-cli opencode
 ```
 
+### When a skill is renamed or removed from this repo
+
+`npx skills add`/`update` are additive — they will not uninstall a skill that has been deleted or renamed at the source. Tracked upstream as [vercel-labs/skills#415](https://github.com/vercel-labs/skills/issues/415). Run an explicit remove first, then re-install:
+
+```bash
+npx skills@latest remove <old-or-deleted-name> -g -y -a claude-code codex gemini-cli opencode
+npx skills@latest add vadimcomanescu/agents-skills -g -y -a claude-code codex gemini-cli opencode
+```
+
 ## Skills
 
 | Skill | What it does |

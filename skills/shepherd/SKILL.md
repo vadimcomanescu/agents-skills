@@ -113,7 +113,7 @@ Some tasks depend on others. Execute these in order:
 
 ### Implementer Dispatch
 
-1. Read `prompts/implementer-prompt.md` from the skill directory.
+1. Read `prompts/implementer.md` from the skill directory.
 2. Substitute: `{TASK_NAME}`, `{TASK_DESCRIPTION}`, `{ARCH_CONTEXT}`, `{WORKTREE_PATH}`.
 3. Dispatch with `isolation: "worktree"`:
    - **Claude Code:** `Agent` tool, `subagent_type: "general-purpose"`
@@ -122,7 +122,7 @@ Some tasks depend on others. Execute these in order:
 
 ### Architectural Reviewer Dispatch
 
-1. Read `prompts/reviewer-prompt.md` from the skill directory.
+1. Read `prompts/reviewer.md` from the skill directory.
 2. Substitute: `{MILESTONE_NAME}`, `{TASKS_COMPLETED}`, `{BASE_SHA}`.
 3. Dispatch:
    - **Claude Code:** `Agent` tool, `subagent_type: "superpowers:code-reviewer"` or `"general-purpose"`
@@ -131,7 +131,7 @@ Some tasks depend on others. Execute these in order:
 
 ### Fix Dispatch
 
-1. Read `prompts/fixer-prompt.md` from the skill directory.
+1. Read `prompts/fixer.md` from the skill directory.
 2. Substitute: `{ISSUE_DESCRIPTION}`, `{WORKTREE_PATH}`.
 3. Dispatch with `isolation: "worktree"`:
    - **Claude Code:** `Agent` tool, `subagent_type: "general-purpose"`

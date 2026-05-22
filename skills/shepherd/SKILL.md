@@ -27,25 +27,25 @@ User interaction happens HERE — get everything upfront, then go autonomous.
 
 Invoke `interview-me`. Write its Confirmed Intent verbatim into `.shepherd/spec.md` as the `## Confirmed Intent` section (matches the `spec` skill's locked-input protocol).
 
-### Step 2: Explore and Standards
+### Step 2: Spec
 
-1. Assess the codebase (or define conventions for greenfield)
-2. Write `.shepherd/exploration.md` — tech stack, key directories, conventions, integration points, constraints (brownfield only)
-3. Write `.shepherd/standards.md` — tailored to this project's tech stack and patterns
+Invoke the `spec` skill. Direct it to read the `## Confirmed Intent` section from `.shepherd/spec.md` (written by Step 1) as locked input, then populate the remaining sections per the spec skill's own template into the same `.shepherd/spec.md` file.
 
-Read `references/project-templates.md` for initial structures, then customize.
+Present the completed spec to the user for sign-off before proceeding.
 
 ### Step 3: Plan
 
-Convert intent + exploration into an executable plan.
+1. Invoke the `plan` skill. Direct it to read `.shepherd/spec.md` and write the implementation plan to `.shepherd/plan.md` (vertical slices, milestones, parallel/sequential flags per task) per the plan skill's own template.
+2. Present `.shepherd/plan.md` to the user for final sign-off.
 
-1. Invoke the `spec` skill. It reads its `## Confirmed Intent` from `.shepherd/spec.md` (written by Step 1) and `.shepherd/exploration.md` for tech-stack details. Elaborates the remaining spec sections (Tech Stack, Commands, Project Structure, Code Style, Testing Strategy, Boundaries, Success Criteria, Open Questions) into the same file.
-2. Invoke the `plan` skill. Direct it to read `.shepherd/spec.md` and write the implementation plan to `.shepherd/plans.md` (vertical slices, milestones, parallel/sequential flags per task).
-3. Present `.shepherd/plans.md` to the user for final sign-off.
+### Step 4: Standards
+
+1. Assess the codebase (or define conventions for greenfield).
+2. Create `.shepherd/standards.md` — tailored to this project's tech stack and patterns (see `references/project-templates.md`).
 
 **This is the last user interaction.** After approval, you execute autonomously.
 
-### Step 4: Initialize Progress
+### Step 5: Initialize Progress
 
 1. Create `.shepherd/progress.md` with initial state
 2. Log setup completion, record architecture decisions made during planning
@@ -57,7 +57,7 @@ Convert intent + exploration into an executable plan.
 digraph orchestration {
     rankdir=TB;
 
-    "Read progress.md + plans.md" [shape=box];
+    "Read progress.md + plan.md" [shape=box];
     "Identify current milestone" [shape=box];
     "Categorize tasks: parallel vs sequential" [shape=box];
     "Dispatch implementer subagents (worktrees)" [shape=box];
@@ -72,7 +72,7 @@ digraph orchestration {
     "More milestones?" [shape=diamond];
     "Phase 3: Completion" [shape=box style=filled fillcolor=lightgreen];
 
-    "Read progress.md + plans.md" -> "Identify current milestone";
+    "Read progress.md + plan.md" -> "Identify current milestone";
     "Identify current milestone" -> "Categorize tasks: parallel vs sequential";
     "Categorize tasks: parallel vs sequential" -> "Dispatch implementer subagents (worktrees)";
     "Dispatch implementer subagents (worktrees)" -> "Collect results, verify (tests/lint/types)";
@@ -86,14 +86,14 @@ digraph orchestration {
     "Iteration < 3?" -> "Best-judgment call, log decision, proceed" [label="no"];
     "Best-judgment call, log decision, proceed" -> "Update progress.md";
     "Update progress.md" -> "More milestones?";
-    "More milestones?" -> "Read progress.md + plans.md" [label="yes"];
+    "More milestones?" -> "Read progress.md + plan.md" [label="yes"];
     "More milestones?" -> "Phase 3: Completion" [label="no"];
 }
 ```
 
 ### Per-Milestone Execution
 
-1. **Re-read state:** Read `progress.md` and `plans.md` before every milestone
+1. **Re-read state:** Read `progress.md` and `plan.md` before every milestone
 2. **Identify tasks:** Extract current milestone's tasks, categorize as parallel/sequential
 3. **Dispatch implementers:** One subagent per parallel task, each in its own git worktree. Max 5 parallel subagents to limit merge conflicts
 4. **Verify results:** After each subagent completes, run tests, linter, type checker in the worktree
@@ -138,7 +138,7 @@ Some tasks depend on others. Execute these in order:
    - **Codex:** `spawn_agent` with worktree isolation
    - **Kimi / OpenCode:** native subagent
 
-## Phase 3: Project Completion
+## Phase 3: Completion
 
 1. **Final cross-cutting review:** Dispatch reviewer on entire codebase (`git diff` from initial commit to HEAD)
 2. **Address critical issues** from final review (same fix cycle, max 3 iterations)
@@ -155,7 +155,7 @@ You do NOT ask the user questions during execution. Resolve everything yourself.
 | **Design tradeoffs** | Pick the pragmatic option that fits existing architecture. Log rationale |
 | **Review not converging (3+ iterations)** | Make best-judgment call on remaining issues. Document what was deferred and why. Proceed |
 | **Subagent failure** | Retry with more context. If still failing, try different approach. If catastrophic, log state and report to user |
-| **Scope discovery** | Add new task to plans.md under current milestone. Proceed |
+| **Scope discovery** | Add new task to plan.md under current milestone. Proceed |
 | **Merge conflicts** | Resolve them. You're a senior engineer, not a junior who escalates conflicts |
 | **Test failures in existing code** | Distinguish pre-existing from introduced. Fix what you broke. Log pre-existing as known issues |
 
@@ -186,16 +186,7 @@ This enables recovery if the session is interrupted or context is compacted.
 
 ### Decision Log
 
-Every non-trivial decision gets logged:
-```
-### Decision: [topic]
-- Options considered: [A, B, C]
-- Chose: [B]
-- Rationale: [why]
-- Trade-offs accepted: [what you gave up]
-```
-
-This prevents re-litigating decisions after context compaction.
+Every non-trivial decision gets logged in `progress.md` under the Decisions Log section, using the format defined in `references/project-templates.md`. This prevents re-litigating decisions after context compaction.
 
 ## Red Flags
 

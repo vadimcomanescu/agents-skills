@@ -2,78 +2,9 @@
 
 Templates for `.shepherd/` project files. Customize to your project's tech stack and patterns.
 
-## exploration.md
-
-```markdown
-# Codebase Exploration
-
-## Tech Stack
-- Language: [e.g., TypeScript 5.x]
-- Framework: [e.g., Next.js 14]
-- Database: [e.g., PostgreSQL with Prisma]
-- Test framework: [e.g., Vitest]
-- Build tools: [e.g., Vite, tsc]
-
-## Key Directories
-- `src/...`: [purpose]
-- `tests/...`: [purpose]
-- ...
-
-## Conventions Observed
-- Naming: [patterns used in this codebase]
-- Layering: [how concerns are separated]
-- Testing patterns: [TDD? snapshot? e2e?]
-- Error handling: [conventions]
-
-## Integration Points
-- External services: [APIs, databases, queues]
-- Internal dependencies: [shared libraries, modules]
-
-## Constraints Discovered
-- Legacy code: [areas to avoid or handle carefully]
-- Deprecation paths: [things being phased out]
-- Compatibility requirements: [browser support, runtime targets]
-```
-
-## plans.md
-
-```markdown
-# Project Plan
-
-## Architecture Overview
-[High-level description of the system. Components, data flow, key boundaries.]
-
-## Milestones
-
-### Milestone 1: [Name]
-**Goal:** [What this milestone delivers]
-**Depends on:** None
-
-#### Tasks
-
-##### Task 1.1: [Name]
-- **Parallel:** yes/no
-- **Files:** [src/auth/*, src/middleware/auth.ts]
-- **Approach:** [How to implement — specific enough for a subagent]
-- **Tests:** [What to test — happy path, error cases, edge cases]
-- **Acceptance criteria:** [When is this task done?]
-- **Status:** pending
-
-##### Task 1.2: [Name]
-- **Parallel:** yes (with 1.1) / no (depends on 1.1)
-- **Files:** [...]
-- **Approach:** [...]
-- **Tests:** [...]
-- **Acceptance criteria:** [...]
-- **Status:** pending
-
-### Milestone 2: [Name]
-**Goal:** [...]
-**Depends on:** Milestone 1
-
-#### Tasks
-[Same structure as above]
-```
+The `spec.md` template lives in `skills/spec/SKILL.md` (single canonical source).
+The `plan.md` template lives in `skills/plan/SKILL.md` (single canonical source).
+The templates below cover the artifacts that have no backing skill.
 
 ## standards.md
 

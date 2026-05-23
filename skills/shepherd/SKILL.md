@@ -5,19 +5,45 @@ description: Use when asked to build an entire project end-to-end, manage multi-
 
 # Shepherd Orchestrator
 
-You are an autonomous orchestrator managing end-to-end project delivery. You dispatch parallel subagents in git worktrees, enforce brutal architectural review cycles at milestones, and maintain persistent state files as your working memory.
+## Overview
 
-**Core principles:**
-- State files in `.shepherd/` are your working memory — re-read before every decision
-- You run continuously for hours or days without human intervention
-- You CAN research, explore, code, and run commands directly — but delegate the majority of implementation work to subagents for parallelization
-- Quick fixes, config tweaks, and trivial changes: just do them yourself
-- Multi-file features, complex logic, independent tasks: delegate to subagents
+Shepherd orchestrates end-to-end project delivery across hours or days without human intervention. It dispatches parallel subagents in git worktrees, enforces architectural review at every milestone, and treats `.shepherd/` state files as its working memory. The discipline is delegation and persistence: the orchestrator decides, subagents execute, files remember.
 
-**Platform mechanics:**
-- **Claude Code:** Use the Agent tool with `isolation: "worktree"` for subagents
-- **Codex:** Use subagent teams spawning with workspace isolation using git worktrees
-- **Other agents:** Any runtime that can read `.shepherd/` markdown files and spawn isolated workers
+## When to Use
+
+- "Build this project end-to-end"
+- "Implement this feature, you run it autonomously"
+- "Run this for the next N hours / overnight / over the weekend"
+- Multi-milestone work spanning more than a single session
+- Greenfield projects with a clear spec to execute
+- Large refactors or rewrites with a defined target architecture
+
+**When NOT to use:** single-file changes, one-shot fixes, tasks under ~30 minutes, anything where you want tight human-in-the-loop cadence.
+
+## How Shepherd Operates
+
+### Default to delegation
+
+Your value is sustained coherent decision-making across hours and days. Context spent on grep/read/code loops burns the resource that keeps you coherent across milestones. Delegate by default — act directly only when delegation costs more than it saves.
+
+**Exploration (MUST delegate):** for any codebase scan, dispatch built-in exploration agents — as many in parallel as needed for independent slices.
+
+**Implementation (MUST delegate):** for any task touching more than one file or requiring a design choice, dispatch an implementer subagent in a worktree.
+
+**Act directly (only when):**
+- You have a specific known path and need its contents
+- Single-file config tweak, typo fix, or dependency bump with no API change
+- One-shot verification command (tests, lint, type-check) on already-written code
+- Merge conflict resolution (you know both branches; no one else does)
+- Updating `.shepherd/` state files — this is your working memory and MUST stay with you
+
+### State files are your working memory
+
+`.shepherd/spec.md`, `plan.md`, `standards.md`, and `progress.md` are not artifacts — they are your mind. Your attention drifts across hours; the files don't. Re-read before every decision; update after every action.
+
+### Autonomous after Phase 1
+
+Phase 1 is the only window for user interaction. After sign-off you stop asking. Resolve ambiguity yourself, log the rationale in `progress.md`, and proceed. The only exception is catastrophic failure with no autonomous path forward.
 
 ## Phase 1: Project Setup
 
@@ -40,7 +66,10 @@ Present the completed spec to the user for sign-off before proceeding.
 
 ### Step 4: Standards
 
-1. Assess the codebase (or define conventions for greenfield).
+1. **Assess the codebase:**
+   - **Greenfield:** define conventions from the spec; skip to step 2.
+   - **Existing codebase, large or unfamiliar:** dispatch exploration subagents (parallel if independent slices — frontend / backend / infra) to characterize tech stack, build system, test framework, lint config, established patterns, and module boundaries. Consume their summaries — do not personally read every file.
+   - **Existing codebase, small and already understood:** read directly.
 2. Create `.shepherd/standards.md` — tailored to this project's tech stack and patterns (see `references/project-templates.md`).
 
 **This is the last user interaction.** After approval, you execute autonomously.
@@ -110,6 +139,8 @@ Some tasks depend on others. Execute these in order:
 3. Dispatch dependent task's subagent
 
 ## Subagent Dispatch Patterns
+
+This section covers only the dispatches that need a shepherd-specific prompt template — implementer, reviewer, fixer. Exploration uses your runtime's built-in subagent and needs no template.
 
 ### Implementer Dispatch
 
@@ -197,7 +228,8 @@ Every non-trivial decision gets logged in `progress.md` under the Decisions Log 
 - Let progress.md go stale (update after EVERY action)
 - Dispatch more than 5 parallel subagents (merge conflict hell)
 - Over-delegate trivial work (config tweaks, single-line fixes — just do them)
-- Under-delegate complex work (multi-file features MUST be subagents)
+- Run grep/read loops in the orchestrator instead of dispatching exploration subagents
+- Under-delegate any non-trivial task — if it touches more than one file or requires a design choice, it MUST be a subagent
 - Ignore test failures hoping they'll resolve themselves
 - Skip the fix-review cycle (reviewer found issues = fix = re-review)
 - Make decisions without logging rationale
@@ -208,3 +240,21 @@ Every non-trivial decision gets logged in `progress.md` under the Decisions Log 
 - Log architecture state at milestone boundaries
 - Handle merge conflicts immediately (don't let them accumulate)
 - Treat subagent reports with verification, not blind trust
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll just grep this myself — faster than spawning an agent" | Faster this turn, slower across the milestone. Each direct read eats context you need for the architectural call at the end. |
+| "This task is trivial enough to do inline" | If it spans more than one file or has a design choice, it isn't trivial. Inline = no parallelism and no review surface. |
+| "The reviewer will catch architecture issues later" | Reviewer reviews what merged. If you skipped delegation and shortcut a design, the reviewer's feedback comes after the cost is sunk. |
+| "Progress.md update can wait until end of milestone" | Context can compact at any point. Stale progress.md = lost orchestrator memory. |
+| "This milestone is small enough to skip the architectural review" | There are no small milestones. The review boundary exists so you don't ship architecture you can't see anymore. |
+
+## Verification (before reporting done)
+
+- [ ] `progress.md` reflects final milestone state, including deferred items
+- [ ] No worktrees remain (`git worktree list` shows main only)
+- [ ] Tests, lint, type-check pass on main
+- [ ] Final cross-cutting review ran; findings are either fixed or logged as deferred with rationale
+- [ ] User-facing summary covers each milestone + any deferred work

@@ -6,7 +6,7 @@ You are reviewing milestone: {MILESTONE_NAME}
 </tasks_completed>
 
 ## What to Review
-Run: `git diff {BASE_SHA}..HEAD`
+Scope your review to this milestone's commits — not the whole cycle. Use `git log` to find them and diff against the parent of the first one.
 Read: `.shepherd/spec.md` for the project's intent and acceptance criteria.
 Read: `.shepherd/standards.md` for the quality bar.
 

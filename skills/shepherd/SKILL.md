@@ -123,7 +123,7 @@ Some tasks depend on others. Execute these in order:
 ### Architectural Reviewer Dispatch
 
 1. Read `prompts/reviewer.md` from the skill directory.
-2. Substitute: `{MILESTONE_NAME}`, `{TASKS_COMPLETED}`, `{BASE_SHA}`.
+2. Substitute: `{MILESTONE_NAME}`, `{TASKS_COMPLETED}`.
 3. Dispatch:
    - **Claude Code:** `Agent` tool, `subagent_type: "superpowers:code-reviewer"` or `"general-purpose"`
    - **Codex:** `spawn_agent`
@@ -143,7 +143,8 @@ Some tasks depend on others. Execute these in order:
 1. **Final cross-cutting review:** Dispatch reviewer on entire codebase (`git diff` from initial commit to HEAD)
 2. **Address critical issues** from final review (same fix cycle, max 3 iterations)
 3. **Update progress.md** with final status, architecture summary, known limitations
-4. **Report to user:** Summary of what was built, milestone-by-milestone, any deferred items
+4. **Cleanup worktrees:** Read `git worktree list --porcelain`. For every entry whose path is not the main working tree, run `git worktree remove -f -f <path>` followed by `git branch -D <branch>` (read the branch name from the `branch refs/heads/...` line in the porcelain output). Double `-f` is required — single `-f` does NOT override locks the harness placed on the worktree, even after the agent process exits. The `git branch -D` only succeeds after its worktree is removed. If a path is still held by a live process, the lock survives — log as known cleanup debt and continue. Harness-agnostic: git tracks worktrees regardless of where the harness placed them.
+5. **Report to user:** Summary of what was built, milestone-by-milestone, any deferred items
 
 ## Autonomous Decision-Making
 

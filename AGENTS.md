@@ -30,6 +30,8 @@ Personal skill collection for Claude Code, Codex, Gemini CLI, and OpenCode. Skil
 
 ## Verification
 
+Do not describe behavior as correct, working, or proven without fresh live verification. For skill workflow changes, run an actual prompt/tool/subagent exercise against a concrete fixture or repo target and report the artifact path or command output; if live verification was not run, say that plainly.
+
 After any change:
 
 ```bash

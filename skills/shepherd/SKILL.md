@@ -59,18 +59,60 @@ Invoke the `spec` skill. Direct it to read the `## Confirmed Intent` section fro
 
 Present the completed spec to the user for sign-off before proceeding.
 
-### Step 3: Plan
-
-1. Invoke the `plan` skill. Direct it to read `.shepherd/spec.md` and write the implementation plan to `.shepherd/plan.md` (vertical slices, milestones, parallel/sequential flags per task) per the plan skill's own template.
-2. Present `.shepherd/plan.md` to the user for final sign-off.
-
-### Step 4: Standards
+### Step 3: Standards
 
 1. **Assess the codebase:**
    - **Greenfield:** define conventions from the spec; skip to step 2.
    - **Existing codebase, large or unfamiliar:** dispatch exploration subagents (parallel if independent slices — frontend / backend / infra) to characterize tech stack, build system, test framework, lint config, established patterns, and module boundaries. Consume their summaries — do not personally read every file.
    - **Existing codebase, small and already understood:** read directly.
 2. Create `.shepherd/standards.md` — tailored to this project's tech stack and patterns (see `references/project-templates.md`).
+
+### Step 4: Plan
+
+Up-the-hill plan review means the plan climbs before execution. Shepherd follows the Trycycle-shaped loop: a fresh issue finder critiques the current plan, that same issue finder deepens only after finding blocking issues, a separate fresh synthesizer rewrites `.shepherd/plan.md` holistically, then a new fresh issue finder starts the next review round.
+
+1. Invoke the `plan` skill. Direct it to read `.shepherd/spec.md` and `.shepherd/standards.md`, then write the implementation plan to `.shepherd/plan.md` (vertical slices, milestones, parallel/sequential flags per task) per the plan skill's own template.
+   - Verification commands in the plan must be executable in the actual workspace. If the workspace is not a git repository, the plan must not rely on `git diff`, `git status`, or worktree checks unless it first initializes or enters a git repo.
+2. Dispatch a fresh planning issue finder with `prompts/plan-reviewer.md`. The reviewer critiques only and never edits.
+3. If the reviewer returns `READY`, present the reviewed `.shepherd/plan.md` to the user for final sign-off.
+4. If the reviewer returns `USER DECISION REQUIRED`, present the decision to the user and stop until answered. Update `.shepherd/spec.md` or `.shepherd/standards.md` if the answer changes requirements, regenerate `.shepherd/plan.md` with the `plan` skill, then restart plan review with a fresh issue finder.
+5. If the reviewer returns `ISSUES`, keep that same reviewer active and send `prompts/plan-review-deepen.md` until it returns `READY` for no additional issues or reaches 5 issue-producing deepening passes.
+6. Combine the initial review and deepening reports into a simple findings memo, then dispatch a fresh planning synthesizer with `prompts/plan-synthesizer.md`. The synthesizer edits only `.shepherd/plan.md`, preserves the current `plan` skill format, and treats findings as evidence for holistic plan improvement rather than a checklist for tactical patches.
+7. If the synthesizer returns `USER DECISION REQUIRED`, present the decision to the user and stop until answered; do not proceed with an unresolved requirements conflict.
+8. Re-review the revised plan with a new fresh issue finder. Stop after 5 fresh review rounds; if issues still remain, present the latest `.shepherd/plan.md` plus unresolved concerns to the user and await instructions. Do not proceed to execution without a `READY` plan.
+
+```dot
+digraph plan_review {
+    rankdir=TB;
+
+    "Create standards" [shape=box];
+    "Plan skill writes .shepherd/plan.md" [shape=box];
+    "Fresh issue finder critiques only" [shape=box];
+    "User decision required?" [shape=diamond];
+    "Plan ready?" [shape=diamond];
+    "Same issue finder deepens" [shape=box];
+    "Additional issues?" [shape=diamond];
+    "Fresh synthesizer revises .shepherd/plan.md" [shape=box];
+    "Review round < 5?" [shape=diamond];
+    "Present user decision required" [shape=box style=filled fillcolor=lightyellow];
+    "Present reviewed plan for sign-off" [shape=box style=filled fillcolor=lightgreen];
+    "Present plan + unresolved concerns" [shape=box style=filled fillcolor=mistyrose];
+
+    "Create standards" -> "Plan skill writes .shepherd/plan.md";
+    "Plan skill writes .shepherd/plan.md" -> "Fresh issue finder critiques only";
+    "Fresh issue finder critiques only" -> "User decision required?";
+    "User decision required?" -> "Present user decision required" [label="yes"];
+    "User decision required?" -> "Plan ready?" [label="no"];
+    "Plan ready?" -> "Present reviewed plan for sign-off" [label="yes"];
+    "Plan ready?" -> "Same issue finder deepens" [label="no"];
+    "Same issue finder deepens" -> "Additional issues?";
+    "Additional issues?" -> "Same issue finder deepens" [label="yes and deepen count < 5"];
+    "Additional issues?" -> "Fresh synthesizer revises .shepherd/plan.md" [label="no or deepen count = 5"];
+    "Fresh synthesizer revises .shepherd/plan.md" -> "Review round < 5?";
+    "Review round < 5?" -> "Fresh issue finder critiques only" [label="yes"];
+    "Review round < 5?" -> "Present plan + unresolved concerns" [label="no"];
+}
+```
 
 **This is the last user interaction.** After approval, you execute autonomously.
 
@@ -140,7 +182,21 @@ Some tasks depend on others. Execute these in order:
 
 ## Subagent Dispatch Patterns
 
-This section covers only the dispatches that need a shepherd-specific prompt template — implementer, reviewer, fixer. Exploration uses your runtime's built-in subagent and needs no template.
+This section covers only the dispatches that need a shepherd-specific prompt template — plan reviewer, implementer, reviewer, fixer. Exploration uses your runtime's built-in subagent and needs no template.
+
+### Plan Review Dispatch
+
+The review loop separates issue discovery from synthesis so the plan improves strategically instead of accumulating local edits.
+
+1. Read `prompts/plan-reviewer.md` from the skill directory and dispatch a fresh issue finder after `.shepherd/plan.md` is written and before final user sign-off.
+2. The issue finder reads `.shepherd/spec.md`, `.shepherd/standards.md`, `.shepherd/plan.md`, and relevant repo files. It critiques only and never edits.
+3. If the issue finder returns `READY`, close it and present `.shepherd/plan.md` for sign-off.
+4. If the issue finder returns `USER DECISION REQUIRED`, present the decision to the user before synthesis. Use this only for genuine requirement conflicts, unsafe ambiguity, or choices that cannot be resolved by engineering judgment.
+5. If it returns `ISSUES`, keep the same issue finder active. Send `prompts/plan-review-deepen.md` to that same agent until it returns `READY` for no additional critical issues or reaches 5 issue-producing deepening passes. Deepening reports list only new issues.
+6. Combine the initial review and deepening outputs into a simple findings memo. Do not add taxonomies, resolution ledgers, or semantic deduplication.
+7. Read `prompts/plan-synthesizer.md`, substitute `{FINDINGS_MEMO}`, and dispatch a fresh synthesizer. It edits only `.shepherd/plan.md`, preserves the existing `plan` skill format, and may rewrite milestones, sequencing, acceptance criteria, and verification when that is the coherent way to address the findings.
+8. If the synthesizer returns `USER DECISION REQUIRED`, present it to the user and stop until answered. Do not let synthesis guess through conflicting signed-off requirements.
+9. Re-review with a new fresh issue finder. Stop after 5 fresh review rounds and present unresolved concerns to the user if the plan still does not reach `READY`. Do not proceed to execution without a `READY` plan.
 
 ### Implementer Dispatch
 

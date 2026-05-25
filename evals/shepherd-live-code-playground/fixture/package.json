@@ -1,0 +1,9 @@
+{
+  "name": "shepherd-live-code-playground",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "test": "node tests/orderController.test.js"
+  }
+}

@@ -102,6 +102,14 @@ Write code that a senior staff engineer would be proud of. Not "good enough" —
 |------|--------|----------|-------|
 | [Task name] | pending/in_progress/complete/failed | [agent_id] | [notes] |
 
+### Milestone Quality Gate
+| Gate | Status | Evidence |
+|------|--------|----------|
+| Implementer verification | pending/passed/failed/accepted limitation | [unit/acceptance/lint/type results] |
+| Refactorer pass | pending/passed/failed/not applicable | [worktree/branch/commit or no commit] |
+| Orchestrator evidence gate | pending/passed/failed/accepted limitation | [mutation/evidence paths] |
+| Architectural review | pending/approved/request changes | [reviewer output path/summary] |
+
 ### Review Feedback
 [Latest reviewer feedback, if in review cycle]
 

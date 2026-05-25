@@ -1,23 +1,21 @@
 # Acceptance-Spec Mutation
 
-This reference translates Uncle Bob's SwarmForge acceptance pipeline into
-Shepherd's artifact model. It is a verification gate, not a new orchestration
-topology.
+This reference defines how Shepherd records and judges executable acceptance
+evidence. It is a verification gate, not a new orchestration topology.
 
-## Source Model
+## Responsibility Model
 
-SwarmForge separates responsibilities:
+Shepherd separates responsibilities:
 
-- Specifier owns externally visible behavior, acceptance criteria, and examples.
-- Coder implements approved behavior slices with TDD and runs acceptance checks.
-- Architect owns final design verification, source mutation, and soft Gherkin
-  acceptance mutation.
-- Handoffs report state and evidence. They do not tell the next role how to do
-  its job.
-
-Shepherd keeps its own roles and `.shepherd/` files, but should preserve that
-ownership split: specs describe behavior, implementers build slices, reviewers
-judge evidence, and the orchestrator records decisions.
+- `.shepherd/spec.md` owns externally visible behavior, acceptance criteria,
+  and examples.
+- Implementers build approved behavior slices with TDD and normal acceptance.
+- Refactorers preserve behavior while improving structure and testability.
+- The orchestrator runs or records configured evidence gates after refactoring.
+- Architectural reviewers judge spec adherence, architecture, and recorded
+  evidence.
+- Handoffs and reports carry state and evidence. They do not tell the next role
+  how to do its job.
 
 ## Pipeline Semantics
 
@@ -87,7 +85,7 @@ In `.shepherd/plan.md`:
 
 - The milestone that creates or verifies the acceptance pipeline
 - Normal acceptance checks for behavior-changing slices
-- Acceptance mutation checks for changed executable specs
+- Configured acceptance mutation evidence gates after refactoring
 - Separate TDD unit-test checks for implementation behavior
 
 In `.shepherd/progress.md`:
@@ -120,9 +118,22 @@ Implementers should:
 1. Write focused unit tests before production code.
 2. Keep generated acceptance tests separate from unit tests.
 3. Run normal acceptance after behavior changes.
-4. Run acceptance mutation for changed executable specs when the pipeline exists.
-5. Report exact commands, exit codes, report paths, survivor paths, errors, and
+4. Report exact normal acceptance commands, exit codes, output paths, and
    assumptions.
+
+Implementers do not run source-code mutation or acceptance-spec mutation by
+default. If project standards explicitly assign a mutation command to an
+implementation task, the report must include command, exit code, report path,
+survivor paths, and errors.
+
+## Orchestrator Evidence Gate
+
+After the refactorer pass and before architectural review, the orchestrator
+should run or record configured source-code mutation and acceptance-spec
+mutation evidence. Missing evidence, survived mutations, and mutation
+infrastructure errors block progress unless an accepted limitation is already
+recorded in `.shepherd/spec.md`, `.shepherd/standards.md`, and
+`.shepherd/progress.md`.
 
 ## Review Gate
 

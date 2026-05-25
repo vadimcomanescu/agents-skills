@@ -95,7 +95,7 @@ Up-the-hill plan review means the plan climbs before execution. Shepherd follows
 
 1. Invoke the `plan` skill. Direct it to read `.shepherd/spec.md` and `.shepherd/standards.md`, then write the implementation plan to `.shepherd/plan.md` (vertical slices, milestones, parallel/sequential flags per task) per the plan skill's own template.
    - Verification commands in the plan must be executable in the actual workspace. If the workspace is not a git repository, the plan must not rely on `git diff`, `git status`, or worktree checks unless it first initializes or enters a git repo.
-   - Behavior-changing milestones must include normal acceptance verification and acceptance mutation verification when the project has or will add an acceptance pipeline. Generated acceptance tests remain separate from unit tests and never replace TDD unit coverage.
+   - Behavior-changing milestones must include normal acceptance verification, a refactorer pass after implementer merge, configured mutation/evidence gates after refactorer merge, and architectural review after that evidence is recorded. Generated acceptance tests remain separate from unit tests and never replace TDD unit coverage.
 2. Dispatch a fresh planning issue finder with `prompts/plan-reviewer.md`. The reviewer critiques only and never edits.
 3. If the reviewer returns `READY`, present the reviewed `.shepherd/plan.md` to the user for final sign-off.
 4. If the reviewer returns `USER DECISION REQUIRED`, present the decision to the user and stop until answered. Update `.shepherd/spec.md` or `.shepherd/standards.md` if the answer changes requirements, regenerate `.shepherd/plan.md` with the `plan` skill, then restart plan review with a fresh issue finder.
@@ -157,8 +157,12 @@ digraph orchestration {
     "Identify current milestone" [shape=box];
     "Categorize tasks: parallel vs sequential" [shape=box];
     "Dispatch implementer subagents (worktrees)" [shape=box];
-    "Collect results, verify (unit, acceptance, mutation, lint/types)" [shape=box];
+    "Collect results, verify (unit, acceptance, lint/types)" [shape=box];
     "Merge to main" [shape=box];
+    "Dispatch refactorer subagent" [shape=box];
+    "Merge refactorer changes" [shape=box];
+    "Run configured evidence gates" [shape=box];
+    "Update progress.md with merged commits and evidence" [shape=box];
     "Dispatch architectural reviewer" [shape=box];
     "Review passes?" [shape=diamond];
     "Dispatch fix subagents" [shape=box];
@@ -171,9 +175,13 @@ digraph orchestration {
     "Read progress.md + plan.md" -> "Identify current milestone";
     "Identify current milestone" -> "Categorize tasks: parallel vs sequential";
     "Categorize tasks: parallel vs sequential" -> "Dispatch implementer subagents (worktrees)";
-    "Dispatch implementer subagents (worktrees)" -> "Collect results, verify (unit, acceptance, mutation, lint/types)";
-    "Collect results, verify (unit, acceptance, mutation, lint/types)" -> "Merge to main";
-    "Merge to main" -> "Dispatch architectural reviewer";
+    "Dispatch implementer subagents (worktrees)" -> "Collect results, verify (unit, acceptance, lint/types)";
+    "Collect results, verify (unit, acceptance, lint/types)" -> "Merge to main";
+    "Merge to main" -> "Dispatch refactorer subagent";
+    "Dispatch refactorer subagent" -> "Merge refactorer changes";
+    "Merge refactorer changes" -> "Run configured evidence gates";
+    "Run configured evidence gates" -> "Update progress.md with merged commits and evidence";
+    "Update progress.md with merged commits and evidence" -> "Dispatch architectural reviewer";
     "Dispatch architectural reviewer" -> "Review passes?";
     "Review passes?" -> "Update progress.md" [label="yes"];
     "Review passes?" -> "Dispatch fix subagents" [label="no"];
@@ -192,11 +200,14 @@ digraph orchestration {
 1. **Re-read state:** Read `progress.md` and `plan.md` before every milestone
 2. **Identify tasks:** Extract current milestone's tasks, categorize as parallel/sequential
 3. **Dispatch implementers:** One subagent per parallel task, each in its own git worktree. Max 5 parallel subagents to limit merge conflicts
-4. **Verify results:** After each subagent completes, run unit tests, normal acceptance checks, acceptance mutation for changed executable specs, linter, and type checker in the worktree when those commands exist
+4. **Verify results:** After each implementer completes, run unit tests, normal acceptance checks, linter, and type checker in the worktree when those commands exist
 5. **Merge:** Merge completed worktrees to main branch. Handle conflicts immediately
-6. **Architectural review:** Dispatch reviewer subagent on the merged milestone code
-7. **Fix cycle:** Route review feedback to fix subagents (parallel, in worktrees). Re-review until approved or 3 iterations reached
-8. **Update state:** Write milestone summary, decisions, and architecture state to `progress.md`
+6. **Refactorer pass:** For behavior-changing milestones, dispatch a refactorer subagent from merged main. It preserves behavior while improving structure, names, duplication, boundaries, testability, and weak tests. Merge its commit if it changed files
+7. **Evidence gates:** After the refactorer merge, run or record configured source-code mutation and acceptance-spec mutation evidence when available.
+8. **Update progress before review:** Before dispatching the architectural reviewer, record implementer/refactorer branch names and commit hashes, merge commits, normal verification results, mutation/evidence command results, report paths, survivors, errors, and accepted limitations in `progress.md`
+9. **Architectural review:** Dispatch reviewer subagent on the post-refactorer milestone code and recorded evidence
+10. **Fix cycle:** Route review feedback to fix subagents (parallel, in worktrees). Re-review until approved or 3 iterations reached
+11. **Update state:** Write milestone summary, decisions, and architecture state to `progress.md`
 
 ### Sequential Tasks Within a Milestone
 
@@ -207,7 +218,7 @@ Some tasks depend on others. Execute these in order:
 
 ## Subagent Dispatch Patterns
 
-This section covers only the dispatches that need a shepherd-specific prompt template — plan reviewer, implementer, reviewer, fixer. Exploration uses your runtime's built-in subagent and needs no template.
+This section covers only the dispatches that need a shepherd-specific prompt template — plan reviewer, implementer, refactorer, reviewer, fixer. Exploration uses your runtime's built-in subagent and needs no template.
 
 ### Plan Review Dispatch
 
@@ -228,6 +239,15 @@ The review loop separates issue discovery from synthesis so the plan improves st
 1. Read `prompts/implementer.md` from the skill directory.
 2. Substitute: `{TASK_NAME}`, `{TASK_DESCRIPTION}`, `{ARCH_CONTEXT}`, `{WORKTREE_PATH}`.
 3. Dispatch with `isolation: "worktree"`:
+   - **Claude Code:** `Agent` tool, `subagent_type: "general-purpose"`
+   - **Codex:** `spawn_agent` with worktree isolation
+   - **Kimi / OpenCode:** native subagent
+
+### Refactorer Dispatch
+
+1. Read `prompts/refactorer.md` from the skill directory.
+2. Substitute: `{MILESTONE_NAME}`, `{TASKS_COMPLETED}`, `{WORKTREE_PATH}`.
+3. Dispatch with `isolation: "worktree"` from merged main after implementer work is merged and before architectural review:
    - **Claude Code:** `Agent` tool, `subagent_type: "general-purpose"`
    - **Codex:** `spawn_agent` with worktree isolation
    - **Kimi / OpenCode:** native subagent
@@ -324,7 +344,9 @@ Every non-trivial decision gets logged in `progress.md` under the Decisions Log 
 
 **Always:**
 - Re-read progress.md before every major decision
-- Verify unit tests, normal acceptance checks, acceptance mutation, lint, and types before merging any worktree when those commands exist
+- Verify unit tests, normal acceptance checks, lint, and types before merging implementer/refactorer worktrees when those commands exist
+- Run or record configured source-code mutation and acceptance-spec mutation after the refactorer merge and before architectural review
+- Update progress.md with merged commits and evidence before dispatching architectural review
 - Log architecture state at milestone boundaries
 - Log acceptance mutation reports and decisions at milestone boundaries
 - Handle merge conflicts immediately (don't let them accumulate)
@@ -344,7 +366,8 @@ Every non-trivial decision gets logged in `progress.md` under the Decisions Log 
 
 - [ ] `progress.md` reflects final milestone state, including deferred items
 - [ ] No worktrees remain (`git worktree list` shows main only)
-- [ ] Unit tests, normal acceptance checks, acceptance mutation, lint, and type-check pass on main where present
+- [ ] Unit tests, normal acceptance checks, lint, and type-check pass on main where present
+- [ ] Configured source-code mutation and acceptance-spec mutation ran after refactorer merge or are explicitly logged as accepted limitations
 - [ ] Survived acceptance mutations and mutation infrastructure errors are fixed or explicitly logged as accepted limitations with exact report paths
 - [ ] Final cross-cutting review ran; findings are either fixed or logged as deferred with rationale
 - [ ] User-facing summary covers each milestone + any deferred work

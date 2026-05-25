@@ -25,6 +25,8 @@ Flag critical issues such as:
 - Missing or weak acceptance criteria
 - Missing executable verification
 - Missing normal acceptance or acceptance mutation verification for behavior-changing work when the project has or will add an acceptance pipeline
+- Missing behavior-changing milestone sequence: implementer work, refactorer pass, orchestrator evidence gate, then architectural review
+- Mutation ownership assigned to implementers or refactorers by default instead of the orchestrator evidence gate
 - Verification that would pass a likely wrong implementation or cannot prove a stated source-level constraint
 - Verification that would still pass if generated acceptance tests ignored a changed Gherkin example value
 - Verification commands that are not executable in the actual workspace, such as git checks in a non-git directory

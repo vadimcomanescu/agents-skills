@@ -11,3 +11,10 @@ skill-eval-*.html
 
 # Generated behavioral-eval run artifacts; keep eval source files tracked.
 evals/shepherd-acceptance-mutation/20*/
+
+# Shepherd scratch state and live-eval run outputs; keep durable eval fixtures under evals/.
+.shepherd/evals/
+.shepherd/plan.md
+.shepherd/progress.md
+.shepherd/spec.md
+.shepherd/standards.md

@@ -1,6 +1,6 @@
 # agents-skills
 
-Personal skill collection for Claude Code, Codex, Gemini CLI, and OpenCode. Pressure-tested with adversarial subagents; revised when an agent finds a way around them.
+Personal skill collection for Claude Code, Codex, Gemini CLI, and OpenCode. Includes skill authoring, TDD, debugging, and verification workflows. Pressure-tested with adversarial subagents; revised when an agent finds a way around them.
 
 ## Install
 
@@ -58,7 +58,7 @@ npx skills@latest add vadimcomanescu/agents-skills -g -y -a "${agents[@]}"
 ```
 
 - Recognized `-a` values for this repo: `claude-code`, `codex`, `gemini-cli`, `opencode`.
-- Skills shipped here: `tdd-mutation`, `systematic-debugging`, `verification-before-completion`, `creating-skills`, `slap`. Use `-s` to install a subset; omit it for all five.
+- Skills shipped here: `agents-md`, `context-engineering`, `creating-skills`, `grill-with-docs`, `interview-me`, `plan`, `shepherd`, `slap`, `spec`, `systematic-debugging`, `tdd-mutation`, `using-agents-skills`, `verification-before-completion`. Use `-s` to install a subset; omit it for all shipped skills.
 - MUST NOT use `--all` (alias for `-s '*' -a '*' -y`) — it creates dirs for every agent the CLI knows about.
 
 > **SSH error on `marketplace add`?** Claude Code clones via SSH. If you don't have GitHub SSH keys set up, [add a key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or rewrite GitHub fetches to HTTPS once: `git config --global url."https://github.com/".insteadOf "git@github.com:"`.
@@ -68,7 +68,7 @@ npx skills@latest add vadimcomanescu/agents-skills -g -y -a "${agents[@]}"
 Update all skills from this repo in one go:
 
 ```bash
-npx skills update -g tdd-mutation systematic-debugging verification-before-completion creating-skills slap
+npx skills update -g agents-md context-engineering creating-skills grill-with-docs interview-me plan shepherd slap spec systematic-debugging tdd-mutation using-agents-skills verification-before-completion
 ```
 
 The `npx skills` CLI updates by skill name (not by source repo), so the skills are listed explicitly. The CLI fetches the latest from the source recorded in `~/.agents/.skill-lock.json` and overwrites the canonical bundle at `~/.agents/skills/<name>/`. The `~/.claude/skills/<name>` symlink keeps working — no re-symlinking needed.

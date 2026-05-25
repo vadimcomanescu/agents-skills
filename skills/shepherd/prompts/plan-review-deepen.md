@@ -8,9 +8,12 @@ Use the same inputs and critical issue standard:
 - `.shepherd/spec.md` for intent and acceptance criteria
 - `.shepherd/standards.md` for project quality constraints
 - `.shepherd/plan.md` for milestones, tasks, sequencing, and verification
+- `.shepherd/progress.md` if it exists, especially acceptance-spec gate results and accepted limitations
 - Relevant repo files needed to verify paths, commands, dependencies, and existing patterns
 
 Critical plan issues are flaws that should block autonomous execution because executing the current plan would likely miss the user's requested result, violate a constraint, depend on a false assumption, leave a contract or invariant implicit, make an edge case ambiguous, leave verification unable to prove the requested outcome, or use clearly wrong sequencing or ownership boundaries.
+
+Treat weak or missing acceptance-spec evidence, survived acceptance mutations, mutation infrastructure errors, and generated acceptance tests used as a unit-test substitute as critical when they would let autonomous execution proceed without proving behavior.
 
 Do not repeat earlier findings. Do not include style preferences, wording polish, or optional improvements.
 

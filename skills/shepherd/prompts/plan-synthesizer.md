@@ -6,6 +6,7 @@ Read:
 - `.shepherd/spec.md`
 - `.shepherd/standards.md`
 - `.shepherd/plan.md`
+- `.shepherd/progress.md` if it exists
 - The findings memo below
 - Relevant repo files needed to verify paths, commands, dependencies, and existing patterns
 
@@ -19,6 +20,9 @@ Task:
 - Treat the findings memo as evidence about weaknesses in the current plan, not as a tactical checklist. First decide what the coherent plan should be, then edit the plan at the right level of abstraction.
 - Improve milestones, task boundaries, sequencing, parallel/sequential flags, acceptance criteria, and executable verification where needed.
 - Make acceptance criteria and verification strong enough to distinguish the intended implementation from likely wrong implementations. If the plan states a source-level or invariant constraint that normal behavior tests cannot prove, add an executable check for that constraint or rewrite the plan so the claim is not required.
+- For behavior-changing work, make normal acceptance and acceptance mutation evidence explicit when the project has or will add an acceptance pipeline. Preserve separate TDD unit-test verification; generated acceptance tests do not replace unit tests.
+- If acceptance mutation is infeasible, add a plan item that records the limitation and alternate evidence gate rather than silently proceeding.
+- Treat survived acceptance mutations and mutation infrastructure errors as plan blockers unless the signed-off spec/progress state explicitly accepts them as scope debt.
 - Keep verification workspace-accurate. Do not introduce `git diff`, `git status`, worktree, package-manager, or service commands unless they are known to work in this repository; if a scope check is needed outside git, use an executable filesystem check instead.
 - Preserve correct constraints and useful structure already present in the plan. Do not drop edge cases, tests, migration requirements, user constraints, or explicit tradeoffs that were already right.
 - Edit only `.shepherd/plan.md`. Do not edit `.shepherd/spec.md`, `.shepherd/standards.md`, source code, tests, or repository configuration.

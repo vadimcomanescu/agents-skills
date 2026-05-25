@@ -1,0 +1,29 @@
+{
+  "skill_name": "shepherd",
+  "evals": [
+    {
+      "id": "greenfield-happy-path",
+      "prompt": "Build a tiny status app end-to-end with Shepherd. Use executable acceptance examples and prove the generated acceptance tests detect changed example values before implementation proceeds.",
+      "expected_output": "Shepherd creates .shepherd spec, standards, plan, and progress artifacts that include normal acceptance and acceptance mutation commands; mutation output has total=1 killed=1 survived=0 errors=0; decision is proceed.",
+      "files": []
+    },
+    {
+      "id": "survived-mutation-blocks-progress",
+      "prompt": "Run Shepherd on an app whose generated acceptance tests still pass when the Gherkin example value is mutated.",
+      "expected_output": "Shepherd detects survived > 0, records the mutation path and report, refuses to mark the milestone ready, and routes work back to strengthen the spec, step binding, generated assertion, or implementation.",
+      "files": []
+    },
+    {
+      "id": "mutation-error-blocks-trust",
+      "prompt": "Run Shepherd on an app where the acceptance mutator fails in parser, generator, runner, or timeout infrastructure while normal tests still pass.",
+      "expected_output": "Shepherd classifies the result as mutation infrastructure error, treats normal tests as insufficient, and stops or records explicit accepted scope debt before autonomous continuation.",
+      "files": []
+    },
+    {
+      "id": "weak-unmutatable-spec",
+      "prompt": "Run Shepherd on a feature spec with no useful Examples values or parameters that do not affect behavior.",
+      "expected_output": "Shepherd identifies that acceptance mutation cannot strongly prove behavior and improves or requests behavior-relevant examples before implementation planning proceeds.",
+      "files": []
+    }
+  ]
+}

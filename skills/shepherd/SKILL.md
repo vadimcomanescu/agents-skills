@@ -7,7 +7,7 @@ description: Use when asked to build an entire project end-to-end, manage multi-
 
 ## Overview
 
-Shepherd orchestrates end-to-end project delivery across hours or days without human intervention. It dispatches parallel subagents in git worktrees, enforces architectural review at every milestone, and treats `.shepherd/` state files as its working memory. The discipline is delegation and persistence: the orchestrator decides, subagents execute, files remember.
+Shepherd orchestrates end-to-end project delivery across hours or days without human intervention. It dispatches parallel subagents in git worktrees, enforces executable specification gates and architectural review at every milestone, and treats `.shepherd/` state files as its working memory. The discipline is delegation and persistence: the orchestrator decides, subagents execute, files remember.
 
 ## When to Use
 
@@ -41,6 +41,10 @@ Your value is sustained coherent decision-making across hours and days. Context 
 
 `.shepherd/spec.md`, `plan.md`, `standards.md`, and `progress.md` are not artifacts — they are your mind. Your attention drifts across hours; the files don't. Re-read before every decision; update after every action.
 
+### Acceptance specs are executable gates
+
+For behavior-changing work, Shepherd needs an executable acceptance specification before autonomous implementation can trust the plan. Prefer Gherkin plus an acceptance pipeline that parses the feature into structured IR, generates acceptance tests, runs them, then mutation-tests behavior-relevant example values. If a project has a mature equivalent, name it in `.shepherd/standards.md` and record the gap or equivalent mutation gate. See `references/acceptance-mutation.md`.
+
 ### Autonomous after Phase 1
 
 Phase 1 is the only window for user interaction. After sign-off you stop asking. Resolve ambiguity yourself, log the rationale in `progress.md`, and proceed. The only exception is catastrophic failure with no autonomous path forward.
@@ -57,6 +61,12 @@ Invoke `interview-me`. Write its Confirmed Intent verbatim into `.shepherd/spec.
 
 Invoke the `spec` skill. Direct it to read the `## Confirmed Intent` section from `.shepherd/spec.md` (written by Step 1) as locked input, then populate the remaining sections per the spec skill's own template into the same `.shepherd/spec.md` file.
 
+Add or revise the spec so behavior-changing work has executable acceptance criteria:
+- Externally visible behavior, not implementation details
+- Behavior-relevant examples, preferably Gherkin `Examples` values or a documented equivalent
+- Any scenario that cannot be acceptance-mutated and why
+- Any user-approved exception to executable acceptance evidence
+
 Present the completed spec to the user for sign-off before proceeding.
 
 ### Step 3: Standards
@@ -66,6 +76,18 @@ Present the completed spec to the user for sign-off before proceeding.
    - **Existing codebase, large or unfamiliar:** dispatch exploration subagents (parallel if independent slices — frontend / backend / infra) to characterize tech stack, build system, test framework, lint config, established patterns, and module boundaries. Consume their summaries — do not personally read every file.
    - **Existing codebase, small and already understood:** read directly.
 2. Create `.shepherd/standards.md` — tailored to this project's tech stack and patterns (see `references/project-templates.md`).
+3. Record the acceptance-spec pipeline in `.shepherd/standards.md`: normal acceptance command, acceptance mutation command, generated acceptance-test location, report location, timeout/status expectations, and whether source-code mutation is separate from acceptance-spec mutation. If no pipeline exists yet, add the smallest milestone needed to create one or record the signed-off limitation.
+
+### Step 3.5: Acceptance-Spec Gate
+
+Before planning implementation, prove the spec can become trustworthy executable evidence.
+
+1. If the project already has an acceptance pipeline, run the normal acceptance command and the acceptance mutation command against the current feature spec.
+2. If this is greenfield or the pipeline does not exist, make the pipeline setup an explicit early milestone and still review the spec for behavior-relevant examples before planning feature implementation.
+3. Interpret results using `references/acceptance-mutation.md`: killed mutations support the generated acceptance binding; survived mutations and mutation infrastructure errors block trust.
+4. If important mutations survive, revise the feature examples, step bindings, generated-test assertions, or implementation plan until the gap is explicit and actionable.
+5. If mutation is infeasible, record the limitation, alternate evidence gate, and user sign-off requirement in `.shepherd/spec.md`, `.shepherd/standards.md`, and `.shepherd/progress.md`.
+6. Do not proceed to final plan sign-off with hidden survivors, hidden mutation errors, or an acceptance command that only proves generic tests pass.
 
 ### Step 4: Plan
 
@@ -73,6 +95,7 @@ Up-the-hill plan review means the plan climbs before execution. Shepherd follows
 
 1. Invoke the `plan` skill. Direct it to read `.shepherd/spec.md` and `.shepherd/standards.md`, then write the implementation plan to `.shepherd/plan.md` (vertical slices, milestones, parallel/sequential flags per task) per the plan skill's own template.
    - Verification commands in the plan must be executable in the actual workspace. If the workspace is not a git repository, the plan must not rely on `git diff`, `git status`, or worktree checks unless it first initializes or enters a git repo.
+   - Behavior-changing milestones must include normal acceptance verification and acceptance mutation verification when the project has or will add an acceptance pipeline. Generated acceptance tests remain separate from unit tests and never replace TDD unit coverage.
 2. Dispatch a fresh planning issue finder with `prompts/plan-reviewer.md`. The reviewer critiques only and never edits.
 3. If the reviewer returns `READY`, present the reviewed `.shepherd/plan.md` to the user for final sign-off.
 4. If the reviewer returns `USER DECISION REQUIRED`, present the decision to the user and stop until answered. Update `.shepherd/spec.md` or `.shepherd/standards.md` if the answer changes requirements, regenerate `.shepherd/plan.md` with the `plan` skill, then restart plan review with a fresh issue finder.
@@ -86,6 +109,7 @@ digraph plan_review {
     rankdir=TB;
 
     "Create standards" [shape=box];
+    "Acceptance-spec gate records evidence" [shape=box];
     "Plan skill writes .shepherd/plan.md" [shape=box];
     "Fresh issue finder critiques only" [shape=box];
     "User decision required?" [shape=diamond];
@@ -98,7 +122,8 @@ digraph plan_review {
     "Present reviewed plan for sign-off" [shape=box style=filled fillcolor=lightgreen];
     "Present plan + unresolved concerns" [shape=box style=filled fillcolor=mistyrose];
 
-    "Create standards" -> "Plan skill writes .shepherd/plan.md";
+    "Create standards" -> "Acceptance-spec gate records evidence";
+    "Acceptance-spec gate records evidence" -> "Plan skill writes .shepherd/plan.md";
     "Plan skill writes .shepherd/plan.md" -> "Fresh issue finder critiques only";
     "Fresh issue finder critiques only" -> "User decision required?";
     "User decision required?" -> "Present user decision required" [label="yes"];
@@ -132,7 +157,7 @@ digraph orchestration {
     "Identify current milestone" [shape=box];
     "Categorize tasks: parallel vs sequential" [shape=box];
     "Dispatch implementer subagents (worktrees)" [shape=box];
-    "Collect results, verify (tests/lint/types)" [shape=box];
+    "Collect results, verify (unit, acceptance, mutation, lint/types)" [shape=box];
     "Merge to main" [shape=box];
     "Dispatch architectural reviewer" [shape=box];
     "Review passes?" [shape=diamond];
@@ -146,8 +171,8 @@ digraph orchestration {
     "Read progress.md + plan.md" -> "Identify current milestone";
     "Identify current milestone" -> "Categorize tasks: parallel vs sequential";
     "Categorize tasks: parallel vs sequential" -> "Dispatch implementer subagents (worktrees)";
-    "Dispatch implementer subagents (worktrees)" -> "Collect results, verify (tests/lint/types)";
-    "Collect results, verify (tests/lint/types)" -> "Merge to main";
+    "Dispatch implementer subagents (worktrees)" -> "Collect results, verify (unit, acceptance, mutation, lint/types)";
+    "Collect results, verify (unit, acceptance, mutation, lint/types)" -> "Merge to main";
     "Merge to main" -> "Dispatch architectural reviewer";
     "Dispatch architectural reviewer" -> "Review passes?";
     "Review passes?" -> "Update progress.md" [label="yes"];
@@ -167,7 +192,7 @@ digraph orchestration {
 1. **Re-read state:** Read `progress.md` and `plan.md` before every milestone
 2. **Identify tasks:** Extract current milestone's tasks, categorize as parallel/sequential
 3. **Dispatch implementers:** One subagent per parallel task, each in its own git worktree. Max 5 parallel subagents to limit merge conflicts
-4. **Verify results:** After each subagent completes, run tests, linter, type checker in the worktree
+4. **Verify results:** After each subagent completes, run unit tests, normal acceptance checks, acceptance mutation for changed executable specs, linter, and type checker in the worktree when those commands exist
 5. **Merge:** Merge completed worktrees to main branch. Handle conflicts immediately
 6. **Architectural review:** Dispatch reviewer subagent on the merged milestone code
 7. **Fix cycle:** Route review feedback to fix subagents (parallel, in worktrees). Re-review until approved or 3 iterations reached
@@ -189,7 +214,7 @@ This section covers only the dispatches that need a shepherd-specific prompt tem
 The review loop separates issue discovery from synthesis so the plan improves strategically instead of accumulating local edits.
 
 1. Read `prompts/plan-reviewer.md` from the skill directory and dispatch a fresh issue finder after `.shepherd/plan.md` is written and before final user sign-off.
-2. The issue finder reads `.shepherd/spec.md`, `.shepherd/standards.md`, `.shepherd/plan.md`, and relevant repo files. It critiques only and never edits.
+2. The issue finder reads `.shepherd/spec.md`, `.shepherd/standards.md`, `.shepherd/plan.md`, acceptance mutation reports if present, and relevant repo files. It critiques only and never edits.
 3. If the issue finder returns `READY`, close it and present `.shepherd/plan.md` for sign-off.
 4. If the issue finder returns `USER DECISION REQUIRED`, present the decision to the user before synthesis. Use this only for genuine requirement conflicts, unsafe ambiguity, or choices that cannot be resolved by engineering judgment.
 5. If it returns `ISSUES`, keep the same issue finder active. Send `prompts/plan-review-deepen.md` to that same agent until it returns `READY` for no additional critical issues or reaches 5 issue-producing deepening passes. Deepening reports list only new issues.
@@ -228,10 +253,11 @@ The review loop separates issue discovery from synthesis so the plan improves st
 ## Phase 3: Completion
 
 1. **Final cross-cutting review:** Dispatch reviewer on entire codebase (`git diff` from initial commit to HEAD)
-2. **Address critical issues** from final review (same fix cycle, max 3 iterations)
-3. **Update progress.md** with final status, architecture summary, known limitations
-4. **Cleanup worktrees:** Read `git worktree list --porcelain`. For every entry whose path is not the main working tree, run `git worktree remove -f -f <path>` followed by `git branch -D <branch>` (read the branch name from the `branch refs/heads/...` line in the porcelain output). Double `-f` is required — single `-f` does NOT override locks the harness placed on the worktree, even after the agent process exits. The `git branch -D` only succeeds after its worktree is removed. If a path is still held by a live process, the lock survives — log as known cleanup debt and continue. Harness-agnostic: git tracks worktrees regardless of where the harness placed them.
-5. **Report to user:** Summary of what was built, milestone-by-milestone, any deferred items
+2. **Final verification:** Run normal project verification, source-code mutation where appropriate through the project mutation tool or the `tdd-mutation` skill, and acceptance-spec mutation for changed executable specs. Treat survived acceptance mutations and mutation infrastructure errors as blockers unless already recorded as accepted limitations.
+3. **Address critical issues** from final review (same fix cycle, max 3 iterations)
+4. **Update progress.md** with final status, architecture summary, acceptance mutation status, source mutation status, and known limitations
+5. **Cleanup worktrees:** Read `git worktree list --porcelain`. For every entry whose path is not the main working tree, run `git worktree remove -f -f <path>` followed by `git branch -D <branch>` (read the branch name from the `branch refs/heads/...` line in the porcelain output). Double `-f` is required — single `-f` does NOT override locks the harness placed on the worktree, even after the agent process exits. The `git branch -D` only succeeds after its worktree is removed. If a path is still held by a live process, the lock survives — log as known cleanup debt and continue. Harness-agnostic: git tracks worktrees regardless of where the harness placed them.
+6. **Report to user:** Summary of what was built, milestone-by-milestone, acceptance mutation status, source mutation status, and any deferred items
 
 ## Autonomous Decision-Making
 
@@ -246,6 +272,8 @@ You do NOT ask the user questions during execution. Resolve everything yourself.
 | **Scope discovery** | Add new task to plan.md under current milestone. Proceed |
 | **Merge conflicts** | Resolve them. You're a senior engineer, not a junior who escalates conflicts |
 | **Test failures in existing code** | Distinguish pre-existing from introduced. Fix what you broke. Log pre-existing as known issues |
+| **Survived acceptance mutation** | Do not proceed as green. Strengthen feature examples, step handlers, generated-test assertions, or implementation behavior; if the gap is intentionally accepted, log the exact mutation path and rationale before sign-off |
+| **Acceptance mutation error** | Treat as unverifiable infrastructure failure. Capture command, exit code, status lines, and logs; fix the pipeline or stop before autonomous continuation unless explicitly accepted as scope debt |
 
 **The ONLY time you stop for user input:** Truly catastrophic failure with no autonomous resolution path (e.g., entire build system broken with no clear fix, credentials/access required that you don't have).
 
@@ -261,6 +289,7 @@ After every completed action (task merged, review done, fix applied): update `pr
 - What happened
 - Decisions made and rationale
 - Current architecture state
+- Acceptance-spec gate status, including normal acceptance command, mutation command, report path, survivors, errors, or accepted limitation
 
 ### Architecture State Summary
 
@@ -281,6 +310,9 @@ Every non-trivial decision gets logged in `progress.md` under the Decisions Log 
 **Never:**
 - Skip architectural reviews after milestones
 - Merge code with failing tests
+- Treat generated acceptance tests as a substitute for TDD unit tests
+- Hide survived acceptance mutations or mutation infrastructure errors inside "tests passed"
+- Confuse source-code mutation with Gherkin acceptance-spec mutation
 - Let progress.md go stale (update after EVERY action)
 - Dispatch more than 5 parallel subagents (merge conflict hell)
 - Over-delegate trivial work (config tweaks, single-line fixes — just do them)
@@ -292,8 +324,9 @@ Every non-trivial decision gets logged in `progress.md` under the Decisions Log 
 
 **Always:**
 - Re-read progress.md before every major decision
-- Verify tests/lint/types before merging any worktree
+- Verify unit tests, normal acceptance checks, acceptance mutation, lint, and types before merging any worktree when those commands exist
 - Log architecture state at milestone boundaries
+- Log acceptance mutation reports and decisions at milestone boundaries
 - Handle merge conflicts immediately (don't let them accumulate)
 - Treat subagent reports with verification, not blind trust
 
@@ -311,6 +344,7 @@ Every non-trivial decision gets logged in `progress.md` under the Decisions Log 
 
 - [ ] `progress.md` reflects final milestone state, including deferred items
 - [ ] No worktrees remain (`git worktree list` shows main only)
-- [ ] Tests, lint, type-check pass on main
+- [ ] Unit tests, normal acceptance checks, acceptance mutation, lint, and type-check pass on main where present
+- [ ] Survived acceptance mutations and mutation infrastructure errors are fixed or explicitly logged as accepted limitations with exact report paths
 - [ ] Final cross-cutting review ran; findings are either fixed or logged as deferred with rationale
 - [ ] User-facing summary covers each milestone + any deferred work

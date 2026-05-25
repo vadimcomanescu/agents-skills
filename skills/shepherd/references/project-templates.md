@@ -29,6 +29,17 @@ Write code that a senior staff engineer would be proud of. Not "good enough" —
 - Every public API has tests. Every error path has tests.
 - Tests are independent — no shared mutable state, no order dependence.
 - Assertions are specific. `toBe(expected)` not `toBeTruthy()`.
+- Generated acceptance tests are separate from unit tests and do not replace TDD unit coverage.
+
+## Acceptance Specs
+
+- Normal acceptance command: [command or "not available yet"]
+- Acceptance mutation command: [command or "not available yet"]
+- Generated acceptance-test location: [path]
+- Acceptance mutation report location: [path]
+- Timeout/status expectation: [how long-running mutation reports progress]
+- Source-code mutation command: [command or "separate gate not available yet"]
+- Accepted limitations: [none or explicit signed-off gaps]
 
 ## Architecture
 
@@ -54,6 +65,28 @@ Write code that a senior staff engineer would be proud of. Not "good enough" —
 **Current milestone:** [name]
 **Current task:** [name or "between tasks"]
 **Last action:** [what just happened]
+
+## Acceptance-Spec Gate
+
+| Item | Status | Evidence |
+|------|--------|----------|
+| Executable behavior examples | pending/passed/failed/accepted limitation | [path/details] |
+| Normal acceptance | pending/passed/failed/accepted limitation | [command + output path] |
+| Acceptance mutation | pending/passed/failed/accepted limitation | [command + report path] |
+| Source-code mutation | pending/passed/failed/accepted limitation | [command + report path] |
+
+### Latest Acceptance Mutation Result
+
+- Command: [command]
+- Exit code: [code]
+- Report: [path]
+- Total: [N]
+- Killed: [N]
+- Survived: [N]
+- Errors: [N]
+- Survivor paths: [list]
+- Error details: [text]
+- Decision: proceed / fix spec / fix binding / fix implementation / accepted limitation
 
 ## Completed Milestones
 

@@ -8,3 +8,6 @@ __pycache__/
 
 # Scratch eval/playground HTML produced during skill-development sessions.
 skill-eval-*.html
+
+# Generated behavioral-eval run artifacts; keep eval source files tracked.
+evals/shepherd-acceptance-mutation/20*/

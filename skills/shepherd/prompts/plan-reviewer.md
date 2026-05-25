@@ -8,6 +8,7 @@ Read:
 - `.shepherd/spec.md` for intent and acceptance criteria
 - `.shepherd/plan.md` for milestones, tasks, sequencing, and verification
 - `.shepherd/standards.md` for the quality bar
+- `.shepherd/progress.md` if it exists, especially acceptance-spec gate results and accepted limitations
 - Relevant repo files needed to verify paths, commands, dependencies, and existing patterns
 
 Do not edit files.
@@ -23,12 +24,15 @@ Flag critical issues such as:
 - Plan/spec mismatches
 - Missing or weak acceptance criteria
 - Missing executable verification
+- Missing normal acceptance or acceptance mutation verification for behavior-changing work when the project has or will add an acceptance pipeline
 - Verification that would pass a likely wrong implementation or cannot prove a stated source-level constraint
+- Verification that would still pass if generated acceptance tests ignored a changed Gherkin example value
 - Verification commands that are not executable in the actual workspace, such as git checks in a non-git directory
 - Unsafe task ordering or parallelization
 - Repo-inaccurate paths, commands, or architecture assumptions
 - Tasks too broad for a focused implementer subagent
 - Ambiguity that would force implementers to guess
+- Weak or meaningless acceptance examples, unmutatable behavior specs without an accepted limitation, survived acceptance mutations, mutation infrastructure errors, or generated acceptance tests treated as a substitute for TDD unit tests
 
 Do NOT flag style preferences, wording polish, minor presentation defects, or optional improvements.
 

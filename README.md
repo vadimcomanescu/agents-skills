@@ -1,6 +1,6 @@
 # agents-skills
 
-Personal skill collection for Claude Code, Codex, Gemini CLI, and OpenCode. Includes skill authoring, TDD, debugging, and verification workflows. Pressure-tested with adversarial subagents; revised when an agent finds a way around them.
+Personal skill collection for Claude Code, Codex, Gemini CLI, and OpenCode. Includes skill authoring, Shepherd orchestration, TDD, debugging, and verification workflows. Pressure-tested with adversarial subagents; revised when an agent finds a way around them.
 
 ## Install
 
@@ -99,6 +99,7 @@ npx skills@latest add vadimcomanescu/agents-skills -g -y -a claude-code codex ge
 | Skill | What it does |
 |---|---|
 | [`creating-skills`](skills/creating-skills/SKILL.md) | Creates, edits, evaluates, and optimizes agent skills. Merges Anthropic's and OpenAI Codex's `skill-creator` skills, with eval pipeline, description optimization, and graphviz dot conventions. |
+| [`shepherd`](skills/shepherd/SKILL.md) | Orchestrates end-to-end autonomous builds across spec, standards, plan review, implementation, refactor, evidence, and architectural review. Standards include a skill relevance pass so planning uses relevant project skills without importing generic advice. |
 | [`tdd-mutation`](skills/tdd-mutation/SKILL.md) | Iron Law test-first implementation plus mutation-backed verification. Vertical slices, behavior-first tests, and no new surviving mutants. |
 | [`systematic-debugging`](skills/systematic-debugging/SKILL.md) | Phase 1 reproduce, Phase 2 root cause, Phase 3 fix + verify. No symptom patches. |
 | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) | Forbids "done"/"fixed"/"passing" claims without verification output. |

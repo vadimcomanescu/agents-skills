@@ -13,7 +13,7 @@
         "source": "github",
         "repo": "vadimcomanescu/agents-skills"
       },
-      "description": "Skills for skill authoring, TDD, systematic debugging, and verification."
+      "description": "Skills for skill authoring, Shepherd orchestration, TDD, systematic debugging, and verification."
     }
   ]
 }

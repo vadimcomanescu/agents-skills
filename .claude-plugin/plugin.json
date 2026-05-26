@@ -1,6 +1,6 @@
 {
   "name": "agents-skills",
-  "description": "Skills for skill authoring, TDD, systematic debugging, and verification.",
+  "description": "Skills for skill authoring, Shepherd orchestration, TDD, systematic debugging, and verification.",
   "version": "1.0.0",
   "author": {
     "name": "Vadim Comanescu"

@@ -20,6 +20,7 @@ Task:
 - Treat the findings memo as evidence about weaknesses in the current plan, not as a tactical checklist. First decide what the coherent plan should be, then edit the plan at the right level of abstraction.
 - Improve milestones, task boundaries, sequencing, parallel/sequential flags, acceptance criteria, and executable verification where needed.
 - Make acceptance criteria and verification strong enough to distinguish the intended implementation from likely wrong implementations. If the plan states a source-level or invariant constraint that normal behavior tests cannot prove, add an executable check for that constraint or rewrite the plan so the claim is not required.
+- Preserve project-specific standards derived from relevant skills, but remove generic skill summaries or advice that does not affect the plan.
 - For behavior-changing milestones, sequence implementer work, refactorer pass, orchestrator evidence gate, and architectural review in that order.
 - Keep mutation outside implementer and refactorer duties by default. The orchestrator evidence gate runs or records source-code mutation and acceptance-spec mutation when configured.
 - For behavior-changing work, make normal acceptance and acceptance mutation evidence explicit when the project has or will add an acceptance pipeline. Preserve separate TDD unit-test verification; generated acceptance tests do not replace unit tests.

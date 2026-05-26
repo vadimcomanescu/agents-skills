@@ -32,6 +32,9 @@ Flag critical issues such as:
 - Verification commands that are not executable in the actual workspace, such as git checks in a non-git directory
 - Unsafe task ordering or parallelization
 - Repo-inaccurate paths, commands, or architecture assumptions
+- Missing skill relevance pass before standards
+- Standards or plan text that imports generic skill advice without concrete repo evidence
+- Standards that ignore a relevant skill whose guidance would affect acceptance criteria, architecture, sequencing, verification, safety, or quality gates
 - Tasks too broad for a focused implementer subagent
 - Ambiguity that would force implementers to guess
 - Weak or meaningless acceptance examples, unmutatable behavior specs without an accepted limitation, survived acceptance mutations, mutation infrastructure errors, or generated acceptance tests treated as a substitute for TDD unit tests

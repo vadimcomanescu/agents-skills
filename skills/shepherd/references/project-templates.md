@@ -33,12 +33,16 @@ Write code that a senior staff engineer would be proud of. Not "good enough" —
 
 ## Acceptance Specs
 
-- Normal acceptance command: [command or "not available yet"]
-- Acceptance mutation command: [command or "not available yet"]
+- Parser command: [command or "to be created in Acceptance Pipeline Setup" or "USER-APPROVED WAIVER: reason/date"]
+- Structured IR path: [path]
+- Generator command: [command or "to be created in Acceptance Pipeline Setup" or "USER-APPROVED WAIVER: reason/date"]
 - Generated acceptance-test location: [path]
+- Runner command: [command or "to be created in Acceptance Pipeline Setup" or "USER-APPROVED WAIVER: reason/date"]
+- Normal acceptance command: [command or "to be created in Acceptance Pipeline Setup" or "USER-APPROVED WAIVER: reason/date"]
+- Acceptance-spec mutation command: [command or "to be created in Acceptance Pipeline Setup" or "USER-APPROVED WAIVER: reason/date"]
 - Acceptance mutation report location: [path]
 - Timeout/status expectation: [how long-running mutation reports progress]
-- Source-code mutation command: [command or "separate gate not available yet"]
+- Source-code mutation command: [command or "not configured for this project" or "USER-APPROVED WAIVER: reason/date"]
 - Accepted limitations: [none or explicit signed-off gaps]
 
 ## Architecture
@@ -66,14 +70,16 @@ Write code that a senior staff engineer would be proud of. Not "good enough" —
 **Current task:** [name or "between tasks"]
 **Last action:** [what just happened]
 
-## Acceptance-Spec Gate
+## Acceptance Pipeline Setup
 
 | Item | Status | Evidence |
 |------|--------|----------|
 | Executable behavior examples | pending/passed/failed/accepted limitation | [path/details] |
+| Parser / IR generation | pending/passed/failed/accepted limitation | [command + output path] |
+| Generator / generated tests | pending/passed/failed/accepted limitation | [command + output path] |
+| Runner adapter | pending/passed/failed/accepted limitation | [command + output path] |
 | Normal acceptance | pending/passed/failed/accepted limitation | [command + output path] |
 | Acceptance mutation | pending/passed/failed/accepted limitation | [command + report path] |
-| Source-code mutation | pending/passed/failed/accepted limitation | [command + report path] |
 
 ### Latest Acceptance Mutation Result
 
@@ -92,7 +98,7 @@ Write code that a senior staff engineer would be proud of. Not "good enough" —
 
 ### Milestone 1: [Name] — COMPLETE
 - Tasks completed: [list]
-- Review iterations: [N]
+- Repair iterations: [N]
 - Deferred items: [any issues punted]
 
 ## Current Milestone: [Name]
@@ -107,11 +113,10 @@ Write code that a senior staff engineer would be proud of. Not "good enough" —
 |------|--------|----------|
 | Implementer verification | pending/passed/failed/accepted limitation | [unit/acceptance/lint/type results] |
 | Refactorer pass | pending/passed/failed/not applicable | [worktree/branch/commit or no commit] |
-| Orchestrator evidence gate | pending/passed/failed/accepted limitation | [mutation/evidence paths] |
-| Architectural review | pending/approved/request changes | [reviewer output path/summary] |
+| Architect hardening | pending/approved/request changes/accepted limitation | [worktree/branch/commit, mutation/evidence paths, verdict] |
 
-### Review Feedback
-[Latest reviewer feedback, if in review cycle]
+### Architect Feedback
+[Latest architect findings, if in repair cycle]
 
 ## Decisions Log
 

@@ -9,11 +9,14 @@ Shepherd separates responsibilities:
 
 - `.shepherd/spec.md` owns externally visible behavior, acceptance criteria,
   and examples.
-- Implementers build approved behavior slices with TDD and normal acceptance.
+- Implementers build approved behavior slices with TDD, normal acceptance, and
+  project-specific normal acceptance pipeline components when assigned.
 - Refactorers preserve behavior while improving structure and testability.
-- The orchestrator runs or records configured evidence gates after refactoring.
-- Architectural reviewers judge spec adherence, architecture, and recorded
-  evidence.
+- Architects run hardening after refactoring: architecture checks, configured
+  source-code mutation, configured acceptance-spec mutation, and configured
+  DRY/complexity checks.
+- The coordinator dispatches roles and records evidence paths; it does not run
+  mutation as the normal path.
 - Handoffs and reports carry state and evidence. They do not tell the next role
   how to do its job.
 
@@ -85,7 +88,8 @@ In `.shepherd/plan.md`:
 
 - The milestone that creates or verifies the acceptance pipeline
 - Normal acceptance checks for behavior-changing slices
-- Configured acceptance mutation evidence gates after refactoring
+- Architect hardening after refactoring, including configured acceptance-spec
+  mutation and source-code mutation
 - Separate TDD unit-test checks for implementation behavior
 
 In `.shepherd/progress.md`:
@@ -98,6 +102,20 @@ In `.shepherd/progress.md`:
 - Error text or timeout/status evidence
 - Decision: proceed, fix spec, fix binding, fix implementation, or accepted
   limitation
+
+## Phase 1 Setup Gate
+
+Before implementation planning, Shepherd should reject setup when:
+
+- Behavior-changing work has no normal acceptance pipeline and no explicit
+  user-approved waiver.
+- Parser, IR generation, generated acceptance tests, runner adapter, or mutator
+  infrastructure is missing or indistinguishable from product behavior failure.
+- Acceptance examples are missing, meaningless, or not behavior-relevant.
+
+Greenfield generated acceptance tests may fail because behavior is not
+implemented yet. That is acceptable only when parser, generator, runner, and
+mutator infrastructure are real and reported separately.
 
 ## Planning Gate
 
@@ -118,26 +136,26 @@ Implementers should:
 1. Write focused unit tests before production code.
 2. Keep generated acceptance tests separate from unit tests.
 3. Run normal acceptance after behavior changes.
-4. Report exact normal acceptance commands, exit codes, output paths, and
+4. Build or repair normal acceptance pipeline components only when assigned.
+5. Report exact normal acceptance commands, exit codes, output paths, and
    assumptions.
 
 Implementers do not run source-code mutation or acceptance-spec mutation by
-default. If project standards explicitly assign a mutation command to an
+default. If project standards explicitly assign a mutation rerun to an
 implementation task, the report must include command, exit code, report path,
 survivor paths, and errors.
 
-## Orchestrator Evidence Gate
+## Architect Hardening Gate
 
-After the refactorer pass and before architectural review, the orchestrator
-should run or record configured source-code mutation and acceptance-spec
-mutation evidence. Missing evidence, survived mutations, and mutation
-infrastructure errors block progress unless an accepted limitation is already
-recorded in `.shepherd/spec.md`, `.shepherd/standards.md`, and
-`.shepherd/progress.md`.
+After the refactorer pass, the architect should run or record configured
+source-code mutation and acceptance-spec mutation evidence. Missing evidence,
+survived mutations, and mutation infrastructure errors block progress unless an
+accepted limitation is already recorded in `.shepherd/spec.md`,
+`.shepherd/standards.md`, and `.shepherd/progress.md`.
 
-## Review Gate
+## Architect Verdict
 
-Reviewers should reject a milestone when:
+Architects should reject a milestone when:
 
 - The report has `survived > 0`.
 - The report has `errors > 0`.

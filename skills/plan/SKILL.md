@@ -21,6 +21,8 @@ Decompose work into small, verifiable tasks with explicit acceptance criteria. G
 
 ## The Planning Process
 
+If the caller gives a plan path, write and revise that exact file. Otherwise choose a repo-local path that fits the project, such as `docs/plans/YYYY-MM-DD-<feature>.md`, `plans/<feature>.md`, or a caller-established state path.
+
 ### Step 1: Enter Plan Mode
 
 Before writing any code, operate in read-only mode:
@@ -122,6 +124,43 @@ Add explicit checkpoints:
 - [ ] Review with human before proceeding
 ```
 
+### Step 6: Up-The-Hill Review
+
+A plan is not ready because it exists. Send it uphill through fresh review rounds until an independent plan editor says it is execution-ready.
+
+```dot
+digraph plan_review {
+    "Write current plan" -> "Fresh plan editor";
+    "Fresh plan editor" -> "READY" [label="unchanged"];
+    "Fresh plan editor" -> "REVISED" [label="fixed"];
+    "Fresh plan editor" -> "USER DECISION REQUIRED" [label="blocked"];
+    "REVISED" -> "Fresh plan editor" [label="next fresh round, max 5"];
+}
+```
+
+1. Dispatch a fresh plan editor with `prompts/plan-editor.md`.
+2. Give it the original request or spec, the plan path, and any caller constraints.
+3. If it returns `READY`, planning is complete.
+4. If it returns `REVISED`, keep the revised plan and repeat with a fresh plan editor.
+5. If it returns `USER DECISION REQUIRED`, stop and present the decision.
+6. Stop after 5 editor rounds. If the plan still is not `READY`, present the latest plan plus the unresolved concern and do not proceed to execution.
+
+Use these verdicts exactly:
+
+- `READY`: the current plan would let a skilled implementer build the requested result without backtracking; no edits were made.
+- `REVISED`: the current plan had a real execution, architecture, contract, sequencing, or verification problem; the editor fixed it in the plan.
+- `USER DECISION REQUIRED`: requirements conflict or there is no safe autonomous path without a user choice.
+
+The editor must judge the whole plan before acting. Cosmetic rewrites are failures. Missed real plan problems are failures. Score semantic outcome, not prettier prose.
+
+Each review round should leave an artifact trail in the plan report or progress notes:
+
+- Plan verdict
+- Plan path
+- Current git commit when available, otherwise `not committed`
+- Changed files, or `none`
+- Files inspected
+
 ## Task Sizing Guidelines
 
 | Size | Files | Scope | Example |
@@ -205,6 +244,7 @@ When multiple agents or sessions are available:
 ## Red Flags
 
 - Starting implementation without a written task list
+- Starting implementation before the up-the-hill review returns `READY`
 - Tasks that say "implement the feature" without acceptance criteria
 - No verification steps in the plan
 - All tasks are XL-sized
@@ -221,4 +261,9 @@ Before starting implementation, confirm:
 - [ ] No task touches more than ~5 files
 - [ ] Checkpoints exist between major phases
 - [ ] Plan is saved to a file in the repository
+- [ ] Up-the-hill plan review returned `READY`
 - [ ] The human has reviewed and approved the plan
+
+## Prompt Resources
+
+- Use `prompts/plan-editor.md` for each fresh up-the-hill review round.

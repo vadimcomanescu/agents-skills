@@ -2,27 +2,45 @@
   "skill_name": "shepherd",
   "evals": [
     {
-      "id": "greenfield-happy-path",
-      "prompt": "Build a tiny status app end-to-end with Shepherd. Use executable acceptance examples and prove the generated acceptance tests detect changed example values before implementation proceeds.",
-      "expected_output": "Shepherd creates .shepherd spec, standards, plan, and progress artifacts that include normal acceptance and acceptance mutation commands; mutation output has total=1 killed=1 survived=0 errors=0; decision is proceed.",
+      "id": "source-role-surface",
+      "prompt": "Inspect the current Shepherd skill and prove role ownership is clear: coordinator coordinates, implementer implements behavior slices and architect-finding repairs, refactorer refactors, architect hardens and runs mutation.",
+      "expected_output": "The Shepherd source and prompts contain the role split, architect-owned hardening/mutation, no active reviewer prompt references, and no coordinator-owned mutation language.",
       "files": []
     },
     {
-      "id": "survived-mutation-blocks-progress",
-      "prompt": "Run Shepherd on an app whose generated acceptance tests still pass when the Gherkin example value is mutated.",
-      "expected_output": "Shepherd detects survived > 0, records the mutation path and report, refuses to mark the milestone ready, and routes work back to strengthen the spec, step binding, generated assertion, or implementation.",
+      "id": "acceptance-pipeline-killed",
+      "prompt": "Run a tiny fixture with normal acceptance, source mutation, and acceptance-spec mutation where all mutants are killed.",
+      "expected_output": "Unit tests and normal acceptance run separately; architect hardening records source and acceptance mutation reports and approves the milestone.",
       "files": []
     },
     {
-      "id": "mutation-error-blocks-trust",
-      "prompt": "Run Shepherd on an app where the acceptance mutator fails in parser, generator, runner, or timeout infrastructure while normal tests still pass.",
-      "expected_output": "Shepherd classifies the result as mutation infrastructure error, treats normal tests as insufficient, and stops or records explicit accepted scope debt before autonomous continuation.",
+      "id": "acceptance-survivor-blocks",
+      "prompt": "Run a tiny fixture where generated acceptance tests still pass after mutating an example value.",
+      "expected_output": "Architect hardening records the survivor path and requests focused implementer repair instead of approving the milestone.",
       "files": []
     },
     {
-      "id": "weak-unmutatable-spec",
-      "prompt": "Run Shepherd on a feature spec with no useful Examples values or parameters that do not affect behavior.",
-      "expected_output": "Shepherd identifies that acceptance mutation cannot strongly prove behavior and improves or requests behavior-relevant examples before implementation planning proceeds.",
+      "id": "acceptance-error-blocks",
+      "prompt": "Run a tiny fixture where acceptance-spec mutation infrastructure fails while normal acceptance passes.",
+      "expected_output": "Architect hardening treats the mutation error as unverifiable infrastructure and requests focused implementer repair.",
+      "files": []
+    },
+    {
+      "id": "source-survivor-blocks",
+      "prompt": "Run a tiny fixture where source-code mutation has a survivor while acceptance-spec mutation is killed.",
+      "expected_output": "Architect hardening records source mutation separately from acceptance-spec mutation and requests focused implementer repair.",
+      "files": []
+    },
+    {
+      "id": "weak-acceptance-spec-blocks",
+      "prompt": "Run a tiny fixture with no useful acceptance-spec mutations.",
+      "expected_output": "Architect hardening blocks approval because the acceptance examples cannot prove behavior-relevant binding.",
+      "files": []
+    },
+    {
+      "id": "live-code-playground",
+      "prompt": "Exercise the Shepherd live-code playground with a real code and test diff.",
+      "expected_output": "The playground captures before/after test output and a concrete code diff proving the evaluated workflow touched real implementation behavior.",
       "files": []
     }
   ]

@@ -18,7 +18,7 @@ Personal skill collection for Claude Code, Codex, Gemini CLI, and OpenCode. Skil
 
 - MUST treat workflow-shaped skill changes as behavior changes, not prose cleanup.
 - MUST run the `creating-skills` behavioral-eval path before editing a workflow-shaped skill unless the user explicitly says to skip evals.
-- MUST run a live code-implementation playground for Shepherd orchestration changes that affect implementer/reviewer/refactorer/fixer/evidence behavior. Use `evals/shepherd-live-code-playground/` or a real disposable repo target, and report the code diff, tests, and before/after behavioral evidence.
+- MUST run a live code-implementation playground for Shepherd orchestration changes that affect implementer/refactorer/architect repair or hardening behavior. Use `evals/shepherd-live-code-playground/` or a real disposable repo target, and report the code diff, tests, and before/after behavioral evidence.
 - MUST NOT rewrite a workflow-shaped skill from architectural judgment alone. First define what behavior should improve, what behavior must stay stable, and what prompt or fixture will prove it.
 - MUST NOT claim a skill edit is correct because `quick_validate.py` passes. That check is packaging-only.
 

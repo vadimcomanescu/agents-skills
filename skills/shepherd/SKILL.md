@@ -40,8 +40,8 @@ Do not use Shepherd for one-shot fixes, single-file edits, short debugging sessi
 
 | File | Purpose |
 |---|---|
-| `.shepherd/spec.md` | Confirmed intent, user-visible behavior, acceptance criteria, examples, accepted exceptions. |
-| `.shepherd/standards.md` | Project rules, relevant skill rules, role-owned commands, acceptance/source mutation evidence, waivers. |
+| `.shepherd/spec.md` | Confirmed intent, user-visible behavior, success criteria, examples, accepted exceptions. |
+| `.shepherd/standards.md` | Project rules, relevant skill rules, verification commands, constraints, and waivers. |
 | `.shepherd/plan.md` | Reviewed implementation plan from the `plan` skill. |
 | `.shepherd/progress.md` | Current milestone, commits, evidence, decisions, architecture state, blockers, waivers. |
 
@@ -63,10 +63,10 @@ Every setup step has a concrete artifact. Do not advance by intent or chat summa
 
 | Role | Owns | Does Not Own |
 |---|---|---|
-| Coordinator | State, sequencing, dispatch, merges, progress evidence. | Implementation, normal acceptance pipeline work, refactoring, mutation, architectural hardening. |
-| Implementer | Assigned behavior slice or architect finding, TDD unit tests, normal acceptance, normal acceptance pipeline components. | Broad cleanup, source mutation, acceptance-spec mutation, hardening. |
-| Refactorer | Behavior-preserving cleanup after implementer merge: names, duplication, boundaries, testability, configured CRAP/DRY/property-test support. | New behavior, source mutation, acceptance-spec mutation. |
-| Architect | Boundaries, dependency direction, mutation runner adapter, hardening tools, source mutation, acceptance-spec mutation, final verdict. | New product behavior, spec rewrite, broad implementation. |
+| Coordinator | State, sequencing, dispatch, merges, progress evidence. | Implementation, refactoring, architectural hardening. |
+| Implementer | Assigned behavior slice or architect finding, TDD unit tests, repo-defined verification. | Broad cleanup, hardening. |
+| Refactorer | Behavior-preserving cleanup after implementer merge: names, duplication, boundaries, testability, weak tests. | New behavior, hardening. |
+| Architect | Boundaries, dependency direction, hardening tools already present in the repo, final verdict. | New product behavior, spec rewrite, broad implementation. |
 
 ## Phase 1: Setup
 
@@ -82,8 +82,7 @@ For behavior-changing work, make the spec concrete enough to test:
 
 - user-visible behavior only
 - behavior-relevant examples, preferably executable examples or a documented equivalent
-- mutation-relevant example values as parameters when acceptance-spec mutation is used
-- explicit scenarios that cannot be acceptance-mutated
+- explicit scenarios that cannot be verified automatically
 - explicit user-approved exceptions
 
 Present the completed spec for sign-off.
@@ -95,7 +94,7 @@ Create `.shepherd/standards.md` from repo truth. Treat it as the project constit
 1. Inspect the repo directly for small codebases; dispatch exploration agents for large or unfamiliar ones.
 2. Inspect available skills and read only the relevant ones. Carry forward project-specific rules, not skill summaries.
 3. Record project-specific verification commands and quality rules.
-4. Map role-owned acceptance/source mutation commands: normal acceptance pipeline for implementers; mutation hardening, runner adapter, reports, timeouts, and waivers for architects.
+4. Record only commands that already exist in the repo or are required by the relevant skill. Do not invent verification infrastructure or command placeholders.
 
 ### 4. Plan
 
@@ -104,15 +103,14 @@ Invoke `plan`. Direct it to read `.shepherd/spec.md` and `.shepherd/standards.md
 Shepherd-specific plan constraints:
 
 - verification commands must be executable in the actual workspace
-- behavior-changing milestones assign normal acceptance pipeline work to implementers and mutation hardening to architects
 - behavior-changing milestones include implementer verification, refactorer pass, architect hardening, and architect-finding repair cycles
-- generated acceptance tests never replace TDD unit coverage
+- integration or end-to-end checks never replace TDD unit coverage
 
 If `plan` returns `USER DECISION REQUIRED`, stop and present the decision. If it returns `READY`, present `.shepherd/plan.md` for final sign-off.
 
 ### 5. Setup Close
 
-Record setup completion, role-owned acceptance/mutation state, and architecture decisions in `.shepherd/progress.md`. Then execute autonomously.
+Record setup completion, verification state, and architecture decisions in `.shepherd/progress.md`. Then execute autonomously.
 
 ## Phase 2: Milestone Loop
 
@@ -142,11 +140,11 @@ Per milestone:
 1. Read `.shepherd/progress.md` and `.shepherd/plan.md`.
 2. Categorize tasks as parallel or sequential.
 3. Dispatch at most 5 parallel implementers in separate git worktrees.
-4. Verify each implementer worktree with unit tests, normal acceptance, lint, and type checks when commands exist.
+4. Verify each implementer worktree with repo-defined unit tests, integration/end-to-end checks, lint, and type checks when commands exist.
 5. Merge passing implementer work. Resolve conflicts immediately.
 6. Dispatch refactorer from merged main for behavior-changing milestones; merge if it changed files.
 7. Dispatch architect from merged main. Architect runs configured hardening and may commit structural fixes.
-8. Record branches, commits, verification, mutation reports, survivors, errors, waivers, and decisions in `progress.md`.
+8. Record branches, commits, verification output, waivers, and decisions in `progress.md`.
 9. Dispatch implementers for exact architect findings, then verify and merge passing repair work. Re-run architect until approved or 3 repair cycles are reached.
 10. Log milestone summary and architecture state.
 
@@ -168,20 +166,17 @@ Exploration uses the runtime's built-in exploration agent. Planning belongs to t
 
 1. Dispatch architect for final hardening across the full diff.
 2. Run the same implementer repair cycle for critical final findings, max 3 iterations.
-3. Record final verification, source mutation, acceptance-spec mutation, waivers, and final verdict in `progress.md`.
+3. Record final verification, waivers, and final verdict in `progress.md`.
 4. Remove non-main git worktrees with `git worktree remove -f -f <path>`, then delete their branches.
-5. Report what shipped, milestone evidence, mutation status, accepted limitations, and deferred work.
+5. Report what shipped, milestone evidence, accepted limitations, and deferred work.
 
 ## Blockers
 
 Do not proceed as green when any of these are true:
 
 - verification fails and the failure is not recorded as pre-existing debt
-- generated acceptance tests substitute for unit tests
-- acceptance mutation has survivors or infrastructure errors without an explicit waiver
-- source-code mutation has survivors or errors where configured without an explicit waiver
-- normal acceptance pipeline work is missing from implementer scope for behavior-changing work without user-approved degraded evidence
-- mutation runner adapter or mutation evidence is missing from architect hardening without user-approved degraded evidence
+- integration or end-to-end checks substitute for unit tests
+- a repo-defined verification command is skipped without an explicit waiver
 - architect requests changes and the implementer repair cycle has not run
 - `.shepherd/progress.md` is stale
 - sibling worktrees or branches are used without explicit coordinator naming
@@ -189,5 +184,4 @@ Do not proceed as green when any of these are true:
 ## References
 
 - `references/project-templates.md`: use when creating `standards.md` or `progress.md`.
-- `references/acceptance-mutation.md`: read when configuring or judging acceptance pipeline mechanics.
 - `prompts/*.md`: load only when dispatching that role.

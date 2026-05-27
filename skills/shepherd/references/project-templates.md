@@ -22,26 +22,10 @@ Subagents read this before editing.
 ## Testing
 
 - Unit test command: [command]
-- Normal verification command: [command]
+- Integration/e2e command: [command or "not configured"]
 - Lint/type command: [command or "not configured"]
-- Generated acceptance tests are separate from unit tests and do not replace TDD unit coverage.
-
-## Normal Acceptance (Implementer)
-
-- Parser command: [command or "implementer task required" or "USER-APPROVED WAIVER: reason/date"]
-- Structured IR path: [path]
-- Generator command: [command or "implementer task required" or "USER-APPROVED WAIVER: reason/date"]
-- Generated acceptance-test location: [path]
-- Runtime/step handler location: [path]
-- Normal acceptance command: [command or "implementer task required" or "USER-APPROVED WAIVER: reason/date"]
-
-## Mutation Hardening (Architect)
-
-- Mutation runner adapter command: [command or "architect task required" or "USER-APPROVED WAIVER: reason/date"]
-- Acceptance-spec mutation command: [command or "architect task required" or "USER-APPROVED WAIVER: reason/date"]
-- Acceptance-spec mutation report location: [path]
-- Timeout/status expectation: [how long-running mutation reports progress]
-- Source-code mutation command: [command or "not configured for this project" or "USER-APPROVED WAIVER: reason/date"]
+- Hardening command: [command or "not configured"]
+- Integration/e2e checks do not replace TDD unit coverage.
 - Accepted limitations: [none or explicit signed-off gaps]
 
 ## Architecture
@@ -60,31 +44,14 @@ Subagents read this before editing.
 **Current task:** [name or "between tasks"]
 **Last action:** [what just happened]
 
-## Acceptance And Mutation Evidence
+## Verification Evidence
 
 | Item | Status | Evidence |
 |------|--------|----------|
-| Executable behavior examples | pending/passed/failed/accepted limitation | [path/details] |
-| Parser / IR generation | pending/passed/failed/accepted limitation | [command + output path] |
-| Generator / generated tests | pending/passed/failed/accepted limitation | [command + output path] |
-| Runtime / step handlers | pending/passed/failed/accepted limitation | [path/details] |
-| Normal acceptance | pending/passed/failed/accepted limitation | [command + output path] |
-| Mutation runner adapter | pending/passed/failed/accepted limitation | [command + output path] |
-| Acceptance-spec mutation | pending/passed/failed/accepted limitation | [command + report path] |
-| Source-code mutation | pending/passed/failed/not configured/accepted limitation | [command + report path] |
-
-### Latest Acceptance Mutation Result
-
-- Command: [command]
-- Exit code: [code]
-- Report: [path]
-- Total: [N]
-- Killed: [N]
-- Survived: [N]
-- Errors: [N]
-- Survivor paths: [list]
-- Error details: [text]
-- Decision: proceed / fix spec / fix binding / fix implementation / fix pipeline / accepted limitation
+| Unit tests | pending/passed/failed/accepted limitation | [command + output path] |
+| Integration/e2e checks | pending/passed/failed/not configured/accepted limitation | [command + output path] |
+| Lint/type checks | pending/passed/failed/not configured/accepted limitation | [command + output path] |
+| Hardening checks | pending/passed/failed/not configured/accepted limitation | [command + output path] |
 
 ## Completed Milestones
 
@@ -103,9 +70,9 @@ Subagents read this before editing.
 ### Milestone Quality Gate
 | Gate | Status | Evidence |
 |------|--------|----------|
-| Implementer verification | pending/passed/failed/accepted limitation | [unit/acceptance/lint/type results] |
+| Implementer verification | pending/passed/failed/accepted limitation | [unit/integration/lint/type results] |
 | Refactorer pass | pending/passed/failed/not applicable | [worktree/branch/commit or no commit] |
-| Architect hardening | pending/approved/request changes/accepted limitation | [worktree/branch/commit, mutation/evidence paths, verdict] |
+| Architect hardening | pending/approved/request changes/accepted limitation | [worktree/branch/commit, hardening output, verdict] |
 
 ### Architect Feedback
 [Latest architect findings, if in repair cycle]

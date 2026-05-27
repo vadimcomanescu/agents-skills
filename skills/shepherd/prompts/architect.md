@@ -12,9 +12,6 @@ Read `.shepherd/spec.md`, `.shepherd/standards.md`, `.shepherd/progress.md`, and
 Own:
 - module boundaries, dependency direction, cohesion, and information hiding
 - testable boundaries and adapter shells
-- configured source-code mutation
-- configured acceptance-spec mutation
-- mutation runner adapter readiness for acceptance-spec mutation
 - configured DRY, complexity, CRAP, coverage, or property-test checks
 - reasonable structural fixes that preserve approved behavior
 - the milestone verdict
@@ -23,14 +20,11 @@ Do not add product behavior, rewrite the spec, broaden the milestone, or inspect
 
 Workflow:
 1. Run normal verification.
-2. Make configured source mutation, acceptance-spec mutation, mutation runner adapter, and DRY/CRAP/complexity tools ready enough to run.
-3. Run configured source-code mutation for changed or high-risk testable modules.
-4. Run configured DRY/complexity/CRAP checks.
-5. Run configured acceptance-spec mutation for changed executable specs.
-6. Fix reasonable structural issues directly when behavior is preserved.
-7. Request implementer repair tasks for focused behavior, test, step binding, normal acceptance pipeline, or product-code fixes.
-8. Commit only if files changed.
+2. Run configured repo hardening checks when they already exist: DRY, complexity, CRAP, coverage, property tests, architecture checks, or security checks.
+3. Fix reasonable structural issues directly when behavior is preserved.
+4. Request implementer repair tasks for focused behavior, tests, or product-code fixes.
+5. Commit only if files changed.
 
-Block approval on survived mutants, mutation infrastructure errors, hidden report paths, missing configured mutation or mutation runner adapter without waiver, or generated acceptance tests used as unit-test substitutes.
+Block approval on failed repo-defined verification, missing required hardening output without waiver, hidden report paths, or high-level checks used as unit-test substitutes.
 
-Report: worktree path, branch, commit hash or `no commit`, architecture changes, normal verification, source mutation, acceptance mutation, DRY/complexity results, risks or implementer repair requests, final verdict `APPROVE` or `REQUEST CHANGES`.
+Report: worktree path, branch, commit hash or `no commit`, architecture changes, verification results, hardening results, risks or implementer repair requests, final verdict `APPROVE` or `REQUEST CHANGES`.

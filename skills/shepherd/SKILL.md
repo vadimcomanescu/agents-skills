@@ -14,7 +14,7 @@ waiver in `.shepherd/progress.md` before moving on.
 
 ```text
 SETUP
-  1. Intent -> 2. Behavior Contract -> 3. Standards -> 4. Acceptance Pipeline Readiness -> 5. Plan -> 6. Setup Close
+  1. Intent -> 2. Behavior Contract -> 3. Standards -> 4. Plan -> 5. Setup Close
 MILESTONE LOOP
   Implementers -> verify/merge -> refactorer -> architect -> repair loop if needed
 COMPLETION
@@ -46,6 +46,18 @@ Do not use Shepherd for one-shot fixes, single-file edits, short debugging sessi
 | `.shepherd/progress.md` | Current milestone, commits, evidence, decisions, architecture state, blockers, waivers. |
 
 Use `references/project-templates.md` for `standards.md` and `progress.md`. The `spec` and `plan` skills own their own formats.
+
+## Step Completion Gates
+
+Every setup step has a concrete artifact. Do not advance by intent or chat summary; advance only when the artifact exists and the gate is recorded in `.shepherd/progress.md`.
+
+| Step | Required Artifact | Gate |
+|---|---|---|
+| Intent | `.shepherd/spec.md` has `## Confirmed Intent`. | User-confirmed intent is recorded. |
+| Behavior Contract | `.shepherd/spec.md` is completed by the `spec` skill. | User signs off the completed behavior contract. |
+| Standards | `.shepherd/standards.md` exists. | Repo commands, constraints, relevant skill rules, and waivers are recorded. |
+| Plan | `.shepherd/plan.md` exists. | `plan` returns `READY` and the user signs off the plan. |
+| Setup Close | `.shepherd/progress.md` records setup completion. | Autonomous milestone execution may start. |
 
 ## Roles
 
@@ -85,27 +97,7 @@ Create `.shepherd/standards.md` from repo truth. Treat it as the project constit
 3. Record project-specific verification commands and quality rules.
 4. Map role-owned acceptance/source mutation commands: normal acceptance pipeline for implementers; mutation hardening, runner adapter, reports, timeouts, and waivers for architects.
 
-### 4. Acceptance Pipeline Readiness
-
-For behavior-changing work, prove or create the smallest executable acceptance pipeline before planning feature implementation. This gate exists so Shepherd cannot jump from spec text to code without knowing how approved behavior will be checked.
-
-First record the readiness state:
-
-1. `.shepherd/spec.md`: behavior-relevant examples, preferably executable examples, or a user-approved reason examples are impossible.
-2. `.shepherd/standards.md`: parser/IR, generator, generated test location, runtime or step handler location, normal acceptance command, mutation runner adapter, mutation command, report paths, source mutation command when configured, and waivers.
-3. `.shepherd/progress.md`: current status for examples, parser/IR, generator, runtime or step handlers, normal acceptance, mutation runner adapter, acceptance-spec mutation, source-code mutation, missing pieces, survivors/errors, and waivers.
-
-Then choose one path:
-
-- Existing pipeline: run enough to prove parser/IR, generator, runtime or step handlers, normal acceptance, mutation runner adapter, and report paths are real.
-- Missing pipeline: record `implementer task required` for normal acceptance components and `architect task required` for mutation hardening, then require `.shepherd/plan.md` to schedule that setup before feature implementation.
-- Infeasible pipeline: record the user-approved degraded-evidence waiver in `.shepherd/spec.md`, `.shepherd/standards.md`, and `.shepherd/progress.md` before planning.
-
-Survived acceptance mutations, mutation errors, hidden setup failures, missing command placeholders, or generic tests masquerading as acceptance evidence block plan sign-off unless explicitly waived.
-
-Do not invoke `plan`, present a final plan, or start implementation while acceptance-pipeline readiness is unrecorded or blocked.
-
-### 5. Plan
+### 4. Plan
 
 Invoke `plan`. Direct it to read `.shepherd/spec.md` and `.shepherd/standards.md`, then write `.shepherd/plan.md`.
 
@@ -118,7 +110,7 @@ Shepherd-specific plan constraints:
 
 If `plan` returns `USER DECISION REQUIRED`, stop and present the decision. If it returns `READY`, present `.shepherd/plan.md` for final sign-off.
 
-### 6. Setup Close
+### 5. Setup Close
 
 Record setup completion, role-owned acceptance/mutation state, and architecture decisions in `.shepherd/progress.md`. Then execute autonomously.
 

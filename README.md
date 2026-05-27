@@ -99,7 +99,7 @@ npx skills@latest add vadimcomanescu/agents-skills -g -y -a claude-code codex ge
 | Skill | What it does |
 |---|---|
 | [`creating-skills`](skills/creating-skills/SKILL.md) | Creates, edits, evaluates, and optimizes agent skills. Merges Anthropic's and OpenAI Codex's `skill-creator` skills, with eval pipeline, description optimization, and graphviz dot conventions. |
-| [`shepherd`](skills/shepherd/SKILL.md) | Orchestrates end-to-end autonomous builds across gated spec, standards, acceptance-pipeline readiness, planning, implementation, refactor, architect hardening, and implementer repair cycles. It keeps normal acceptance pipeline work with implementers and mutation hardening with architects. |
+| [`shepherd`](skills/shepherd/SKILL.md) | Orchestrates end-to-end autonomous builds across gated intent, spec, standards, planning, implementation, refactor, architect hardening, and implementer repair cycles. It keeps normal acceptance pipeline work with implementers and mutation hardening with architects. |
 | [`tdd-mutation`](skills/tdd-mutation/SKILL.md) | Iron Law test-first implementation plus mutation-backed verification. Vertical slices, behavior-first tests, and no new surviving mutants. |
 | [`systematic-debugging`](skills/systematic-debugging/SKILL.md) | Phase 1 reproduce, Phase 2 root cause, Phase 3 fix + verify. No symptom patches. |
 | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) | Forbids "done"/"fixed"/"passing" claims without verification output. |

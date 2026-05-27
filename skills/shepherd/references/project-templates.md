@@ -1,6 +1,7 @@
 # Project File Templates
 
-Templates for `.shepherd/` project files. Customize to your project's tech stack and patterns.
+Templates for `.shepherd/` project files. Customize them from repo truth; do
+not keep placeholder rules that are not real for the target project.
 
 The `spec.md` template lives in `skills/spec/SKILL.md` (single canonical source).
 The `plan.md` template lives in `skills/plan/SKILL.md` (single canonical source).
@@ -11,52 +12,41 @@ The templates below cover the artifacts that have no backing skill.
 ```markdown
 # Project Standards
 
-These standards define the quality bar. Every line of code must meet them.
-Subagents: read this file before writing any code.
+Project rules, role-owned commands, and accepted waivers for this Shepherd run.
+Subagents read this before editing.
 
 ## Code Quality
 
-Write code that a senior staff engineer would be proud of. Not "good enough" — exceptional.
-
-- Names reveal intent. If you need a comment to explain what something does, rename it.
-- Functions do one thing. If you're describing what a function does with "and", split it.
-- Error handling is explicit. No swallowed errors, no empty catch blocks.
-- No type safety escape hatches (`as any`, `@ts-ignore`, `@ts-expect-error`).
+- [Project-specific rules discovered from repo docs and relevant skills]
 
 ## Testing
 
-- Write tests first (TDD). Test describes behavior, not implementation.
-- Every public API has tests. Every error path has tests.
-- Tests are independent — no shared mutable state, no order dependence.
-- Assertions are specific. `toBe(expected)` not `toBeTruthy()`.
+- Unit test command: [command]
+- Normal verification command: [command]
+- Lint/type command: [command or "not configured"]
 - Generated acceptance tests are separate from unit tests and do not replace TDD unit coverage.
 
-## Acceptance Specs
+## Normal Acceptance (Implementer)
 
-- Parser command: [command or "to be created in Acceptance Pipeline Setup" or "USER-APPROVED WAIVER: reason/date"]
+- Parser command: [command or "implementer task required" or "USER-APPROVED WAIVER: reason/date"]
 - Structured IR path: [path]
-- Generator command: [command or "to be created in Acceptance Pipeline Setup" or "USER-APPROVED WAIVER: reason/date"]
+- Generator command: [command or "implementer task required" or "USER-APPROVED WAIVER: reason/date"]
 - Generated acceptance-test location: [path]
-- Runner command: [command or "to be created in Acceptance Pipeline Setup" or "USER-APPROVED WAIVER: reason/date"]
-- Normal acceptance command: [command or "to be created in Acceptance Pipeline Setup" or "USER-APPROVED WAIVER: reason/date"]
-- Acceptance-spec mutation command: [command or "to be created in Acceptance Pipeline Setup" or "USER-APPROVED WAIVER: reason/date"]
-- Acceptance mutation report location: [path]
+- Runtime/step handler location: [path]
+- Normal acceptance command: [command or "implementer task required" or "USER-APPROVED WAIVER: reason/date"]
+
+## Mutation Hardening (Architect)
+
+- Mutation runner adapter command: [command or "architect task required" or "USER-APPROVED WAIVER: reason/date"]
+- Acceptance-spec mutation command: [command or "architect task required" or "USER-APPROVED WAIVER: reason/date"]
+- Acceptance-spec mutation report location: [path]
 - Timeout/status expectation: [how long-running mutation reports progress]
 - Source-code mutation command: [command or "not configured for this project" or "USER-APPROVED WAIVER: reason/date"]
 - Accepted limitations: [none or explicit signed-off gaps]
 
 ## Architecture
 
-- Dependencies flow inward. Core logic never imports from infrastructure.
-- Interfaces at boundaries. Concrete implementations behind abstractions at system edges.
-- No premature abstraction. Three concrete uses before extracting a pattern.
-- Configuration is explicit. No magic strings, no implicit defaults.
-
-## Git
-
-- Each commit is a single logical change that compiles and passes tests.
-- Commit messages explain WHY, not WHAT. The diff shows what changed.
-- No merge commits in feature work. Rebase onto main.
+- [Project-specific boundary, dependency, and adapter rules]
 ```
 
 ## progress.md
@@ -70,16 +60,18 @@ Write code that a senior staff engineer would be proud of. Not "good enough" —
 **Current task:** [name or "between tasks"]
 **Last action:** [what just happened]
 
-## Acceptance Pipeline Setup
+## Acceptance And Mutation Evidence
 
 | Item | Status | Evidence |
 |------|--------|----------|
 | Executable behavior examples | pending/passed/failed/accepted limitation | [path/details] |
 | Parser / IR generation | pending/passed/failed/accepted limitation | [command + output path] |
 | Generator / generated tests | pending/passed/failed/accepted limitation | [command + output path] |
-| Runner adapter | pending/passed/failed/accepted limitation | [command + output path] |
+| Runtime / step handlers | pending/passed/failed/accepted limitation | [path/details] |
 | Normal acceptance | pending/passed/failed/accepted limitation | [command + output path] |
-| Acceptance mutation | pending/passed/failed/accepted limitation | [command + report path] |
+| Mutation runner adapter | pending/passed/failed/accepted limitation | [command + output path] |
+| Acceptance-spec mutation | pending/passed/failed/accepted limitation | [command + report path] |
+| Source-code mutation | pending/passed/failed/not configured/accepted limitation | [command + report path] |
 
 ### Latest Acceptance Mutation Result
 
@@ -92,7 +84,7 @@ Write code that a senior staff engineer would be proud of. Not "good enough" —
 - Errors: [N]
 - Survivor paths: [list]
 - Error details: [text]
-- Decision: proceed / fix spec / fix binding / fix implementation / accepted limitation
+- Decision: proceed / fix spec / fix binding / fix implementation / fix pipeline / accepted limitation
 
 ## Completed Milestones
 

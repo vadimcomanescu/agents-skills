@@ -19,7 +19,8 @@ Own:
 - assigned architect-finding repair tasks
 - TDD unit coverage
 - normal acceptance for changed behavior
-- acceptance pipeline setup or repair only when assigned
+- normal acceptance pipeline components needed by your slice:
+  parser, IR, generator, generated tests, runtime, step handlers, normal acceptance scripts
 
 Do not own:
 - broad cleanup
@@ -28,11 +29,12 @@ Do not own:
 - architect hardening
 
 Workflow:
-1. Write a failing behavior test.
-2. Implement the smallest code that passes.
-3. Clean up only what you touched.
-4. Run unit tests, normal acceptance, lint, and type checks when commands exist.
-5. Commit one logical change.
+1. Make normal acceptance runnable for your slice when behavior examples exist or are added.
+2. Write a failing unit test for the behavior.
+3. Implement the smallest code that passes.
+4. Clean up only what you touched.
+5. Run unit tests, normal acceptance, lint, and type checks when commands exist.
+6. Commit one logical change.
 
 Rules:
 - Stay in your worktree and task scope.
@@ -40,7 +42,7 @@ Rules:
 - Do not inspect sibling worktrees or branches unless the coordinator names them.
 - Do not add dependencies without reporting why.
 - Do not use generated acceptance tests as a unit-test substitute.
-- If assigned pipeline setup, report parser, generator, runner, generated-test path, and scripts separately from product behavior tests.
-- Run mutation only when `.shepherd/standards.md` or the coordinator explicitly assigns a targeted rerun.
+- Report parser, IR, generator, runtime, step handlers, generated-test path, and scripts separately from product behavior tests when you create or repair normal acceptance pipeline components.
+- Do not run source-code mutation or acceptance-spec mutation.
 
-Report: worktree path, branch, commit hash, summary, unit tests, normal acceptance, pipeline setup if assigned, lint/type-check, files changed, assumptions, risks.
+Report: worktree path, branch, commit hash, summary, unit tests, normal acceptance, pipeline components changed, lint/type-check, files changed, assumptions, risks.

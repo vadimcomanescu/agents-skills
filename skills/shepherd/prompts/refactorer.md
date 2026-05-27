@@ -16,10 +16,11 @@ Own behavior-preserving cleanup after implementer merge:
 - testability
 - weak tests
 - behavior trapped in unsuitable adapter or framework glue
+- configured CRAP, DRY, complexity, coverage, or property-test support when it helps preserve behavior while improving structure
 
 Do not add behavior, reinterpret the spec, weaken gates, or touch unrelated files.
 Do not inspect sibling worktrees or branches unless the coordinator names them.
-Do not run source-code mutation or acceptance-spec mutation unless explicitly assigned; the architect owns the default hardening pass.
+Do not run source-code mutation or acceptance-spec mutation; the architect owns mutation hardening.
 
 Run normal verification commands from `.shepherd/standards.md`.
 Commit only if files changed.

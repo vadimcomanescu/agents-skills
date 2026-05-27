@@ -2,9 +2,15 @@
   "skill_name": "shepherd",
   "evals": [
     {
+      "id": "trigger-discrimination",
+      "prompt": "Check whether the Shepherd skill description triggers on long-running end-to-end delivery prompts and stays quiet on one-shot fixes or questions.",
+      "expected_output": "The description selects autonomous multi-milestone delivery prompts and does not select single-file fixes, small debugging asks, questions, or tight interactive pairing.",
+      "files": []
+    },
+    {
       "id": "source-role-surface",
       "prompt": "Inspect the current Shepherd skill and prove role ownership is clear: coordinator coordinates, implementer implements behavior slices and architect-finding repairs, refactorer refactors, architect hardens and runs mutation.",
-      "expected_output": "The Shepherd source and prompts contain the role split, architect-owned hardening/mutation, no active reviewer prompt references, and no coordinator-owned mutation language.",
+      "expected_output": "The Shepherd source and prompts contain the role split, an upfront ordered workflow spine, an explicit no-bypass phase gate, a setup evidence gate before planning, early progress tracking, architect repair verification/merge before rerun, architect-owned hardening/mutation, no active reviewer prompt references, and no coordinator-owned mutation language.",
       "files": []
     },
     {

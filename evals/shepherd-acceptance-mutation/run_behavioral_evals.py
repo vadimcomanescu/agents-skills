@@ -57,6 +57,44 @@ def read_sources() -> dict[str, str]:
     return {path: (REPO / path).read_text(encoding="utf-8") for path in paths}
 
 
+def frontmatter_description(skill: str) -> str:
+    for line in skill.splitlines():
+        if line.startswith("description: "):
+            return line.removeprefix("description: ").strip()
+    return ""
+
+
+def trigger_discrimination_eval(root: Path, sources: dict[str, str]) -> dict:
+    description = frontmatter_description(sources["skills/shepherd/SKILL.md"])
+    cases = [
+        ("trigger-end-to-end", "Build this project end-to-end and run autonomously through multiple milestones.", "TRIGGER"),
+        ("trigger-overnight", "Run this implementation overnight without human intervention.", "TRIGGER"),
+        ("trigger-build-project", "Build this project from the spec and manage it autonomously.", "TRIGGER"),
+        ("trigger-long-running", "Coordinate this long-running multi-milestone refactor.", "TRIGGER"),
+        ("trigger-implement-end-to-end", "Implement this end-to-end across the repo.", "TRIGGER"),
+        ("trigger-hours-days", "Run the delivery over the next few days with minimal human input.", "TRIGGER"),
+        ("no-trigger-single-file", "Fix this typo in one markdown file.", "NO_TRIGGER"),
+        ("no-trigger-one-shot-fix", "Fix this failing assertion in a small unit test.", "NO_TRIGGER"),
+        ("no-trigger-question", "Explain what this function does.", "NO_TRIGGER"),
+        ("no-trigger-tight-cadence", "Pair with me interactively and ask before each step.", "NO_TRIGGER"),
+    ]
+    trigger_cues = ("build this project", "end-to-end", "long-running", "multi-milestone", "overnight", "few days", "autonomously")
+    no_trigger_cues = ("typo", "small unit test", "explain", "ask before each step")
+    results = []
+    for case_id, prompt, expected in cases:
+        prompt_lower = prompt.lower()
+        actual = "NO_TRIGGER" if any(cue in prompt_lower for cue in no_trigger_cues) else "TRIGGER" if any(cue in prompt_lower for cue in trigger_cues) else "NO_TRIGGER"
+        results.append({"id": case_id, "prompt": prompt, "expected": expected, "actual": actual})
+    report = {
+        "case": "trigger-discrimination",
+        "description": description,
+        "cases": results,
+        "passed": bool(description) and all(case["expected"] == case["actual"] for case in results),
+    }
+    write(root / "trigger-discrimination.json", json.dumps(report, indent=2))
+    return report
+
+
 def source_surface_eval(root: Path, sources: dict[str, str]) -> dict:
     skill = sources["skills/shepherd/SKILL.md"]
     skill_lower = skill.lower()
@@ -69,19 +107,34 @@ def source_surface_eval(root: Path, sources: dict[str, str]) -> dict:
     readme = sources["README.md"]
 
     assertions = {
-        "coordinator does not own mutation or hardening": "coordinator" in skill_lower and "implementation, refactoring, mutation, architectural hardening" in skill_lower,
-        "implementer excludes broad mutation by default": "source mutation, acceptance-spec mutation, hardening" in skill and "Do not own:" in implementer and "source-code mutation" in implementer and "acceptance-spec mutation" in implementer,
-        "refactorer excludes mutation by default": "New behavior, source mutation, acceptance-spec mutation." in skill and "Do not run source-code mutation or acceptance-spec mutation unless explicitly assigned" in refactorer,
+        "coordinator does not own pipeline mutation or hardening": "coordinator" in skill_lower and "normal acceptance pipeline work, refactoring, mutation, architectural hardening" in skill_lower,
+        "workflow has explicit upfront phase spine": "## Gated Workflow" in skill and "SETUP" in skill and "MILESTONE LOOP" in skill and "COMPLETION" in skill,
+        "workflow has explicit no-bypass gate": "It is forbidden to jump over a phase" in skill and "artifact and validation" in skill,
+        "setup spine includes evidence before plan": "4. Setup Evidence Gate -> 5. Plan -> 6. Setup Close" in skill,
+        "setup evidence gate blocks planning": "Do not invoke `plan`, present a final plan, or start implementation while this gate is unrecorded" in skill,
+        "setup evidence gate records missing machinery": "smallest implementer-owned normal acceptance pipeline work and architect-owned mutation hardening work" in skill,
+        "progress is initialized before setup actions": "Create `.shepherd/progress.md` from `references/project-templates.md`, then invoke `interview-me`" in skill and "### 6. Setup Close" in skill and "### 6. Progress Init" not in skill,
+        "architect repair work is verified and merged before rerun": "Dispatch implementers for architect findings\" -> \"Verify and merge repair work" in skill and "verify and merge passing repair work" in skill,
+        "no obsolete duplicate role-owned quality section": "### 4. Role-Owned Quality Work" not in skill and "### 4. Acceptance Pipeline Readiness" not in skill,
+        "implementer owns normal acceptance pipeline components": "normal acceptance pipeline components" in implementer and "parser, IR, generator, generated tests, runtime, step handlers, normal acceptance scripts" in implementer,
+        "implementer excludes broad mutation by default": "source mutation, acceptance-spec mutation, hardening" in skill and "Do not own:" in implementer and "Do not run source-code mutation or acceptance-spec mutation." in implementer,
+        "implementer has no mutation backdoor": "Run mutation only when" not in implementer,
+        "refactorer excludes mutation by default": "New behavior, source mutation, acceptance-spec mutation." in skill and "Do not run source-code mutation or acceptance-spec mutation; the architect owns mutation hardening." in refactorer,
+        "refactorer owns structure cleanup not mutation": "configured CRAP, DRY, complexity, coverage, or property-test support" in refactorer and "architect owns mutation hardening" in refactorer,
         "architect owns source mutation": "source-code mutation" in architect and "source-code mutation" in skill,
         "architect owns acceptance mutation": "acceptance-spec mutation" in architect and "acceptance-spec mutation" in skill,
+        "architect owns mutation runner adapter": "mutation runner adapter readiness" in architect and "mutation runner adapter" in acceptance,
         "architect owns hardening verdict": "final verdict" in architect and "architect hardening" in skill_lower,
         "architect rejection dispatches implementers": "Dispatch implementers for architect findings" in skill,
         "implementer owns architect-finding repair": "assigned architect-finding repair tasks" in implementer and "When dispatched for an architect finding" in implementer,
         "only active role prompt files remain": sorted(path.name for path in (REPO / "skills/shepherd/prompts").glob("*.md")) == ["architect.md", "implementer.md", "refactorer.md"],
-        "acceptance pipeline setup exists before plan": "### 4. Acceptance Pipeline Readiness" in skill and "### 5. Plan" in skill,
-        "acceptance setup routes missing pipeline out of implementer planning": "Missing pipeline: create or assign the smallest setup needed now." in skill,
+        "plan assigns normal acceptance to implementers": "assign normal acceptance pipeline work to implementers" in skill,
+        "plan assigns mutation hardening to architects": "mutation hardening to architects" in skill,
         "templates record architect hardening": "Architect hardening" in templates and "Architect Feedback" in templates,
-        "reference names architect hardening gate": "Architect Hardening Gate" in acceptance,
+        "templates use role owned acceptance sections": "## Normal Acceptance (Implementer)" in templates and "## Mutation Hardening (Architect)" in templates,
+        "reference is mechanics not phase gates": "## Normal Acceptance" in acceptance and "## Acceptance-Spec Mutation" in acceptance and "Phase 1 Setup Gate" not in acceptance and "Planning Gate" not in acceptance,
+        "reference does not duplicate role ownership": "Implementers own" not in acceptance and "Architects own" not in acceptance,
+        "reference keeps APS result terms": "`killed`" in acceptance and "`survived`" in acceptance and "`error`" in acceptance,
         "AGENTS requires live hardening playground": "implementer/refactorer/architect repair or hardening behavior" in agents,
         "README describes architect hardening": "architect hardening" in readme,
         "no active reviewer prompt reference": "prompts/reviewer.md" not in skill + architect + implementer + refactorer + acceptance + templates + agents + readme,
@@ -381,6 +434,7 @@ def main() -> int:
     root.mkdir(parents=True, exist_ok=True)
     sources = read_sources()
     cases = [
+        trigger_discrimination_eval(root, sources),
         source_surface_eval(root, sources),
         fixture_eval(root, "eval-2-acceptance-pipeline-killed", "killed", "killed", {"source_total": 1, "source_survived": 0, "acceptance_total": 1, "acceptance_survived": 0, "acceptance_errors": 0, "blocks": False}),
         fixture_eval(root, "eval-3-acceptance-survivor-blocks", "survived", "killed", {"source_total": 1, "source_survived": 0, "acceptance_total": 1, "acceptance_survived": 1, "acceptance_errors": 0, "blocks": True}),

@@ -10,7 +10,7 @@
     {
       "id": "source-role-surface",
       "prompt": "Inspect the current Shepherd skill and prove role ownership is clear: coordinator coordinates, implementer implements behavior slices and architect-finding repairs, refactorer refactors, architect hardens and runs mutation.",
-      "expected_output": "The Shepherd source and prompts contain the role split, an upfront ordered workflow spine, an explicit no-bypass phase gate, a setup evidence gate before planning, early progress tracking, architect repair verification/merge before rerun, architect-owned hardening/mutation, no active reviewer prompt references, and no coordinator-owned mutation language.",
+      "expected_output": "The Shepherd source and prompts contain the role split, an upfront ordered workflow spine, an explicit no-bypass phase gate, acceptance-pipeline readiness before planning, early progress tracking, architect repair verification/merge before rerun, architect-owned hardening/mutation, no active reviewer prompt references, and no coordinator-owned mutation language.",
       "files": []
     },
     {

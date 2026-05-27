@@ -14,7 +14,7 @@ waiver in `.shepherd/progress.md` before moving on.
 
 ```text
 SETUP
-  1. Intent -> 2. Behavior Contract -> 3. Standards -> 4. Setup Evidence Gate -> 5. Plan -> 6. Setup Close
+  1. Intent -> 2. Behavior Contract -> 3. Standards -> 4. Acceptance Pipeline Readiness -> 5. Plan -> 6. Setup Close
 MILESTONE LOOP
   Implementers -> verify/merge -> refactorer -> architect -> repair loop if needed
 COMPLETION
@@ -85,17 +85,25 @@ Create `.shepherd/standards.md` from repo truth. Treat it as the project constit
 3. Record project-specific verification commands and quality rules.
 4. Map role-owned acceptance/source mutation commands: normal acceptance pipeline for implementers; mutation hardening, runner adapter, reports, timeouts, and waivers for architects.
 
-### 4. Setup Evidence Gate
+### 4. Acceptance Pipeline Readiness
 
-Before planning implementation, prove or explicitly waive the evidence path for behavior-changing work. This gate exists so Shepherd cannot plan around untested wishes.
+For behavior-changing work, prove or create the smallest executable acceptance pipeline before planning feature implementation. This gate exists so Shepherd cannot jump from spec text to code without knowing how approved behavior will be checked.
 
-1. Confirm `.shepherd/spec.md` has behavior-relevant examples or an explicit reason examples are impossible.
-2. If the repo already has executable acceptance machinery, run enough of it to prove parser/IR, generator, runtime or step handlers, normal acceptance, mutation runner adapter, and report paths are real.
-3. If the machinery is missing, record the smallest implementer-owned normal acceptance pipeline work and architect-owned mutation hardening work that must appear in `.shepherd/plan.md`.
-4. Record killed/survived/error interpretation rules from `references/acceptance-mutation.md` in `.shepherd/standards.md` only when they are relevant to this run.
-5. Record the evidence, missing pieces, or explicit user-approved degraded-evidence waiver in `.shepherd/progress.md`.
+First record the readiness state:
 
-Do not invoke `plan`, present a final plan, or start implementation while this gate is unrecorded, has hidden survivors/errors, or relies on generic tests pretending to be acceptance evidence.
+1. `.shepherd/spec.md`: behavior-relevant examples, preferably executable examples, or a user-approved reason examples are impossible.
+2. `.shepherd/standards.md`: parser/IR, generator, generated test location, runtime or step handler location, normal acceptance command, mutation runner adapter, mutation command, report paths, source mutation command when configured, and waivers.
+3. `.shepherd/progress.md`: current status for examples, parser/IR, generator, runtime or step handlers, normal acceptance, mutation runner adapter, acceptance-spec mutation, source-code mutation, missing pieces, survivors/errors, and waivers.
+
+Then choose one path:
+
+- Existing pipeline: run enough to prove parser/IR, generator, runtime or step handlers, normal acceptance, mutation runner adapter, and report paths are real.
+- Missing pipeline: record `implementer task required` for normal acceptance components and `architect task required` for mutation hardening, then require `.shepherd/plan.md` to schedule that setup before feature implementation.
+- Infeasible pipeline: record the user-approved degraded-evidence waiver in `.shepherd/spec.md`, `.shepherd/standards.md`, and `.shepherd/progress.md` before planning.
+
+Survived acceptance mutations, mutation errors, hidden setup failures, missing command placeholders, or generic tests masquerading as acceptance evidence block plan sign-off unless explicitly waived.
+
+Do not invoke `plan`, present a final plan, or start implementation while acceptance-pipeline readiness is unrecorded or blocked.
 
 ### 5. Plan
 

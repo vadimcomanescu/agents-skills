@@ -14,7 +14,7 @@ waiver in `.shepherd/progress.md` before moving on.
 
 ```text
 SETUP
-  1. Intent -> 2. Behavior Contract -> 3. Standards -> 4. Plan -> 5. Setup Close
+  1. Intent -> 2. Spec -> 3. Standards -> 4. Plan -> 5. Setup Close
 MILESTONE LOOP
   Implementers -> verify/merge -> refactorer -> architect -> repair loop if needed
 COMPLETION
@@ -54,7 +54,7 @@ Every setup step has a concrete artifact. Do not advance by intent or chat summa
 | Step | Required Artifact | Gate |
 |---|---|---|
 | Intent | `.shepherd/spec.md` has `## Confirmed Intent`. | User-confirmed intent is recorded. |
-| Behavior Contract | `.shepherd/spec.md` is completed by the `spec` skill. | User signs off the completed behavior contract. |
+| Spec | `.shepherd/spec.md` is completed by the `spec` skill. | User signs off the completed spec. |
 | Standards | `.shepherd/standards.md` exists. | Repo commands, constraints, relevant skill rules, and waivers are recorded. |
 | Plan | `.shepherd/plan.md` exists. | `plan` returns `READY` and the user signs off the plan. |
 | Setup Close | `.shepherd/progress.md` records setup completion. | Autonomous milestone execution may start. |
@@ -74,7 +74,7 @@ Every setup step has a concrete artifact. Do not advance by intent or chat summa
 
 Create `.shepherd/progress.md` from `references/project-templates.md`, then invoke `interview-me`. Write the confirmed intent into `.shepherd/spec.md` under `## Confirmed Intent` and record setup start in progress.
 
-### 2. Behavior Contract
+### 2. Spec
 
 Invoke `spec`. Direct it to use `.shepherd/spec.md` as locked input and complete the spec there.
 

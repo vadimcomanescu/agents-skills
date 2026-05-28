@@ -43,7 +43,7 @@ Do not use Shepherd for one-shot fixes, single-file edits, short debugging sessi
 |---|---|
 | `.shepherd/spec.md` | Canonical product intent, user-visible behavior, acceptance criteria, examples, and accepted exceptions. |
 | `.shepherd/verification.md` | Generated verification plan/report keyed by AC IDs in `spec.md`; records proof modality, required artifacts, QA result, evidence paths, verified revision, evidence state, and waivers. It must not redefine acceptance criteria. |
-| `.shepherd/standards.md` | Project rules, relevant skill rules, verification commands, constraints, and waivers. |
+| `.shepherd/standards.md` | Project rules, relevant skill guidance, verification commands, constraints, and waivers. |
 | `.shepherd/plan.md` | Reviewed implementation plan from the `plan` skill. |
 | `.shepherd/progress.md` | Current milestone, commits, evidence, decisions, architecture state, blockers, waivers. |
 
@@ -70,7 +70,7 @@ Every setup step has a concrete artifact. Do not advance by intent or chat summa
 | Spec Review | Spec Review output and review HTML exist. | Every behavior-changing AC is measurable, provable, owned, stale-evidence aware, and bounded against extra behavior. |
 | Spec Approval | Full spec review artifact is presented. | Human approval happens after rewrites and assumptions are visible; reviewer rewrites are not silently accepted. |
 | Verification Plan | `.shepherd/verification.md` exists. | Rows reference AC IDs from the approved spec, do not redefine AC behavior, and pass `validate_verification.py --allow-pending`. |
-| Standards | `.shepherd/standards.md` exists. | Repo commands, constraints, relevant skill rules, and waivers are recorded. |
+| Standards | `.shepherd/standards.md` exists. | Repo commands, constraints, relevant skill guidance, verification rules, and waivers are recorded. |
 | Plan | `.shepherd/plan.md` exists. | `plan` returns `READY` and the user signs off the plan. |
 | Setup Close | `.shepherd/progress.md` records setup completion. | Autonomous milestone execution may start. |
 
@@ -123,16 +123,18 @@ python3 skills/shepherd/scripts/validate_verification.py --allow-pending .shephe
 
 ### 6. Standards
 
-Create `.shepherd/standards.md` from repo truth. Treat it as the project constitution for this run: exact commands, constraints, role ownership, and waivers.
+Create `.shepherd/standards.md` from repo truth and relevant skill truth. Treat it as the project constitution for this run: exact commands, constraints, applicable technology guidance, verification expectations, and waivers.
 
 1. Inspect the repo directly for small codebases; dispatch exploration agents for large or unfamiliar ones.
-2. Inspect available skills and read only the relevant ones. Carry forward project-specific rules, not skill summaries.
-3. Record project-specific verification commands and quality rules.
-4. Record only commands that already exist in the repo or are required by the relevant skill. Do not invent verification infrastructure or command placeholders.
+2. Inspect available skills and read only those relevant to the run's stack, libraries, architecture, delivery surface, and verification needs.
+3. Extract project-applicable best practices and architectural patterns from those skills. Record guidance that can change planning or execution: chosen patterns, prohibited patterns, module boundaries, data flow, API/client/server ownership, verification expectations, and required evidence.
+4. When a skill points to current library, framework, SDK, or cloud-service documentation, verify the current docs before recording that guidance.
+5. Record project-specific verification commands and quality rules.
+6. Record only commands that already exist in the repo or are required by the relevant skill. Do not invent verification infrastructure or command placeholders.
 
 ### 7. Plan
 
-Invoke `plan`. Direct it to read `.shepherd/spec.md`, `.shepherd/verification.md`, and `.shepherd/standards.md`, then write `.shepherd/plan.md`.
+Invoke `plan`. Direct it to read `.shepherd/spec.md`, `.shepherd/verification.md`, and `.shepherd/standards.md`, then write `.shepherd/plan.md`. The plan must apply the applicable guidance in `.shepherd/standards.md` to architecture choices, task boundaries, task order, and verification.
 
 Shepherd-specific plan constraints:
 

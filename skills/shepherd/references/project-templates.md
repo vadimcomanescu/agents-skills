@@ -12,12 +12,22 @@ The templates below cover the artifacts that have no backing skill.
 ```markdown
 # Project Standards
 
-Project rules, role-owned commands, and accepted waivers for this Shepherd run.
-Subagents read this before editing.
+Project rules, relevant skill guidance, verification commands, and accepted
+waivers for this Shepherd run. The planner and subagents read this before
+choosing task architecture or editing.
 
 ## Code Quality
 
 - [Project-specific rules discovered from repo docs and relevant skills]
+
+## Relevant Skill Guidance
+
+- Relevant skills studied: [skill names]
+- Current external docs checked: [library/API docs or "not applicable"]
+- Applicable patterns: [project-applicable best practices or architectural patterns]
+- Patterns to avoid: [anti-patterns, deprecated approaches, or repo-specific prohibitions]
+- Ownership boundaries: [client/server/API/module/data-flow ownership]
+- Planning implications: [how these rules change task order, task boundaries, or verification]
 
 ## Testing
 

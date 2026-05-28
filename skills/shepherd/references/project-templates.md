@@ -25,7 +25,7 @@ Subagents read this before editing.
 - Integration/e2e command: [command or "not configured"]
 - Lint/type command: [command or "not configured"]
 - Hardening command: [command or "not configured"]
-- Integration/e2e checks do not replace TDD unit coverage.
+- Behavior-changing implementation follows `tdd-mutation`; integration/e2e checks supplement it.
 - Accepted limitations: [none or explicit signed-off gaps]
 
 ## Architecture
@@ -52,6 +52,8 @@ Subagents read this before editing.
 | Integration/e2e checks | pending/passed/failed/not configured/accepted limitation | [command + output path] |
 | Lint/type checks | pending/passed/failed/not configured/accepted limitation | [command + output path] |
 | Hardening checks | pending/passed/failed/not configured/accepted limitation | [command + output path] |
+| QA | pending/passed/failed/waived | [QA report path + AC IDs] |
+| Verification report | pending/fresh/stale | [verification report path + script output] |
 
 ## Completed Milestones
 
@@ -73,6 +75,7 @@ Subagents read this before editing.
 | Implementer verification | pending/passed/failed/accepted limitation | [unit/integration/lint/type results] |
 | Refactorer pass | pending/passed/failed/not applicable | [worktree/branch/commit or no commit] |
 | Architect hardening | pending/approved/request changes/accepted limitation | [worktree/branch/commit, hardening output, verdict] |
+| QA | pending/approved/request changes/waived | [QA report, AC IDs, evidence paths] |
 
 ### Architect Feedback
 [Latest architect findings, if in repair cycle]
@@ -98,4 +101,22 @@ Subagents read this before editing.
 
 ### Known Issues
 - [Issue]: [severity, plan to address]
+```
+
+## verification.md
+
+```markdown
+# Verification Report
+
+This generated report is derived from AC IDs in `.shepherd/spec.md`. It records how each AC will be proved and what evidence currently supports it. It must not redefine acceptance criteria or invent behavior beyond the approved spec.
+
+| AC | Proof modality | Required artifacts | Milestone | QA result | Evidence | Verified revision | Evidence state | Waiver |
+|---|---|---|---|---|---|---|---|---|
+| AC-001 | [unit/browser screenshot/multi-step browser replay/API-state/manual/waiver] | [artifact types] | [milestone] | pending | pending | pending | pending | none |
+
+## Evidence Freshness
+
+- Latest behavior-relevant commit or worktree fingerprint: pending
+- Evidence captured after latest behavior change: no
+- Stale evidence requiring rerun: all ACs pending implementation
 ```

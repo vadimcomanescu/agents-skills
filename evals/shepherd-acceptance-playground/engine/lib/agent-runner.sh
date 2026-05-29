@@ -64,7 +64,7 @@ load_agent_config() {
   if [ "$agent" = "codex" ]; then
     default_model=$(_agent_cfg_get "codexModel" "gpt-5.5")
   else
-    default_model=$(_agent_cfg_get "claudeModel" "claude-opus-4.8")
+    default_model=$(_agent_cfg_get "claudeModel" "claude-opus-4-8")
   fi
 
   local model="$default_model"
@@ -108,7 +108,7 @@ agent_invoke() {
         "$prompt"
     fi
   else
-    timeout "$timeout_s" claude -p --dangerously-skip-permissions --model "${model:-claude-opus-4.8}" \
+    timeout "$timeout_s" claude -p --dangerously-skip-permissions --model "${model:-claude-opus-4-8}" \
       "$prompt"
   fi
 }

@@ -5,17 +5,9 @@
   "budget_usd": 0.0,
   "entries": [
     {
-      "timestamp": "2026-05-29T15:21:05.294141",
+      "timestamp": "2026-05-29T15:33:38.210555",
       "phase": "architecture",
       "feature": "architecture",
-      "input_tokens": 0,
-      "output_tokens": 0,
-      "cost_usd": 0.0
-    },
-    {
-      "timestamp": "2026-05-29T15:21:10.076408",
-      "phase": "build",
-      "feature": "build_cycle_1",
       "input_tokens": 0,
       "output_tokens": 0,
       "cost_usd": 0.0

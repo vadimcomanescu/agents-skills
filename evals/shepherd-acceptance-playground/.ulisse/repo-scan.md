@@ -4,8 +4,8 @@
 - No waivers recorded.
 
 ## Stack
-- Language: javascript
-- Framework/runtime: node
+- Language: typescript
+- Framework/runtime: nextjs
 - Package manager: npm
 - Local URL: http://localhost:3055
 

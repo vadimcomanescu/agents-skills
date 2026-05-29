@@ -1,37 +1,50 @@
 [
   {
     "id": "ADR-001",
-    "title": "Add the evidence review affordance inside the existing workflow UI",
-    "decision": "Extend `app/evidence-review-workflow.tsx` with a small visible affordance that identifies the evidence review workflow state. Keep it in the current client component instead of adding a new route, shell, or architecture layer.",
+    "title": "Derive evidence review status summary from existing review state",
+    "decision": "Add the status summary inside the existing client-side evidence review workflow by deriving counts from `seededEvidenceReview.criteria`, `criterionStates`, and the current selected evidence state. Keep the summary as presentational UI in `app/evidence-review-workflow.tsx` and avoid new persistence, API routes, or duplicated verdict state.",
     "evidence": [
-      "`prd.json` requests a small UI affordance for inspecting evidence review workflow state without changing existing behavior.",
-      "`target-docs/INDEX.md` identifies the existing source roots as `app` and `lib` and requires preserving the current architecture unless the PRD requires change.",
-      "`BUILD_GUIDE.md` lists `app` and `lib` as source roots and points verification at the existing make targets.",
-      "`app/page.tsx` already renders `EvidenceReviewWorkflow` after the quote workflow.",
-      "`app/evidence-review-workflow.tsx` already owns the review workflow open state, computed final verdict, and workflow mode UI."
+      "`prd.json` requests a compact status summary that updates when a criterion verdict or selected evidence changes.",
+      "`app/evidence-review-workflow.tsx` already owns `criterionStates` with React state and recalculates `verdict` from those states.",
+      "`lib/evidence-review.ts` already defines required criteria, criterion verdict states, selected evidence IDs, and `calculateReviewVerdict`.",
+      "`target-docs/INDEX.md` lists source roots as `app` and `lib`, integrations as none discovered, and persistence/auth as unknown.",
+      "`BUILD_GUIDE.md` says to preserve existing files and use the current Next.js app roots."
     ],
-    "impact": "The build work should be limited to the existing evidence review UI and related browser assertion. No routing, persistence, API, or new shared domain boundary is needed."
+    "impact": [
+      "The summary will update naturally through React state changes without a second source of truth.",
+      "Implementation remains local to the existing workflow component unless tests need helper extraction.",
+      "Tests can assert the visible counts and state JSON through existing component/browser coverage."
+    ]
   },
   {
     "id": "ADR-002",
-    "title": "Derive the affordance from existing review state",
-    "decision": "Use the existing computed verdict, workflow mode, and seeded review metadata as the affordance source of truth. Do not introduce parallel state or duplicate review calculation logic.",
+    "title": "Render blocker callout from existing verdict reasons",
+    "decision": "Add the blocker callout next to the current final verdict UI and drive its content from the existing `verdict.status` and `verdict.reasons`. When the status is blocked or rejected, list the concrete reasons. When accepted, render a stable accepted-state message from the accepted verdict reason.",
     "evidence": [
-      "`lib/evidence-review.ts` defines the review verdict states and `calculateReviewVerdict` behavior.",
-      "`app/evidence-review-workflow.tsx` already computes `verdict` from `seededEvidenceReview.criteria` and `criterionStates`.",
-      "`app/evidence-review-workflow.tsx` already exposes `workflowMode` and renders the current mode in the workflow controls."
+      "`prd.json` requests visible blocked/rejected reasons in a stable, testable callout and an accepted-state message after all required review criteria pass with selected evidence.",
+      "`lib/evidence-review.ts` already returns `status`, `reasons`, `failedCriterionIds`, `missingCriterionIds`, and `missingEvidenceCriterionIds` from `calculateReviewVerdict`.",
+      "`app/evidence-review-workflow.tsx` already renders a `final-verdict` section from the same verdict object.",
+      "`target-docs/INDEX.md` says to preserve current architecture unless the PRD requires change."
     ],
-    "impact": "The affordance remains behavior-preserving because it displays already-computed state. Existing quote and evidence behavior should continue to pass unchanged."
+    "impact": [
+      "No new verdict computation is needed for the callout.",
+      "The callout can use stable `data-testid` attributes for browser and unit-level assertions.",
+      "Accepted, blocked, and rejected states stay aligned with existing domain logic."
+    ]
   },
   {
     "id": "ADR-003",
-    "title": "Verify through the existing Node and browser checks",
-    "decision": "Add or update focused browser coverage for the new visible affordance and run the existing make targets, especially `make check` and `make test-e2e`.",
+    "title": "Build summary before blocker callout",
+    "decision": "Implement `evidence-review-status-summary` first, then `evidence-review-blocker-callout`, because the PRD declares the callout dependent on the summary and both features share the same visible review state.",
     "evidence": [
-      "`BUILD_GUIDE.md` maps `check` and `test` to `npm test` and `test-e2e` to `npm run test:browser`.",
-      "`Makefile` already exposes `check`, `test`, `test-e2e`, `build`, and `dev` targets.",
-      "`tests/acceptance.spec.ts` already opens the review workflow and asserts evidence workflow UI behavior."
+      "`prd.json` marks `evidence-review-blocker-callout` as dependent on `evidence-review-status-summary`.",
+      "`build-spec.md` already lists both features in that order.",
+      "The current workflow state in `app/evidence-review-workflow.tsx` supports both features from the same `criterionStates` and `verdict` values."
     ],
-    "impact": "Verification stays aligned with the repository's existing test surface and proves the affordance did not break quote or evidence workflows."
+    "impact": [
+      "The build can add shared derived review status data once and use it for both UI additions.",
+      "Verification should cover the initial blocked state, a changed criterion state, and the accepted state after all required criteria pass with evidence.",
+      "The implementation remains compatible with the existing `make check`, `make test`, `make build`, and `make test-e2e` targets."
+    ]
   }
 ]

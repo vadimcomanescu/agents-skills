@@ -1,12 +1,1 @@
-{
-  "failures": [
-    {
-      "timestamp": "2026-05-29T15:21:10.518698",
-      "phase": "build",
-      "feature": "build_cycle_1",
-      "exit_code": 1,
-      "category": "unknown",
-      "attempt": 1
-    }
-  ]
-}
+{"failures": []}

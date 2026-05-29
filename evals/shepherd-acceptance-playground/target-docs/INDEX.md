@@ -1,7 +1,7 @@
 # Target Architecture Index
 
 ## Existing Architecture
-Framework/runtime: node. Source roots: app, lib.
+Framework/runtime: nextjs. Source roots: app, lib.
 
 ## Source Roots
 - app

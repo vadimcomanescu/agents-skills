@@ -74,7 +74,7 @@ rewrite_browser_prompt() {
 
 # Stack-specific QA hints injected into the Codex prompt. Non-JS stacks skip axe-core.
 case "$STACK_PROFILE" in
-  typescript-nextjs)
+  nextjs|typescript-nextjs)
     ENDPOINT_DISCOVERY='find src/app/api -name "route.ts" | sort'
     A11Y_APPLICABLE="yes"
     ;;
@@ -186,13 +186,14 @@ if [ "$A11Y_APPLICABLE" = "yes" ] && [ -f "package.json" ]; then
 fi
 
 # Start browser agent session for QA
+BROWSER_TARGET_URL="${TARGET_URL:-http://localhost:3015}"
 if [ "$BROWSER_AGENT" = "agent-browser" ]; then
   export AGENT_BROWSER_PROFILE="${ULISSE_CHROME_PROFILE:-Default}"
   export AGENT_BROWSER_HEADED=1
-  agent-browser open http://localhost:3015
+  agent-browser open "$BROWSER_TARGET_URL"
   echo "agent-browser session started for QA (profile=$AGENT_BROWSER_PROFILE)."
 elif [ "$BROWSER_AGENT" = "ever" ]; then
-  ever start --url http://localhost:3015
+  ever start --url "$BROWSER_TARGET_URL"
   echo "Ever CLI session started for QA."
 fi
 echo ""

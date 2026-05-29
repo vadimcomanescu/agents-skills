@@ -1,7 +1,7 @@
 # Build Guide
 
 ## Stack
-- Framework/runtime: node
+- Framework/runtime: nextjs
 - Package manager: npm
 - Local dev URL: http://localhost:3055
 

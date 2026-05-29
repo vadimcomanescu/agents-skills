@@ -11,7 +11,8 @@
   "testing": "Vitest for library behavior and Playwright for browser acceptance.",
   "boundaries": [
     "Do not rewrite the existing app structure.",
-    "Do not remove current evidence workflow tests.",
-    "Do not deploy."
+    "Do not remove current quote, evidence, dossier, import, handoff, or browser acceptance tests.",
+    "Do not deploy.",
+    "Do not introduce external services."
   ]
 }

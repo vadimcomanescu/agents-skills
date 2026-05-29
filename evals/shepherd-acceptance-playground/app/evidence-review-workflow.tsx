@@ -661,6 +661,42 @@ export default function EvidenceReviewWorkflow() {
           </section>
 
           <section
+            className={`blocker-callout blocker-callout-${verdict.status}`}
+            data-testid="blocker-callout"
+            aria-label="Review acceptance blockers"
+            aria-live="polite"
+          >
+            <div className="section-heading">
+              <div>
+                <div className="eyebrow">Acceptance blockers</div>
+                <h2 data-testid="blocker-callout-heading">
+                  {verdict.status === "accepted" ? "Ready to accept" : "Cannot accept yet"}
+                </h2>
+              </div>
+              <strong data-testid="blocker-callout-status">{displayVerdict(verdict.status)}</strong>
+            </div>
+
+            {verdict.status === "accepted" ? (
+              <p className="blocker-callout-message" data-testid="blocker-callout-accepted" role="status">
+                {verdict.reasons[0] ?? "Every required criterion passed with selected evidence."}
+              </p>
+            ) : (
+              <>
+                <p className="blocker-callout-message" data-testid="blocker-callout-reason-count">
+                  {verdict.reasons.length} {verdict.reasons.length === 1 ? "reason" : "reasons"} blocking acceptance
+                </p>
+                <ul className="blocker-callout-reasons">
+                  {verdict.reasons.map((reason) => (
+                    <li key={reason} data-testid="blocker-callout-reason">
+                      {reason}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </section>
+
+          <section
             className="status-summary"
             data-testid="status-summary"
             aria-label="Required criteria status summary"

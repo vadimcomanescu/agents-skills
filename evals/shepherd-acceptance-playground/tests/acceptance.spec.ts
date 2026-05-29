@@ -4977,3 +4977,72 @@ test("evidence review status summary should derive required-criteria counts and 
     fullPage: true
   });
 });
+
+test("evidence review blocker callout should list verdict reasons while blocked or rejected and flip to the accepted message", async ({
+  page
+}, testInfo) => {
+  await page.goto("/");
+
+  // The callout is only part of the open workflow surface.
+  await expect(page.getByTestId("blocker-callout")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Open review workflow" }).click();
+  const callout = page.getByTestId("blocker-callout");
+  await expect(callout).toBeVisible();
+  await expect(callout).toHaveAttribute("aria-live", "polite");
+
+  // Initial state: blocked, one reason per required criterion lacking a verdict.
+  await expect(page.getByTestId("blocker-callout-status")).toHaveText("Blocked");
+  await expect(page.getByTestId("blocker-callout-heading")).toHaveText("Cannot accept yet");
+  await expect(page.getByTestId("blocker-callout-accepted")).toHaveCount(0);
+  await expect(page.getByTestId("blocker-callout-reason")).toHaveText([
+    "Payment confirmation has no criterion verdict.",
+    "Order summary has no criterion verdict.",
+    "Recovery path has no criterion verdict."
+  ]);
+  await expect(page.getByTestId("blocker-callout-reason-count")).toHaveText("3 reasons blocking acceptance");
+  await page.screenshot({
+    path: testInfo.outputPath("blocker-callout-01-blocked.png"),
+    fullPage: true
+  });
+
+  // Marking a required criterion FAIL moves the verdict to rejected and surfaces the FAIL reason.
+  await page.getByRole("button", { name: "Mark Payment confirmation FAIL" }).click();
+  await expect(page.getByTestId("blocker-callout-status")).toHaveText("Rejected");
+  await expect(page.getByTestId("blocker-callout-heading")).toHaveText("Cannot accept yet");
+  await expect(page.getByTestId("blocker-callout-reason")).toHaveText(["Payment confirmation is marked FAIL."]);
+  await expect(page.getByTestId("blocker-callout-reason-count")).toHaveText("1 reason blocking acceptance");
+  await expect(page.getByTestId("blocker-callout-accepted")).toHaveCount(0);
+  await page.screenshot({
+    path: testInfo.outputPath("blocker-callout-02-rejected.png"),
+    fullPage: true
+  });
+
+  // Marking that criterion PASS without evidence keeps the review blocked on a missing-evidence reason.
+  await page.getByRole("button", { name: "Mark Payment confirmation PASS" }).click();
+  await expect(page.getByTestId("blocker-callout-status")).toHaveText("Blocked");
+  await expect(page.getByTestId("blocker-callout-reason")).toHaveText([
+    "Payment confirmation is marked PASS but has no selected evidence.",
+    "Order summary has no criterion verdict.",
+    "Recovery path has no criterion verdict."
+  ]);
+
+  // Completing every required criterion with passing verdicts and evidence flips the callout to accepted.
+  await page.getByLabel("Evidence for Payment confirmation").selectOption("evidence-payment");
+  await page.getByRole("button", { name: "Mark Order summary PASS" }).click();
+  await page.getByLabel("Evidence for Order summary").selectOption("evidence-summary");
+  await page.getByRole("button", { name: "Mark Recovery path PASS" }).click();
+  await page.getByLabel("Evidence for Recovery path").selectOption("evidence-recovery");
+
+  await expect(page.getByTestId("blocker-callout-status")).toHaveText("Accepted");
+  await expect(page.getByTestId("blocker-callout-heading")).toHaveText("Ready to accept");
+  await expect(page.getByTestId("blocker-callout-reason")).toHaveCount(0);
+  await expect(page.getByTestId("blocker-callout-accepted")).toHaveText(
+    "Every required criterion passed with selected evidence."
+  );
+  await expect(page.getByTestId("final-verdict")).toContainText("Accepted");
+  await page.screenshot({
+    path: testInfo.outputPath("blocker-callout-03-accepted.png"),
+    fullPage: true
+  });
+});

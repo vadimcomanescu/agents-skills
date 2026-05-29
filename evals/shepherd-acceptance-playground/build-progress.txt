@@ -36,3 +36,46 @@ Notes / risk:
   failing make check or make build. Left untouched (out of scope for this feature).
 - Git push intentionally skipped (ULISSE_ALLOW_ENGINE_PUSH not set); local commit only.
 - qa_pass left false for the QA agent.
+
+## Iteration 2 — evidence-review-blocker-callout (build_pass)
+
+Feature: Add a visible blocker callout beside the final verdict that lists the concrete
+reasons the review cannot be accepted, and flips to an accepted-state message once every
+required criterion passes with selected evidence.
+
+Approach (per ADR-002 / ADR-003 / build-spec build order item 3):
+- Rendered purely from the existing calculateReviewVerdict result (verdict.status +
+  verdict.reasons). No new persistence, API routes, or duplicated verdict state — the callout
+  consumes the same single source of truth already driving the final-verdict section, so it can
+  never disagree with the computed verdict. No new lib helper was needed (the blocked/rejected/
+  accepted reason text is already covered by lib/evidence-review.test.ts via calculateReviewVerdict),
+  so I did not add padding unit tests that would only restate existing coverage.
+
+Files changed:
+- app/evidence-review-workflow.tsx: new aria-live="polite" blocker-callout section inserted
+  between the final-verdict and status-summary sections. Blocked/rejected branch renders a
+  reason count + verdict.reasons list (stable test IDs blocker-callout, -status, -heading,
+  -reason-count, -reason); accepted branch renders the accepted message (blocker-callout-accepted).
+  Heading reads "Cannot accept yet" while blocked/rejected and "Ready to accept" when accepted.
+- app/globals.css: .blocker-callout styles with status-colored left border
+  (blocked=warning, rejected=error, accepted=green), matching the existing .verdict design language.
+- tests/acceptance.spec.ts: Playwright test proving the callout is open-only, carries aria-live,
+  lists the three initial "no criterion verdict" reasons (blocked), collapses to the single FAIL
+  reason (rejected), surfaces the missing-evidence reason (blocked), and flips to the accepted
+  message with zero reason items once all criteria pass with evidence.
+
+Commands run:
+- make check / make test -> vitest 79 passed (9 files); unchanged baseline (no new lib logic).
+- make build              -> next build compiled + TypeScript check clean.
+- make test-e2e (scoped)  -> new "blocker callout" spec passed; neighbor "status summary" spec
+  passed (no regression from the inserted DOM). Ran scoped (trace+video on every test) to keep
+  the iteration bounded; the full Playwright suite was not exercised this run.
+
+Notes / risk:
+- next-env.d.ts toggles between .next/types and .next/dev/types depending on whether next dev
+  (Playwright webServer) or next build ran last; restored to HEAD and excluded from the commit
+  (the prior status-summary commit also excluded it).
+- Pre-existing repo-root modifications (agents/codex.md, scripts/codex-exec.mjs) are unrelated
+  to this feature and outside the playground; left untouched and not committed.
+- Git push intentionally skipped (ULISSE_ALLOW_ENGINE_PUSH=0); local commit only.
+- qa_pass left false for the QA agent.

@@ -408,6 +408,46 @@ h1 {
   border-left-color: var(--green);
 }
 
+.blocker-callout {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--hairline);
+  border-left-width: 6px;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fff;
+}
+
+.blocker-callout-blocked {
+  border-left-color: var(--warning);
+}
+
+.blocker-callout-rejected {
+  border-left-color: var(--error);
+}
+
+.blocker-callout-accepted {
+  border-left-color: var(--green);
+}
+
+.blocker-callout-message {
+  margin: 0;
+  color: var(--body);
+  font-weight: 700;
+}
+
+.blocker-callout-reasons {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.blocker-callout-reasons li {
+  color: var(--body);
+  line-height: 1.45;
+}
+
 .status-summary {
   display: grid;
   gap: 12px;

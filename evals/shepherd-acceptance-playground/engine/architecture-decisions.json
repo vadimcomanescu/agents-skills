@@ -1,0 +1,37 @@
+[
+  {
+    "id": "ADR-001",
+    "title": "Add the evidence review affordance inside the existing workflow UI",
+    "decision": "Extend `app/evidence-review-workflow.tsx` with a small visible affordance that identifies the evidence review workflow state. Keep it in the current client component instead of adding a new route, shell, or architecture layer.",
+    "evidence": [
+      "`prd.json` requests a small UI affordance for inspecting evidence review workflow state without changing existing behavior.",
+      "`target-docs/INDEX.md` identifies the existing source roots as `app` and `lib` and requires preserving the current architecture unless the PRD requires change.",
+      "`BUILD_GUIDE.md` lists `app` and `lib` as source roots and points verification at the existing make targets.",
+      "`app/page.tsx` already renders `EvidenceReviewWorkflow` after the quote workflow.",
+      "`app/evidence-review-workflow.tsx` already owns the review workflow open state, computed final verdict, and workflow mode UI."
+    ],
+    "impact": "The build work should be limited to the existing evidence review UI and related browser assertion. No routing, persistence, API, or new shared domain boundary is needed."
+  },
+  {
+    "id": "ADR-002",
+    "title": "Derive the affordance from existing review state",
+    "decision": "Use the existing computed verdict, workflow mode, and seeded review metadata as the affordance source of truth. Do not introduce parallel state or duplicate review calculation logic.",
+    "evidence": [
+      "`lib/evidence-review.ts` defines the review verdict states and `calculateReviewVerdict` behavior.",
+      "`app/evidence-review-workflow.tsx` already computes `verdict` from `seededEvidenceReview.criteria` and `criterionStates`.",
+      "`app/evidence-review-workflow.tsx` already exposes `workflowMode` and renders the current mode in the workflow controls."
+    ],
+    "impact": "The affordance remains behavior-preserving because it displays already-computed state. Existing quote and evidence behavior should continue to pass unchanged."
+  },
+  {
+    "id": "ADR-003",
+    "title": "Verify through the existing Node and browser checks",
+    "decision": "Add or update focused browser coverage for the new visible affordance and run the existing make targets, especially `make check` and `make test-e2e`.",
+    "evidence": [
+      "`BUILD_GUIDE.md` maps `check` and `test` to `npm test` and `test-e2e` to `npm run test:browser`.",
+      "`Makefile` already exposes `check`, `test`, `test-e2e`, `build`, and `dev` targets.",
+      "`tests/acceptance.spec.ts` already opens the review workflow and asserts evidence workflow UI behavior."
+    ],
+    "impact": "Verification stays aligned with the repository's existing test surface and proves the affordance did not break quote or evidence workflows."
+  }
+]

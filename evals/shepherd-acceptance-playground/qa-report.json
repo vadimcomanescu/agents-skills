@@ -1,1 +1,48 @@
-[]
+[
+  {
+    "feature_id": "evidence-review-status-summary",
+    "attempt": 1,
+    "status": "pass",
+    "sub_phases": {
+      "functional": {
+        "status": "pass",
+        "notes": "make test passed 79 Vitest tests; make test-e2e passed 29 Playwright tests; agent-browser verified the open workflow shows 0 passing, 0 failing, 3 unreviewed, 0 missing evidence initially, then updates to missing evidence after marking Payment confirmation PASS, then to 1 passing after selecting evidence, and reaches 3 passing with an accepted final verdict after completing all required criteria."
+      },
+      "api_contract": {
+        "status": "pass",
+        "endpoints_tested": [
+          "GET /api/review-verdict?scenario=initial",
+          "GET /api/review-verdict?scenario=surprise",
+          "GET /api/review-comparison?pair=failed-to-accepted",
+          "GET /api/review-comparison?pair=bad-pair"
+        ],
+        "notes": "Route discovery found app/api/quotes/route.ts, app/api/review-comparison/route.ts, and app/api/review-verdict/route.ts. The status-summary feature is client-derived, but the evidence-review endpoints returned JSON content types, expected 200 bodies for known inputs, and 400 JSON error bodies for unknown scenario or pair inputs."
+      },
+      "security": {
+        "status": "pass",
+        "checks": [
+          "auth_bypass",
+          "input_sanitization",
+          "cors",
+          "data_exposure"
+        ],
+        "notes": "No auth or protected review surface is configured in target-docs, so unauthenticated fixture reads are not treated as bypasses. SQL-style and script-string probes returned 400 JSON errors without stack traces; OPTIONS requests did not emit Access-Control-Allow-Origin for https://evil.com; reviewed responses did not expose passwords, environment values, server paths, or stack traces."
+      },
+      "accessibility": {
+        "status": "skip",
+        "violations": [],
+        "notes": "not applicable for this feature category"
+      }
+    },
+    "tested_steps": [
+      "Opened the playground app at http://localhost:3055.",
+      "Opened the evidence review workflow with agent-browser.",
+      "Verified the initial status summary shows required criteria: 3, passing: 0, failing: 0, unreviewed: 3, missing evidence: 0.",
+      "Marked Payment confirmation PASS and verified the summary changes to passing: 0, unreviewed: 2, missing evidence: 1.",
+      "Selected Replay: successful payment evidence and verified the summary changes to passing: 1, unreviewed: 2, missing evidence: 0.",
+      "Completed the remaining required criteria with passing verdicts and selected evidence, then verified the summary shows passing: 3 and the final verdict is Accepted."
+    ],
+    "bugs_found": [],
+    "fix_description": "no fix needed"
+  }
+]

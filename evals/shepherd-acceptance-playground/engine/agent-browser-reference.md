@@ -16,8 +16,10 @@ agent-browser open <url>
 ```
 
 Ulisse scripts export `AGENT_BROWSER_PROFILE="${ULISSE_CHROME_PROFILE:-Default}"`
-and `AGENT_BROWSER_HEADED=1` before opening the browser. To run manually with a
-specific Chrome profile, use:
+and default `AGENT_BROWSER_HEADED=0` before opening the browser so headless
+agent runs work without an X server. To force a headed session, set
+`ULISSE_AGENT_BROWSER_HEADED=1`. To run manually with a specific Chrome profile,
+use:
 
 ```bash
 agent-browser --profile Default open <url>

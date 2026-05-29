@@ -189,7 +189,7 @@ fi
 BROWSER_TARGET_URL="${TARGET_URL:-http://localhost:3015}"
 if [ "$BROWSER_AGENT" = "agent-browser" ]; then
   export AGENT_BROWSER_PROFILE="${ULISSE_CHROME_PROFILE:-Default}"
-  export AGENT_BROWSER_HEADED=1
+  export AGENT_BROWSER_HEADED="${ULISSE_AGENT_BROWSER_HEADED:-0}"
   agent-browser open "$BROWSER_TARGET_URL"
   echo "agent-browser session started for QA (profile=$AGENT_BROWSER_PROFILE)."
 elif [ "$BROWSER_AGENT" = "ever" ]; then

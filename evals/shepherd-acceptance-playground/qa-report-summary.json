@@ -1,0 +1,39 @@
+{
+  "schema_version": "2.1",
+  "sub_phases": [
+    "functional",
+    "api_contract",
+    "security",
+    "accessibility"
+  ],
+  "totals": {
+    "features_total": 0,
+    "features_passed": 0,
+    "features_failed": 0,
+    "features_exhausted": 0,
+    "features_crashed": 0
+  },
+  "sub_phase_totals": {
+    "functional": {
+      "pass": 0,
+      "fail": 0,
+      "skip": 0
+    },
+    "api_contract": {
+      "pass": 0,
+      "fail": 0,
+      "skip": 0
+    },
+    "security": {
+      "pass": 0,
+      "fail": 0,
+      "skip": 0
+    },
+    "accessibility": {
+      "pass": 0,
+      "fail": 0,
+      "skip": 0
+    }
+  },
+  "features": []
+}

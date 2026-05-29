@@ -30,6 +30,18 @@ export type ReviewVerdict = {
   missingEvidenceCriterionIds: string[];
 };
 
+export type RequiredCriteriaStatusSummary = {
+  requiredTotal: number;
+  passingCount: number;
+  failingCount: number;
+  unreviewedCount: number;
+  missingEvidenceCount: number;
+  passingCriterionIds: string[];
+  failingCriterionIds: string[];
+  unreviewedCriterionIds: string[];
+  missingEvidenceCriterionIds: string[];
+};
+
 export type EvidenceReviewScenarioName = "initial" | "missing-evidence" | "failed" | "accepted";
 
 export type EvidenceReviewComparisonPairId = "failed-to-accepted" | "unresolved-missing-evidence";
@@ -233,6 +245,57 @@ export function calculateReviewVerdict(criteria: AcceptanceCriterion[], states: 
     reasons: ["Every required criterion passed with selected evidence."],
     failedCriterionIds,
     missingCriterionIds,
+    missingEvidenceCriterionIds
+  };
+}
+
+export function summarizeRequiredCriteria(
+  criteria: AcceptanceCriterion[],
+  states: CriterionReviewState[]
+): RequiredCriteriaStatusSummary {
+  const passingCriterionIds: string[] = [];
+  const failingCriterionIds: string[] = [];
+  const unreviewedCriterionIds: string[] = [];
+  const missingEvidenceCriterionIds: string[] = [];
+
+  for (const criterion of criteria) {
+    if (!criterion.required) {
+      continue;
+    }
+
+    const state = states.find((candidate) => candidate.criterionId === criterion.id);
+
+    if (!state || state.verdict === "unreviewed") {
+      unreviewedCriterionIds.push(criterion.id);
+      continue;
+    }
+
+    if (state.verdict === "fail") {
+      failingCriterionIds.push(criterion.id);
+      continue;
+    }
+
+    if (!state.selectedEvidenceId) {
+      missingEvidenceCriterionIds.push(criterion.id);
+      continue;
+    }
+
+    passingCriterionIds.push(criterion.id);
+  }
+
+  return {
+    requiredTotal:
+      passingCriterionIds.length +
+      failingCriterionIds.length +
+      unreviewedCriterionIds.length +
+      missingEvidenceCriterionIds.length,
+    passingCount: passingCriterionIds.length,
+    failingCount: failingCriterionIds.length,
+    unreviewedCount: unreviewedCriterionIds.length,
+    missingEvidenceCount: missingEvidenceCriterionIds.length,
+    passingCriterionIds,
+    failingCriterionIds,
+    unreviewedCriterionIds,
     missingEvidenceCriterionIds
   };
 }

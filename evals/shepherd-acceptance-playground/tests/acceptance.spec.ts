@@ -4890,3 +4890,90 @@ test("ordered evidence review workflow should move through blocked and rejected 
     fullPage: true
   });
 });
+
+type StatusSummaryState = {
+  requiredTotal: number;
+  passingCount: number;
+  failingCount: number;
+  unreviewedCount: number;
+  missingEvidenceCount: number;
+  passingCriterionIds: string[];
+  failingCriterionIds: string[];
+  unreviewedCriterionIds: string[];
+  missingEvidenceCriterionIds: string[];
+};
+
+async function readStatusSummaryState(page: Page): Promise<StatusSummaryState> {
+  const text = (await page.getByTestId("status-summary-state-json").textContent()) ?? "";
+  return JSON.parse(text) as StatusSummaryState;
+}
+
+async function expectStatusSummaryCounts(
+  page: Page,
+  counts: { passing: number; failing: number; unreviewed: number; missingEvidence: number }
+) {
+  await expect(page.getByTestId("status-summary-passing")).toHaveText(String(counts.passing));
+  await expect(page.getByTestId("status-summary-failing")).toHaveText(String(counts.failing));
+  await expect(page.getByTestId("status-summary-unreviewed")).toHaveText(String(counts.unreviewed));
+  await expect(page.getByTestId("status-summary-missing-evidence")).toHaveText(String(counts.missingEvidence));
+}
+
+test("evidence review status summary should derive required-criteria counts and update on verdict and evidence changes", async ({
+  page
+}, testInfo) => {
+  await page.goto("/");
+
+  // The summary is only part of the open workflow surface.
+  await expect(page.getByTestId("status-summary")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Open review workflow" }).click();
+  const statusSummary = page.getByTestId("status-summary");
+  await expect(statusSummary).toBeVisible();
+  await expect(statusSummary).toHaveAttribute("aria-live", "polite");
+
+  // Initial state: every required criterion is unreviewed.
+  await expect(page.getByTestId("status-summary-required-total")).toHaveText("Required criteria: 3");
+  await expectStatusSummaryCounts(page, { passing: 0, failing: 0, unreviewed: 3, missingEvidence: 0 });
+  const initialState = await readStatusSummaryState(page);
+  expect(initialState.unreviewedCriterionIds).toEqual([
+    "criterion-payment",
+    "criterion-summary",
+    "criterion-recovery"
+  ]);
+  await page.screenshot({
+    path: testInfo.outputPath("status-summary-01-initial-unreviewed.png"),
+    fullPage: true
+  });
+
+  // Marking a criterion PASS without evidence moves it into "missing evidence".
+  await page.getByRole("button", { name: "Mark Payment confirmation PASS" }).click();
+  await expectStatusSummaryCounts(page, { passing: 0, failing: 0, unreviewed: 2, missingEvidence: 1 });
+  const afterPass = await readStatusSummaryState(page);
+  expect(afterPass.missingEvidenceCriterionIds).toEqual(["criterion-payment"]);
+
+  // Choosing evidence for that criterion moves it into "passing".
+  await page.getByLabel("Evidence for Payment confirmation").selectOption("evidence-payment");
+  await expectStatusSummaryCounts(page, { passing: 1, failing: 0, unreviewed: 2, missingEvidence: 0 });
+  const afterEvidence = await readStatusSummaryState(page);
+  expect(afterEvidence.passingCriterionIds).toEqual(["criterion-payment"]);
+  await page.screenshot({
+    path: testInfo.outputPath("status-summary-02-passing-with-evidence.png"),
+    fullPage: true
+  });
+
+  // A FAIL verdict is reflected in the failing bucket.
+  await page.getByRole("button", { name: "Mark Order summary FAIL" }).click();
+  await expectStatusSummaryCounts(page, { passing: 1, failing: 1, unreviewed: 1, missingEvidence: 0 });
+
+  // Completing every required criterion with passing verdicts and evidence empties the blocking buckets.
+  await page.getByRole("button", { name: "Mark Order summary PASS" }).click();
+  await page.getByLabel("Evidence for Order summary").selectOption("evidence-summary");
+  await page.getByRole("button", { name: "Mark Recovery path PASS" }).click();
+  await page.getByLabel("Evidence for Recovery path").selectOption("evidence-recovery");
+  await expectStatusSummaryCounts(page, { passing: 3, failing: 0, unreviewed: 0, missingEvidence: 0 });
+  await expect(page.getByTestId("final-verdict")).toContainText("Accepted");
+  await page.screenshot({
+    path: testInfo.outputPath("status-summary-03-all-passing.png"),
+    fullPage: true
+  });
+});

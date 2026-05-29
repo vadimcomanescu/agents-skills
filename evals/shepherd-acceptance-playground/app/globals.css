@@ -408,6 +408,43 @@ h1 {
   border-left-color: var(--green);
 }
 
+.status-summary {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 16px;
+  background: #fff;
+}
+
+.status-summary-counts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.status-summary-counts div {
+  min-width: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.status-summary-counts dt {
+  color: var(--body);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-summary-counts dd {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 700;
+}
+
 .review-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
@@ -1291,6 +1328,7 @@ h1 {
   .comparison-grid,
   .comparison-groups,
   .review-grid,
+  .status-summary-counts,
   .explorer-controls,
   .explorer-row dl,
   .handoff-pack-summary,

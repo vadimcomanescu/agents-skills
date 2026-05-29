@@ -7,6 +7,7 @@ import {
   createInitialCriterionStates,
   knownEvidenceReviewComparisonPairs,
   seededEvidenceReview,
+  summarizeRequiredCriteria,
   type EvidenceReviewComparison,
   type CriterionReviewState,
   type CriterionVerdict
@@ -177,6 +178,10 @@ export default function EvidenceReviewWorkflow() {
   const workflowModeRef = useRef<WorkflowMode>("operator");
   const pendingVerificationCompletions = useRef<Map<string, string>>(new Map());
   const verdict = useMemo(() => calculateReviewVerdict(seededEvidenceReview.criteria, criterionStates), [criterionStates]);
+  const statusSummary = useMemo(
+    () => summarizeRequiredCriteria(seededEvidenceReview.criteria, criterionStates),
+    [criterionStates]
+  );
   const comparisons = useMemo(() => comparisonPairs(), []);
   const importHistoryJson = useMemo(() => importHistoryStateForJson(importHistory), [importHistory]);
   const csvValidation = useMemo(() => validateEvidenceCsvInput(csvText, seededEvidenceReview), [csvText]);
@@ -653,6 +658,46 @@ export default function EvidenceReviewWorkflow() {
                 <li key={reason}>{reason}</li>
               ))}
             </ul>
+          </section>
+
+          <section
+            className="status-summary"
+            data-testid="status-summary"
+            aria-label="Required criteria status summary"
+            aria-live="polite"
+          >
+            <div className="section-heading">
+              <div>
+                <div className="eyebrow">Required criteria status</div>
+                <h2>Status summary</h2>
+              </div>
+              <strong data-testid="status-summary-required-total">
+                Required criteria: {statusSummary.requiredTotal}
+              </strong>
+            </div>
+
+            <dl className="status-summary-counts">
+              <div>
+                <dt>Passing with evidence</dt>
+                <dd data-testid="status-summary-passing">{statusSummary.passingCount}</dd>
+              </div>
+              <div>
+                <dt>Failing</dt>
+                <dd data-testid="status-summary-failing">{statusSummary.failingCount}</dd>
+              </div>
+              <div>
+                <dt>Unreviewed</dt>
+                <dd data-testid="status-summary-unreviewed">{statusSummary.unreviewedCount}</dd>
+              </div>
+              <div>
+                <dt>Missing evidence</dt>
+                <dd data-testid="status-summary-missing-evidence">{statusSummary.missingEvidenceCount}</dd>
+              </div>
+            </dl>
+
+            <pre className="status-summary-state-json" data-testid="status-summary-state-json">
+              {JSON.stringify(statusSummary, null, 2)}
+            </pre>
           </section>
 
           <section className={`workflow-mode workflow-mode-${workflowMode}`} aria-label="Workflow mode">

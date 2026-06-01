@@ -1,0 +1,36 @@
+{
+  "skill_name": "shepherd",
+  "notes": "Behavioral evals for the acceptance-pipeline-kit integration. Source-surface cases run with `run_behavioral_evals.py`; live cases run with `--live --kit-dir <acceptance-pipeline-kit>`.",
+  "evals": [
+    {
+      "id": "source-role-surface",
+      "prompt": "Inspect the Shepherd skill and prove role ownership for executable acceptance: implementers own normal acceptance pipeline components for their slice, the architect owns acceptance-spec mutation hardening, refactorer and coordinator do not run mutation, and the workflow points at the real acceptance_pipeline.py / validate_acceptance_mutation.py scripts.",
+      "expected_output": "SKILL.md, prompts, and references wire the kit: implementer runs normal acceptance, architect runs acceptance-spec mutation and blocks on survivors/errors then dispatches implementer repair, refactorer excludes mutation, and the mechanics live in references/acceptance-mutation.md keyed to killed/survived/error.",
+      "files": []
+    },
+    {
+      "id": "acceptance-killed-passes",
+      "prompt": "Run the real kit pipeline on a fixture where every acceptance-spec mutation is killed.",
+      "expected_output": "Normal acceptance passes and acceptance_pipeline.py mutation returns PASS with survived=0 errors=0; the milestone gate is satisfiable.",
+      "files": []
+    },
+    {
+      "id": "acceptance-survivor-blocks",
+      "prompt": "Run the real kit pipeline on a fixture whose handler ignores an example value so generated tests still pass after a value is mutated.",
+      "expected_output": "acceptance_pipeline.py mutation returns BLOCK with survived>0, records the surviving mutation paths, and the gate exits non-zero so the architect requests focused implementer repair instead of approving.",
+      "files": []
+    },
+    {
+      "id": "acceptance-no-mutations-blocks",
+      "prompt": "Run the real kit pipeline on a fixture with no executable examples while mutations are required.",
+      "expected_output": "acceptance_pipeline.py mutation returns BLOCK because zero mutations executed: the examples cannot prove behaviour-relevant binding.",
+      "files": []
+    },
+    {
+      "id": "acceptance-error-blocks",
+      "prompt": "Run the real kit pipeline on a fixture where the acceptance pipeline itself fails (broken handler import) while normal acceptance would otherwise pass.",
+      "expected_output": "acceptance_pipeline.py mutation returns BLOCK with errors>0, treating the mutation error as unverifiable infrastructure rather than passing evidence.",
+      "files": []
+    }
+  ]
+}

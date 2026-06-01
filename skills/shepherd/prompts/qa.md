@@ -21,10 +21,11 @@ For each AC assigned to the milestone:
 7. Confirm evidence is tied to the current commit or worktree state.
 8. Confirm validators ran after the latest evidence change and passed.
 9. Confirm no unapproved extra user-visible behavior was added.
+10. For an AC whose proof modality is `acceptance-spec mutation`, require a passing mutation verdict (`validate_acceptance_mutation.py`); passing normal acceptance is candidate evidence only.
 
 ## Failure Conditions
 
-Return `FAIL` when proof is missing, stale, wrong-modality, report-only, contradicted by the diff, unapproved by the spec, or weaker than `references/verification-evidence.md` requires. Skipped/weakened tests and waivers without explicit user approval are also failures.
+Return `FAIL` when proof is missing, stale, wrong-modality, report-only, contradicted by the diff, unapproved by the spec, or weaker than `references/verification-evidence.md` requires. Skipped/weakened tests and waivers without explicit user approval are also failures. For an AC backed by executable examples, returning `PASS` on green normal acceptance without a passing acceptance-spec mutation verdict (or a user-approved waiver) is a failure; leave it pending the architect mutation gate instead.
 
 ## Output
 

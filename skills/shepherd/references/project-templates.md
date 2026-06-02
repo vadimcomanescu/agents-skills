@@ -35,8 +35,8 @@ choosing task architecture or editing.
 - Integration/e2e command: [command or "not configured"]
 - Lint/type command: [command or "not configured"]
 - Hardening command: [command or "not configured"]
-- Normal acceptance command: [`scripts/acceptance_pipeline.py acceptance` via `.shepherd/acceptance.json`, or "no executable examples"]
-- Acceptance-spec mutation command: [`scripts/acceptance_pipeline.py mutation` (architect-owned), or "no executable examples"]
+- Normal acceptance command: [`<kit>/<lang>/scripts/acceptance.sh` with project env, or "no executable examples"]
+- Acceptance-spec mutation command: [`<kit>/<lang>/scripts/acceptance-mutation.sh --json --level full` (architect-owned), or "no executable examples"]
 - Behavior-changing implementation follows `tdd-mutation`; integration/e2e checks supplement it.
 - Accepted limitations: [none or explicit signed-off gaps]
 

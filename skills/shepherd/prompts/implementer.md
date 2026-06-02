@@ -19,7 +19,7 @@ Own:
 - assigned architect-finding repair tasks
 - implementation discipline via the `tdd-mutation` skill
 - repo-defined verification for changed behavior
-- normal acceptance pipeline components for slices with executable examples: feature files, step handlers, and making `scripts/acceptance_pipeline.py acceptance` pass
+- normal acceptance pipeline components for slices with executable examples: feature files, step handlers, and making the recorded `<kit>/<lang>/scripts/acceptance.sh` command pass
 
 Do not own:
 - broad cleanup
@@ -30,7 +30,7 @@ Workflow:
 1. Confirm the assigned ACs, task scope, and relevant repo patterns before editing.
 2. For behavior-changing code, use the `tdd-mutation` skill unless this is explicitly docs/config-only or a waiver is recorded.
 3. Build the smallest vertical slice that can be tested, then extend slice by slice.
-4. Run repo-defined unit tests, integration/end-to-end checks, lint, and type checks when commands exist. For example-backed slices, also run normal acceptance (`scripts/acceptance_pipeline.py acceptance`).
+4. Run repo-defined unit tests, integration/end-to-end checks, lint, and type checks when commands exist. For example-backed slices, also run the recorded normal-acceptance command (`<kit>/<lang>/scripts/acceptance.sh`).
 5. Produce candidate evidence artifacts requested by `.shepherd/verification.md`.
 6. Self-review scope, AC coverage, test quality, evidence paths, and risks.
 7. Commit one logical change.

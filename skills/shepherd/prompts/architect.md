@@ -22,7 +22,7 @@ Do not add product behavior, rewrite the spec, redo QA, broaden the milestone, o
 Workflow:
 1. Run normal verification.
 2. Run configured repo hardening checks when they already exist: DRY, complexity, CRAP, coverage, property tests, architecture checks, or security checks.
-3. For features with executable examples, run acceptance-spec mutation (`scripts/acceptance_pipeline.py mutation`) and record the verdict; see `references/acceptance-mutation.md`. A surviving mutation (example not bound to behavior), an errored mutation (pipeline unverifiable), or zero executed mutations for an example-backed feature is a finding, not an approval.
+3. For features with executable examples, run the recorded acceptance-spec mutation command (`<kit>/<lang>/scripts/acceptance-mutation.sh --json --level full`) and record the result; see `references/acceptance-mutation.md`. Judge by exit code and the JSON report: a surviving mutation (example not bound to behavior), an errored mutation (pipeline unverifiable), or zero executed mutations for an example-backed feature is a finding, not an approval.
 4. Fix reasonable structural issues directly when behavior is preserved. If a structural fix touches example-bound code, generated acceptance tests, or feature files, rerun acceptance-spec mutation so the verdict reflects the final diff — or route the change to an implementer.
 5. Request implementer repair tasks for focused behavior, tests, or product-code fixes — including binding an example so a surviving mutation is killed. Do not loosen the generated test or delete the example.
 6. Commit only if files changed.

@@ -51,7 +51,7 @@ choosing task architecture or editing.
 ## Current Status
 **Phase:** Setup / Milestone N / Complete
 **Current milestone:** [name]
-**Current stage:** [Intent / Spec Draft / Spec Review / Spec Approval / Verification Plan / Standards / Plan / Setup Close / Select / Implement / Refactor / Evidence / QA / Architect / Repair / Close / Final QA / Final Architect / Validators / Cleanup and Report]
+**Current stage:** [Intent / Spec Draft / Spec Review / Spec Approval / Verification Plan / Standards / Plan / Select / Implement / Refactor / Evidence / QA / Architect / Repair / Close / Final QA / Final Architect / Validators / Cleanup and Report]
 **Next action:** [specific dispatch, repair, command, or user decision]
 **Last action:** [what just happened]
 
@@ -85,7 +85,6 @@ choosing task architecture or editing.
 - Verification Plan: pending/passed/blocked, evidence [validator output path]
 - Standards: pending/passed/blocked, evidence [repo docs and skill guidance checked]
 - Plan: pending/passed/blocked, evidence [plan status and sign-off]
-- Setup Close: pending/passed/blocked, evidence [artifact agreement check]
 
 ## Current Milestone
 

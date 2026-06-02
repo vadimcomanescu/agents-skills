@@ -104,10 +104,6 @@ Gate:
 - `plan` returns `READY`.
 - If `plan` returns `USER DECISION REQUIRED`, stop and present the decision.
 
-### 8. Setup Close
-
-Start autonomous milestone work only after approved `spec.md`, valid pending `verification.md`, complete `standards.md`, signed-off `plan.md`, and current `progress.md` agree.
-
 ## Milestones
 
 ### Select

@@ -2,14 +2,24 @@
 
 ACs live in `.shepherd/spec.md`; `.shepherd/verification.md` maps each AC to proof. Implementer evidence is candidate only. QA owns PASS/FAIL/WAIVED against the approved spec.
 
+## Verification Report Schema
+
+Use these exact column headers; the validator expects them.
+
+```markdown
+| AC | Proof modality | Required artifacts | Milestone | QA result | Evidence | Verified revision | Evidence state | Waiver |
+|---|---|---|---|---|---|---|---|---|
+| AC-001 | [unit/browser screenshot/multi-step browser replay/API-state/manual/waiver] | [artifact types] | [milestone] | pending | pending | pending | pending | none |
+```
+
 ## Verification Report Fields
 
 Every behavior-changing AC in `.shepherd/verification.md` needs:
 
 - AC ID
 - proof modality
-- required artifact
-- milestone owner
+- required artifacts
+- milestone
 - QA result: `PASS`, `FAIL`, `WAIVED`, or `pending`
 - evidence path
 - verified revision: commit, worktree fingerprint, or state-file path
@@ -27,7 +37,7 @@ Run before completion:
 ```bash
 python3 skills/shepherd/scripts/validate_verification.py .shepherd/verification.md
 python3 skills/shepherd/scripts/validate_evidence.py .shepherd/verification.md
-python3 skills/shepherd/scripts/validate_freshness.py .shepherd/verification.md
+python3 skills/shepherd/scripts/validate_freshness.py --allow-worktree-fingerprint .shepherd/verification.md
 python3 skills/shepherd/scripts/validate_final_report.py .shepherd/verification.md .shepherd/final-report.md
 ```
 

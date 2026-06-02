@@ -51,44 +51,76 @@ choosing task architecture or editing.
 ## Current Status
 **Phase:** Setup / Milestone N / Complete
 **Current milestone:** [name]
-**Current task:** [name or "between tasks"]
+**Current stage:** [Intent / Spec Draft / Spec Review / Spec Approval / Verification Plan / Standards / Plan / Setup Close / Select / Implement / Refactor / Evidence / QA / Architect / Repair / Close / Final QA / Final Architect / Validators / Cleanup and Report]
+**Next action:** [specific dispatch, repair, command, or user decision]
 **Last action:** [what just happened]
 
-## Verification Evidence
+## Source Artifact Revisions
 
-| Item | Status | Evidence |
-|------|--------|----------|
-| Unit tests | pending/passed/failed/accepted limitation | [command + output path] |
-| Integration/e2e checks | pending/passed/failed/not configured/accepted limitation | [command + output path] |
-| Lint/type checks | pending/passed/failed/not configured/accepted limitation | [command + output path] |
-| Hardening checks | pending/passed/failed/not configured/accepted limitation | [command + output path] |
-| QA | pending/passed/failed/waived | [QA report path + AC IDs] |
-| Verification report | pending/fresh/stale | [verification report path + script output] |
+- Spec: `.shepherd/spec.md` at [commit, dirty-worktree fingerprint, or pending]
+- Verification: `.shepherd/verification.md` at [commit, dirty-worktree fingerprint, or pending]
+- Standards: `.shepherd/standards.md` at [commit, dirty-worktree fingerprint, or pending]
+- Plan: `.shepherd/plan.md` at [commit, dirty-worktree fingerprint, or pending]
+- Latest behavior revision: [commit, dirty-worktree fingerprint, state-file path, or pending]
+
+## Open Blockers
+
+- [blocker, owner artifact, required next action, or "none"]
+
+## Run Log
+
+### [timestamp] [Stage]
+- Input artifacts read: [spec, verification, standards, plan, progress, logs]
+- Decision: [pass/fail/request changes/waived/blocked]
+- Evidence checked: [commands, output paths, evidence paths, validator output]
+- Changes made: [files, branches, commits, or "none"]
+- Next action: [specific dispatch, repair, command, or user decision]
+
+## Setup Gate State
+
+- Intent: pending/passed/blocked, evidence [path or note]
+- Spec Draft: pending/passed/blocked, evidence [path or note]
+- Spec Review: pending/passed/blocked, evidence [review output path, HTML path]
+- Spec Approval: pending/passed/blocked, evidence [approval note, revision]
+- Verification Plan: pending/passed/blocked, evidence [validator output path]
+- Standards: pending/passed/blocked, evidence [repo docs and skill guidance checked]
+- Plan: pending/passed/blocked, evidence [plan status and sign-off]
+- Setup Close: pending/passed/blocked, evidence [artifact agreement check]
+
+## Current Milestone
+
+### Scope
+- Milestone: [name]
+- AC IDs: [AC-001, AC-002]
+- Plan tasks: [task names]
+- Worktrees/branches: [coordinator-named paths and branches]
+
+### Stage Verdicts
+- Implementer: pending/passed/failed, commit/evidence [details]
+- Refactorer: pending/passed/failed/waived, commit/evidence [details]
+- Validators: pending/passed/failed, output [details]
+- QA: pending/pass/fail/waived, report [details]
+- Architect: pending/approve/request changes, report [details]
+
+### Evidence State
+- Accepted evidence: [AC -> artifact path, revision, freshness]
+- Stale evidence: [AC -> reason, required rerun]
+- Candidate evidence not yet accepted by QA: [AC -> artifact path]
+- Waivers: [AC -> user approval text and scope]
+
+### Repair Cycles
+- Cycle 1: [finding source, repair task, commit, verification, QA/architect result]
+- Cycle 2: [if any]
+- Cycle 3: [if any]
 
 ## Completed Milestones
 
-### Milestone 1: [Name] — COMPLETE
-- Tasks completed: [list]
+### Milestone 1: [Name] COMPLETE
+- Closed at: [revision]
+- ACs accepted: [IDs]
+- Evidence: [paths]
 - Repair iterations: [N]
 - Deferred items: [any issues punted]
-
-## Current Milestone: [Name]
-
-### Task Status
-| Task | Status | Subagent | Notes |
-|------|--------|----------|-------|
-| [Task name] | pending/in_progress/complete/failed | [agent_id] | [notes] |
-
-### Milestone Quality Gate
-| Gate | Status | Evidence |
-|------|--------|----------|
-| Implementer verification | pending/passed/failed/accepted limitation | [unit/integration/lint/type results] |
-| Refactorer pass | pending/passed/failed/not applicable | [worktree/branch/commit or no commit] |
-| Architect hardening | pending/approved/request changes/accepted limitation | [worktree/branch/commit, hardening output, verdict] |
-| QA | pending/approved/request changes/waived | [QA report, AC IDs, evidence paths] |
-
-### Architect Feedback
-[Latest architect findings, if in repair cycle]
 
 ## Decisions Log
 
@@ -104,29 +136,11 @@ choosing task architecture or editing.
 - [Component]: [purpose, key files]
 
 ### Connections
-- [Component A] → [Component B]: [how they communicate]
+- [Component A] -> [Component B]: [how they communicate]
 
 ### Patterns Established
 - [Pattern]: [where used, why chosen]
 
 ### Known Issues
 - [Issue]: [severity, plan to address]
-```
-
-## verification.md
-
-```markdown
-# Verification Report
-
-This generated report is derived from AC IDs in `.shepherd/spec.md`. It records how each AC will be proved and what evidence currently supports it. It must not redefine acceptance criteria or invent behavior beyond the approved spec.
-
-| AC | Proof modality | Required artifacts | Milestone | QA result | Evidence | Verified revision | Evidence state | Waiver |
-|---|---|---|---|---|---|---|---|---|
-| AC-001 | [unit/browser screenshot/multi-step browser replay/API-state/manual/waiver] | [artifact types] | [milestone] | pending | pending | pending | pending | none |
-
-## Evidence Freshness
-
-- Latest behavior-relevant commit or worktree fingerprint: pending
-- Evidence captured after latest behavior change: no
-- Stale evidence requiring rerun: all ACs pending implementation
 ```

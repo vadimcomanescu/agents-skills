@@ -36,6 +36,7 @@ python3 skills/shepherd/scripts/validate_final_report.py .shepherd/verification.
 | Modality | Requires | Insufficient |
 |---|---|---|
 | Unit | test file and command output | only integration or manual report |
+| Acceptance-spec mutation | kit acceptance-mutation report at `--level full` with exit 0, `survived=0`, `errors=0`, `total>0` | passing normal acceptance alone, a `total=0` run, or a `--level hard` run that skips all mutations |
 | Component | component test output, fixture, and relevant diff | only screenshot |
 | Integration | command output and involved service state | only unit output |
 | Browser-visible | saved screenshot from the actual app, browser execution evidence, and browser evidence manifest with captured URL, page title, observed assertions, and verdict | text report, mock screenshot, planned screenshot, wrong page, auth redirect, empty shell |

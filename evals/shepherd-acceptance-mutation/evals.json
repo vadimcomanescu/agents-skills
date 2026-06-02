@@ -1,0 +1,36 @@
+{
+  "skill_name": "shepherd",
+  "notes": "Behavioral evals for the acceptance-pipeline-kit integration. Shepherd calls the kit's own per-language scripts directly; there is no Shepherd-side wrapper. Source-surface cases run with `run_behavioral_evals.py`; live cases run with `--live --kit-dir <acceptance-pipeline-kit>`.",
+  "evals": [
+    {
+      "id": "source-role-surface",
+      "prompt": "Inspect the Shepherd skill and prove the integration uses the kit directly: implementers run the kit's normal-acceptance script for example-backed slices, the architect runs the kit's acceptance-mutation script at --level full and judges it by exit code and the JSON report, refactorer and coordinator do not run mutation, the per-language commands live in references/acceptance-mutation.md and are recorded per project in .shepherd/standards.md, and no Shepherd-side wrapper script is referenced.",
+      "expected_output": "SKILL.md, prompts, and references call `<kit>/<lang>/scripts/acceptance.sh` and `acceptance-mutation.sh --json --level full` directly, document the per-language runners (pytest/vitest/go test/cargo test), and contain no acceptance_pipeline.py / validate_acceptance_mutation.py references.",
+      "files": []
+    },
+    {
+      "id": "acceptance-killed-passes",
+      "prompt": "Call the kit acceptance-mutation script (--level full) on a fixture where every mutation is killed.",
+      "expected_output": "Exit 0 with summary survived=0 errors=0 total>0; normal acceptance also exits 0. The milestone gate is satisfiable.",
+      "files": []
+    },
+    {
+      "id": "acceptance-survivor-blocks",
+      "prompt": "Call the kit acceptance-mutation script on a fixture whose handler ignores an example value.",
+      "expected_output": "Exit 1 with survived>0; the architect reads the report, treats it as a finding, and requests focused implementer repair instead of approving.",
+      "files": []
+    },
+    {
+      "id": "acceptance-error-blocks",
+      "prompt": "Call the kit acceptance-mutation script on a fixture where the pipeline itself fails (broken handler import).",
+      "expected_output": "Exit 1 with errors>0; the architect treats the mutation error as unverifiable infrastructure, not passing evidence.",
+      "files": []
+    },
+    {
+      "id": "acceptance-no-mutations-false-green",
+      "prompt": "Call the kit acceptance-mutation script on a fixture with no executable examples.",
+      "expected_output": "The kit exits 0 with total=0 (a false green); per references/acceptance-mutation.md the architect must treat total=0 while .feature files exist as a block, not an approval.",
+      "files": []
+    }
+  ]
+}

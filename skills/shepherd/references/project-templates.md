@@ -35,6 +35,8 @@ choosing task architecture or editing.
 - Integration/e2e command: [command or "not configured"]
 - Lint/type command: [command or "not configured"]
 - Hardening command: [command or "not configured"]
+- Normal acceptance command: [`<kit>/<lang>/scripts/acceptance.sh` with project env, or "no executable examples"]
+- Acceptance-spec mutation command: [`<kit>/<lang>/scripts/acceptance-mutation.sh --json --level full` (architect-owned), or "no executable examples"]
 - Behavior-changing implementation follows `tdd-mutation`; integration/e2e checks supplement it.
 - Accepted limitations: [none or explicit signed-off gaps]
 
@@ -82,8 +84,9 @@ choosing task architecture or editing.
 ### Milestone Quality Gate
 | Gate | Status | Evidence |
 |------|--------|----------|
-| Implementer verification | pending/passed/failed/accepted limitation | [unit/integration/lint/type results] |
+| Implementer verification | pending/passed/failed/accepted limitation | [unit/integration/lint/type + normal acceptance results] |
 | Refactorer pass | pending/passed/failed/not applicable | [worktree/branch/commit or no commit] |
+| Acceptance-spec mutation | pending/pass/block/not applicable/waived | [report path, total/killed/survived/errors] |
 | Architect hardening | pending/approved/request changes/accepted limitation | [worktree/branch/commit, hardening output, verdict] |
 | QA | pending/approved/request changes/waived | [QA report, AC IDs, evidence paths] |
 
@@ -122,7 +125,7 @@ This generated report is derived from AC IDs in `.shepherd/spec.md`. It records 
 
 | AC | Proof modality | Required artifacts | Milestone | QA result | Evidence | Verified revision | Evidence state | Waiver |
 |---|---|---|---|---|---|---|---|---|
-| AC-001 | [unit/browser screenshot/multi-step browser replay/API-state/manual/waiver] | [artifact types] | [milestone] | pending | pending | pending | pending | none |
+| AC-001 | [unit/acceptance-spec mutation/browser screenshot/multi-step browser replay/API-state/manual/waiver] | [artifact types] | [milestone] | pending | pending | pending | pending | none |
 
 ## Evidence Freshness
 

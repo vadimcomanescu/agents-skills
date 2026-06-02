@@ -79,10 +79,10 @@ Every setup step has a concrete artifact. Do not advance by intent or chat summa
 | Role | Owns | Does Not Own |
 |---|---|---|
 | Coordinator | State, sequencing, dispatch, merges, progress evidence. | Implementation, refactoring, architectural hardening. |
-| Implementer | Assigned behavior slice or architect finding, implementation discipline via `tdd-mutation`, repo-defined verification, candidate evidence artifacts. | Broad cleanup, hardening, acceptance decisions. |
-| Refactorer | Behavior-preserving cleanup after implementer merge: names, duplication, boundaries, testability, weak tests. | New behavior, hardening. |
+| Implementer | Assigned behavior slice or architect finding, implementation discipline via `tdd-mutation`, repo-defined verification, normal acceptance pipeline components for example-backed slices, candidate evidence artifacts. | Broad cleanup, hardening, acceptance-spec mutation, acceptance decisions. |
+| Refactorer | Behavior-preserving cleanup after implementer merge: names, duplication, boundaries, testability, weak tests. | New behavior, hardening, acceptance-spec mutation. |
 | QA | Independent verification that the actual diff satisfies the approved spec/ACs, using the verification report and evidence artifacts. | Implementation, refactoring, architecture hardening, trusting reports as proof, judging against implementer claims instead of the spec. |
-| Architect | Boundaries, dependency direction, hardening tools already present in the repo, milestone or final hardening verdict after QA. | New product behavior, spec rewrite, QA. |
+| Architect | Boundaries, dependency direction, hardening tools already present in the repo, acceptance-spec mutation when executable examples exist, milestone or final hardening verdict after QA. | New product behavior, spec rewrite, QA. |
 
 Spec Review and Plan Review are setup gates, not execution roles. The `spec` and `plan` skills draft their artifacts; Shepherd only gates those artifacts before implementation starts.
 
@@ -131,6 +131,7 @@ Create `.shepherd/standards.md` from repo truth and relevant skill truth. Treat 
 4. When a skill points to current library, framework, SDK, or cloud-service documentation, verify the current docs before recording that guidance.
 5. Record project-specific verification commands and quality rules.
 6. Record only commands that already exist in the repo or are required by the relevant skill. Do not invent verification infrastructure or command placeholders.
+7. When the work has executable behavior examples (Gherkin `.feature` files), install the `acceptance-pipeline-kit` and record its checkout path, the language, and the exact normal-acceptance and acceptance-spec mutation commands (using `--level full`) in `.shepherd/standards.md`, like any other repo command. See `references/acceptance-mutation.md`. This is recorded real infrastructure, not invented.
 
 ### 7. Plan
 
@@ -147,6 +148,8 @@ If `plan` returns `USER DECISION REQUIRED`, stop and present the decision. If it
 ### 8. Setup Close
 
 Record setup completion, verification state, and architecture decisions in `.shepherd/progress.md`. Then execute autonomously.
+
+If the repo or spec contains Gherkin `.feature` files, the kit's normal-acceptance and acceptance-spec mutation commands (at `--level full`) must be recorded in `.shepherd/standards.md`, or a user-approved waiver must be recorded. Detected executable examples force the acceptance-spec mutation gate; a self-attested "no executable examples" while `.feature` files are present is a blocker.
 
 ## Phase 2: Milestone Loop
 
@@ -181,17 +184,17 @@ Per milestone:
 1. Read `.shepherd/progress.md`, `.shepherd/plan.md`, and `.shepherd/verification.md`.
 2. Categorize tasks as parallel or sequential.
 3. Dispatch at most 5 parallel implementers in separate git worktrees.
-4. Verify each implementer worktree with repo-defined unit tests, integration/end-to-end checks, lint, and type checks when commands exist.
+4. Verify each implementer worktree with repo-defined unit tests, integration/end-to-end checks, lint, and type checks when commands exist. For slices with executable examples, run the recorded normal-acceptance command (`<kit>/<lang>/scripts/acceptance.sh`); this is candidate evidence, not the acceptance-spec mutation gate.
 5. Merge passing implementer work. Resolve conflicts immediately.
 6. Reconcile progress, then dispatch refactorer from merged main for behavior-changing milestones; merge if it changed files.
 7. Update `.shepherd/verification.md` with candidate evidence paths and verified state. Candidate evidence is not accepted proof until QA checks it against the approved spec/ACs.
 8. Run verification/evidence/freshness validators after the latest verification or evidence change; failures block QA.
 9. Reconcile progress, then dispatch QA from merged main. QA reads actual files/artifacts, may rerun checks, and writes PASS, FAIL, or WAIVED per AC against the approved spec, not the implementer report.
 10. If evidence artifacts, manifests, or verification rows change after QA, rerun validators and rerun or refocus QA on the changed ACs before architect review.
-11. Run the Progress Reconciliation Gate, then dispatch architect only after QA passes or records an explicit user-approved waiver.
+11. Run the Progress Reconciliation Gate, then dispatch architect only after QA passes or records an explicit user-approved waiver. When executable examples exist, architect hardening runs the recorded acceptance-spec mutation command (`<kit>/<lang>/scripts/acceptance-mutation.sh --json --level full`) and judges it by exit code and the report; surviving mutations, errored mutations, or zero mutations are architect findings, not approvals. See `references/acceptance-mutation.md`.
 12. If architect changes behavior-relevant files, mark affected AC evidence stale and rerun validators plus QA before milestone approval.
 13. Record branches, commits, verification output, QA verdicts, waivers, and decisions in `progress.md`.
-14. Dispatch implementers for exact QA or architect findings, then verify and merge passing repair work. Re-run refactorer, validators, QA, and architect until approved or 3 repair cycles are reached.
+14. Dispatch implementers for exact QA or architect findings, then verify and merge passing repair work. Re-run refactorer, validators, QA, and architect until approved or 3 repair cycles are reached. If repair cycles exhaust with a live surviving or errored acceptance-spec mutation, stop and require an explicit user-approved waiver; do not auto-proceed.
 15. Log milestone summary and architecture state.
 
 Sequential tasks wait for their prerequisites to merge, then run from updated main.
@@ -214,9 +217,9 @@ Exploration uses the runtime's built-in exploration agent. Planning belongs to t
 
 1. Reconcile progress, then run Final QA across every AC in `.shepherd/spec.md` using `.shepherd/verification.md` as the evidence map.
 2. Reconcile progress, then dispatch Architect for Final Hardening Review across the full diff only after QA passes.
-3. If Final Hardening Review changes behavior-relevant files, mark affected AC evidence stale and rerun QA.
-4. Run the same implementer repair cycle for critical final findings, max 3 iterations.
-5. Run verification gate scripts from `references/verification-evidence.md`.
+3. If Final Hardening Review changes behavior-relevant files, mark affected AC evidence stale and rerun QA and acceptance-spec mutation for the affected features.
+4. Run the same implementer repair cycle for critical final findings, max 3 iterations. If a live surviving or errored mutation remains, stop and require a user-approved waiver.
+5. Rerun the acceptance-spec mutation command for every feature whose files changed in the final phase and confirm it passes (exit 0, `survived=0`, `errors=0`, `total>0`), then run the verification gate scripts from `references/verification-evidence.md`.
 6. Record final verification, waivers, and final verdict in `progress.md`.
 7. Remove non-main git worktrees with `git worktree remove -f -f <path>`, then delete their branches.
 8. Reconcile progress, then report what shipped, the verification matrix, evidence paths/state, accepted limitations, and deferred work.
@@ -234,6 +237,8 @@ Do not proceed as green when any of these are true:
 - QA has not passed for the behavior-changing ACs in the current milestone
 - evidence artifacts, manifests, or verification rows changed after QA without validator rerun and QA recheck
 - proof requirements in `references/verification-evidence.md` are unmet
+- a feature with Gherkin `.feature` files reaches milestone or final approval without a passing acceptance-spec mutation run, or with a surviving or errored mutation, or with zero executed mutations, absent an explicit user-approved waiver
+- the kit's acceptance commands are not recorded in `.shepherd/standards.md` while the repo or spec contains `.feature` files and no waiver is recorded
 - unapproved extra user-visible behavior is present
 - architect requests changes and the implementer repair cycle has not run
 - `.shepherd/progress.md` is stale
@@ -243,4 +248,5 @@ Do not proceed as green when any of these are true:
 
 - `references/project-templates.md`: use when creating `standards.md` or `progress.md`.
 - `references/verification-evidence.md`: use when creating `.shepherd/verification.md`, collecting evidence, running QA, or preparing completion.
+- `references/acceptance-mutation.md`: use when the work has executable behavior examples — installing the `acceptance-pipeline-kit`, the per-language commands, and judging killed/survived/error results.
 - `prompts/*.md`: load only when dispatching that role.

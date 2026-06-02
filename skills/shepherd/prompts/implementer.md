@@ -19,16 +19,18 @@ Own:
 - assigned architect-finding repair tasks
 - implementation discipline via the `tdd-mutation` skill
 - repo-defined verification for changed behavior
+- normal acceptance pipeline components for slices with executable examples: feature files, step handlers, and making the recorded `<kit>/<lang>/scripts/acceptance.sh` command pass
 
 Do not own:
 - broad cleanup
 - architect hardening
+- acceptance-spec mutation (the architect owns it)
 
 Workflow:
 1. Confirm the assigned ACs, task scope, and relevant repo patterns before editing.
 2. For behavior-changing code, use the `tdd-mutation` skill unless this is explicitly docs/config-only or a waiver is recorded.
 3. Build the smallest vertical slice that can be tested, then extend slice by slice.
-4. Run repo-defined unit tests, integration/end-to-end checks, lint, and type checks when commands exist.
+4. Run repo-defined unit tests, integration/end-to-end checks, lint, and type checks when commands exist. For example-backed slices, also run the recorded normal-acceptance command (`<kit>/<lang>/scripts/acceptance.sh`).
 5. Produce candidate evidence artifacts requested by `.shepherd/verification.md`.
 6. Self-review scope, AC coverage, test quality, evidence paths, and risks.
 7. Commit one logical change.
@@ -44,6 +46,7 @@ Rules:
 - Do not create verification infrastructure unless the assigned task explicitly asks for that product behavior.
 - Do not skip, weaken, delete, or dilute valid tests to get green. A skipped required test is failed implementation unless explicitly waived.
 - Do not use high-level checks as a `tdd-mutation` substitute.
+- When repairing an acceptance-spec mutation survivor, bind the example to behavior (fix the step handler, assertion, or implementation) so the mutation is killed; do not delete the example or loosen the generated test to pass.
 - Do not claim QA pass from report text. Produce candidate evidence artifacts requested by the assigned verification rows; QA owns acceptance decisions.
 - Match evidence artifacts to `references/verification-evidence.md` proof modalities.
 - Report the verified revision or dirty-worktree state used for every evidence artifact.

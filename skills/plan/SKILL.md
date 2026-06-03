@@ -138,16 +138,17 @@ digraph plan_review {
 }
 ```
 
-1. Dispatch a fresh plan editor with `prompts/plan-editor.md`.
-2. Give it the original request or spec, the plan path, and any caller constraints.
-3. If it returns `READY`, planning is complete.
-4. If it returns `REVISED`, keep the revised plan and repeat with a fresh plan editor.
-5. If it returns `USER DECISION REQUIRED`, stop and present the decision.
-6. Stop after 5 editor rounds. If the plan still is not `READY`, present the latest plan plus the unresolved concern and do not proceed to execution.
+1. Stamp the plan's `Status:` line to `In Review — up-the-hill review active`; if the line is missing, insert it directly below the plan title.
+2. Dispatch a fresh plan editor with `prompts/plan-editor.md`.
+3. Give it the original request or spec, the plan path, and any caller constraints.
+4. If it returns `READY`, stamp the plan's `Status:` line to `READY — reviewed <YYYY-MM-DD>; commit <short-hash-or-not-committed>; verdict READY`, then planning is complete.
+5. If it returns `REVISED`, keep the revised plan and repeat with a fresh plan editor.
+6. If it returns `USER DECISION REQUIRED`, stop and present the decision.
+7. Stop after 5 editor rounds. If the plan still is not `READY`, present the latest plan plus the unresolved concern and do not proceed to execution.
 
 Use these verdicts exactly:
 
-- `READY`: the current plan would let a skilled implementer build the requested result without backtracking; no edits were made.
+- `READY`: the current plan would let a skilled implementer build the requested result without backtracking; no content edits were made by the editor.
 - `REVISED`: the current plan had a real execution, architecture, contract, sequencing, or verification problem; the editor fixed it in the plan.
 - `USER DECISION REQUIRED`: requirements conflict or there is no safe autonomous path without a user choice.
 
@@ -181,8 +182,12 @@ If a task is L or larger, it should be broken into smaller tasks. An agent perfo
 
 ## Plan Document Template
 
+Use a canonical `Status:` line in every plan. The lifecycle is `Draft` -> `In Review` -> `READY` -> `In Progress` -> `Done`; the orchestration loop owns review status bookkeeping.
+
 ```markdown
 # Implementation Plan: [Feature/Project Name]
+
+> Status: **Draft — pending up-the-hill review**
 
 ## Overview
 [One paragraph summary of what we're building]

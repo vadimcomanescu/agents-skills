@@ -22,6 +22,14 @@ Personal skill collection for Claude Code, Codex, Gemini CLI, and OpenCode. Skil
 - MUST NOT rewrite a workflow-shaped skill from architectural judgment alone. First define what behavior should improve, what behavior must stay stable, and what prompt or fixture will prove it.
 - MUST NOT claim a skill edit is correct because `quick_validate.py` passes. That check is packaging-only.
 
+## Proportionality & Evidence Gate
+
+- MUST size verification to the change. A few-line or additive-reference edit MUST NOT trigger multi-workflow, multi-dozen-agent orchestration. If a verification plan would spawn more than ~10 subagents for a sub-trivial change, STOP and ask first.
+- MUST NOT call an eval result "proof" or "proven" when the measured effect is within judge noise (e.g. sub-point margins on a 0–10 rubric, single judge) or N is too small to detect the claimed effect. Such a result is INCONCLUSIVE — report the effect size and N, and MUST NOT ship a change on it.
+- MUST apply one evidence bar across keep and drop decisions in the same eval. If edits are dropped as "inert" at a given margin, an edit inside that same margin MUST be treated as inert too — never kept as "proven."
+- MUST NOT manufacture scope. A comparison or consolidation request ends when the best option is identified; do not invent edits the user did not ask for and then eval them.
+- SHOULD lead any report with the decision and its uncertainty, not the process (agent counts, phases, token spend). Process is an appendix.
+
 ## Boundaries
 
 - Never package skills as `<name>.zip` in this repo

@@ -129,7 +129,6 @@ Imperative voice. Frontmatter first, body second.
 - **Operating idea / why this matters** — 1-2 sentences naming the stakes. Required.
 - **When to use** — only if the description can't carry the cues (e.g., file paths, error signatures, command-line symptoms). Don't restate the description's trigger phrases here.
 - **Patterns / implementation** — concrete code, inline for simple, linked file for heavy. Each pattern leads with one sentence on *why* before showing the *what*.
-- **Output format** — when the skill's value is a *consistent output* (reports, commit messages, configs, extractions), pin the shape so the agent doesn't reinvent it each run. See `references/output-patterns.md` for strict-vs-flexible templates and input/output example pairs.
 - **Decision table** — close decision-heavy skills (multiple tools, modes, or tradeoffs) with a `Need → Reach for` matrix. Skip if the skill has one obvious path.
 - **Diagnostic order** — for skills triggered by symptoms ("X is slow / broken / wrong"), list checks in priority order. Cheap before expensive, common before rare.
 - **Verification** — for skills about modeling, refactoring, or design, end with 2-3 concrete checks the agent can run on its own output. "Delete the database and rerun the domain tests — if they need a DB, the domain depends on infrastructure."
@@ -287,7 +286,7 @@ scripts/render-graphs.js path/to/skill --combine # all diagrams into one SVG
 
 - `references/schemas.md` — full JSON schemas for `evals.json`, `grading.json`, `benchmark.json`, `eval_metadata.json`.
 - `references/openai_yaml.md` — `agents/openai.yaml` field definitions and constraints.
-- `references/output-patterns.md` — shaping a skill's output format: strict-vs-flexible templates, input/output example pairs.
+- `references/rationalizations.md` — common excuses for skipping evals, with the resolution.
 - `agents/grader.md` — assertion grading procedure for the grader subagent.
 - `agents/analyzer.md` — pattern surfacing across runs (non-discriminating assertions, flaky evals, time/token tradeoffs).
 - `agents/comparator.md` — blind A/B comparison between two skill versions when you need rigor beyond eyeballing.

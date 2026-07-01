@@ -1,0 +1,169 @@
+{
+  "skill_name": "spec-and-plan",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have a confirmed intent doc from interview-me. I need a spec and a full implementation plan before I start coding.",
+      "expected_output": "TRIGGER — spec-and-plan. Confirmed Intent present, both artifacts missing, user explicitly requests both. Skill should read the Confirmed Intent block as locked input, produce a six-area spec with R-IDs, then a dependency-ordered plan with U-ID headings, and return a READY-stamped artifact after up-the-hill review.",
+      "expectations": [
+        "The skill fires (TRIGGER) rather than routing to another skill",
+        "The Confirmed Intent block is read as locked input without re-interviewing",
+        "Output contains a six-area spec with at least one R-ID",
+        "Output contains at least one ### U-ID heading (no checkbox items)",
+        "Status line is stamped READY after up-the-hill review"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Spec and plan the new OAuth2 login flow for this repo.",
+      "expected_output": "TRIGGER — spec-and-plan. Direct invocation with a concrete feature request, both artifacts implicitly needed. Skill should bootstrap spec phase from the stated request, classify depth, produce a six-area spec with R-IDs, plan with U-ID unit headings, and stamp Status READY after review loop.",
+      "expectations": [
+        "The skill fires (TRIGGER) rather than routing to another skill",
+        "Output contains a six-area spec section with R-IDs",
+        "Output contains implementation units as ### U-ID headings",
+        "Status line is stamped READY after review loop"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I have a rough idea for a feature — generate a ready implementation plan I can hand off.",
+      "expected_output": "TRIGGER — spec-and-plan. Idea is concrete enough to commit to, plan explicitly requested, spec phase will be bootstrapped from the stated idea. Skill should not route to interview-me (idea is actionable), should produce both spec and plan as one artifact, and return it READY-stamped.",
+      "expectations": [
+        "The skill fires (TRIGGER) rather than routing to interview-me",
+        "Output is a single artifact containing both spec and plan sections",
+        "Status line is stamped READY"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Turn this feature brief into a reviewed, READY plan.",
+      "expected_output": "TRIGGER — spec-and-plan. User wants the full spec-to-READY-plan pipeline in one shot from a feature brief. Skill should extract requirements from the brief, stamp R-IDs, decompose into U-ID units, run the up-the-hill review loop up to 5 rounds, and deliver a READY-stamped artifact.",
+      "expectations": [
+        "The skill fires (TRIGGER) rather than routing to another skill",
+        "Requirements are extracted and assigned R-IDs",
+        "Units are ### U-ID headings",
+        "Up-the-hill review loop runs (max 5 rounds)",
+        "Status line is stamped READY"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Write a spec for the new auth flow. We already know what we're building.",
+      "expected_output": "NO_TRIGGER — route to the spec skill. Spec alone is requested; no plan is needed. spec-and-plan should not fire: the user has scoped the output to WHAT only, and the spec skill owns standalone spec production.",
+      "expectations": [
+        "The skill does not fire (NO_TRIGGER)",
+        "The response routes to the spec skill by name"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Break this existing spec into implementable tasks.",
+      "expected_output": "NO_TRIGGER — route to the plan skill. Spec already exists; user wants only the HOW decomposition. spec-and-plan should not fire: the plan skill owns dependency-ordered task breakdown when the spec artifact is already present.",
+      "expectations": [
+        "The skill does not fire (NO_TRIGGER)",
+        "The response routes to the plan skill by name"
+      ],
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "I have a vague idea, help me figure out what I actually want to build.",
+      "expected_output": "NO_TRIGGER — route to interview-me. Intent is not yet settled; spec-and-plan requires a concrete-enough request to commit to. Proceeding would produce a plan for the wrong problem. interview-me should extract intent first, then spec-and-plan can run on the resulting Confirmed Intent.",
+      "expectations": [
+        "The skill does not fire (NO_TRIGGER)",
+        "The response routes to interview-me by name"
+      ],
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "Build this entire SaaS product end-to-end, keep going until it's done.",
+      "expected_output": "NO_TRIGGER — route to shepherd. Long-running autonomous execution is requested, not just planning. spec-and-plan stops at a READY plan and does not proceed to execution; shepherd owns multi-milestone autonomous builds.",
+      "expectations": [
+        "The skill does not fire (NO_TRIGGER)",
+        "The response routes to shepherd by name"
+      ],
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "Update the plan for task 3, the API contract changed.",
+      "expected_output": "NO_TRIGGER — route to the plan skill. An existing plan is being revised, not originated. No spec phase is needed. The plan skill handles targeted plan edits and re-review of changed units.",
+      "expectations": [
+        "The skill does not fire (NO_TRIGGER)",
+        "The response routes to the plan skill by name"
+      ],
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "Review this plan before I start coding.",
+      "expected_output": "NO_TRIGGER — route to the plan skill (up-the-hill review sub-flow). No spec phase is needed and no new plan is being originated. The plan skill's review loop handles this; spec-and-plan would redundantly re-spec an already-specced body of work.",
+      "expectations": [
+        "The skill does not fire (NO_TRIGGER)",
+        "The response routes to the plan skill by name"
+      ],
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "I need both a spec and an implementation plan for the payment webhook handler. Here is my Confirmed Intent block.",
+      "expected_output": "TRIGGER — spec-and-plan. Confirmed Intent present, both artifacts explicitly requested. Skill should read the Confirmed Intent as locked input (no re-interviewing), produce a six-area spec with R-IDs, classify depth as Standard or Deep given payment domain is high-risk, run up-the-hill review with confidence-rubric checks, and stamp Status READY.",
+      "expectations": [
+        "The skill fires (TRIGGER) rather than routing to another skill",
+        "Confirmed Intent is read as locked input without re-interviewing",
+        "Depth is classified as Standard or Deep (not Lightweight) for a payment domain",
+        "Confidence-rubric check is applied",
+        "Status line is stamped READY"
+      ],
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "Interview me about my idea first, then we'll figure out what to build.",
+      "expected_output": "NO_TRIGGER — route to interview-me. User explicitly requests intent extraction before any spec or plan is produced. spec-and-plan reads Confirmed Intent as locked input; it does not re-interview. interview-me owns this phase; spec-and-plan should wait for its output.",
+      "expectations": [
+        "The skill does not fire (NO_TRIGGER)",
+        "The response routes to interview-me by name"
+      ],
+      "files": []
+    },
+    {
+      "id": 13,
+      "prompt": "I want to add rate limiting to the /api/auth/login endpoint in this repo. The Confirmed Intent is: Outcome: prevent brute-force on login; User: all users; Why now: security audit flagged it; Success: 5 failed attempts per IP per 15 min triggers a 429; Constraint: must not require Redis (use in-memory or existing Postgres); Out of scope: account lockout. Produce a spec-and-plan artifact.",
+      "expected_output": "TRIGGER — behavioral. Skill should produce a markdown file at docs/plans/rate-limiting.md containing: (a) six-area spec with stable R-IDs covering the 429 threshold requirement, the no-Redis constraint, and the out-of-scope boundary for account lockout; (b) implementation units as ### U1, ### U2, etc. headings with no checkbox lists; (c) each unit contains Goal, Requirements citing R-IDs, Dependencies, Files as repo-relative paths under src/, Approach in plain prose decisions, Test scenarios enumerating happy-path (5 failed attempts trigger 429), edge cases (4 attempts, 6 attempts, IP rotation, 15-min window reset), error paths (Postgres unavailable, counter read failure), and integration scenarios (middleware stack, Postgres persistence across requests); (d) Status line stamped 'READY — reviewed <date>; verdict READY' after up-the-hill review completed within 5 rounds.",
+      "expectations": [
+        "The skill fires (TRIGGER)",
+        "Output contains ### U1 and ### U2 headings (no checkbox items)",
+        "Every unit cites at least one R-ID in its Requirements field",
+        "R-ID for the no-Redis constraint appears in at least one unit or is deferred in Scope Boundaries",
+        "Test scenarios for each unit enumerate input, action, and expected outcome",
+        "Happy-path scenario names '5 failed attempts' and '429' response",
+        "No implementation code blocks (no method signatures, no SQL DDL) appear in any unit Approach section",
+        "Status line reads 'READY' after up-the-hill review"
+      ],
+      "files": ["evals/fixtures/auth-api-repo/src/routes/auth.ts", "evals/fixtures/auth-api-repo/src/middleware/", "evals/fixtures/auth-api-repo/package.json"]
+    },
+    {
+      "id": 14,
+      "prompt": "Spec and plan a migration of the user table from integer IDs to UUIDs. No Confirmed Intent doc exists — infer from the request. This is a data migration touching auth, sessions, and foreign keys.",
+      "expected_output": "TRIGGER — behavioral. Skill should produce a markdown file at docs/plans/uuid-migration.md containing: (a) six-area spec with R-IDs including boundary entries for rollback strategy and FK cascade behavior; (b) depth classified as Deep because the migration touches external contract surfaces (session cookies encoding user IDs, API responses returning user IDs, FK constraints across multiple tables); (c) implementation units with U-ID headings (### U1 through at least ### U4) covering schema change, FK migration across sessions and related tables, session handling and token invalidation, and verification/rollback procedure — each unit citing R-IDs and listing repo-relative file paths under db/ and app/models/; (d) test scenarios per unit including integration scenarios proving FK consistency across users, sessions, and related tables that unit-level mocks cannot verify; (e) tangential cleanups such as index optimization routed to a Deferred subsection in Scope Boundaries rather than active units; (f) Status stamped 'READY — reviewed <date>; verdict READY' after up-the-hill review loop; (g) no implementation code (no Ruby method bodies, no SQL DDL blocks) in the plan body.",
+      "expectations": [
+        "The skill fires (TRIGGER)",
+        "Depth is classified as Deep (not Standard or Lightweight)",
+        "Output contains at least ### U1 through ### U4 headings",
+        "Every unit cites at least one R-ID in its Requirements field",
+        "Integration test scenarios appear for FK consistency across users, sessions, and related tables",
+        "Tangential cleanups (e.g., index optimization) are in a Deferred subsection in Scope Boundaries, not active units",
+        "No Ruby method bodies or SQL DDL blocks appear in any unit Approach section",
+        "Status line reads 'READY' after up-the-hill review"
+      ],
+      "files": ["evals/fixtures/rails-users-repo/db/schema.rb", "evals/fixtures/rails-users-repo/app/models/user.rb", "evals/fixtures/rails-users-repo/app/models/session.rb"]
+    }
+  ]
+}

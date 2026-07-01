@@ -1,0 +1,16 @@
+{
+  "name": "notifications-service",
+  "version": "1.0.0",
+  "description": "Notifications repo fixture for plan evals (email via Postmark, SMS dependency present)",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "twilio": "^4.19.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}

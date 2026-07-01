@@ -1,0 +1,46 @@
+{
+  "skill_name": "plan",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Given this spec, plan the implementation in this repo. SPEC: Notify users on order events — email via the existing Postmark client, SMS via Twilio (already a dependency, not yet wired). Success: both channels deliver on an order event.",
+      "expected_output": "TRIGGER — plan. The repo has an existing PostmarkClient and a Twilio dependency with no integration code. Task descriptions use codebase-design vocabulary (module/interface/seam/adapter); each new dependency is classified (Twilio is true-external — port at the transport seam, SDK mocked in tests; the existing Postmark client is reused as-is, not re-wrapped, per the deletion test). At least one integration test scenario proves the two channels don't interfere. No pre-written implementation code appears in task descriptions.",
+      "expectations": [
+        "The skill produces a plan rather than routing away",
+        "Task descriptions use codebase-design vocabulary (module/interface/seam/adapter)",
+        "Twilio is classified true-external with a mock/adapter at the seam",
+        "The existing Postmark client is reused, not re-wrapped in a redundant abstraction",
+        "At least one integration test scenario is present",
+        "No implementation code is written into the plan"
+      ],
+      "files": ["evals/fixtures/notifications-repo/package.json", "evals/fixtures/notifications-repo/src/email/postmark-client.ts"]
+    },
+    {
+      "id": 2,
+      "prompt": "Given this spec, plan the implementation in this repo. SPEC: Add CSV export for the current report. Success: the current report exports as CSV via a labeled, keyboard-operable download control, and export input is validated. A teammate suggested a pluggable exporter framework for future formats — not needed now.",
+      "expected_output": "TRIGGER — plan. The repo has a single report type and no exporter abstraction. The anti-expansion ladder applies: the pluggable exporter framework is speculative complexity (formats that don't exist yet) and is routed to a Deferred subsection or Open Questions, not built. The concrete CSV export is the active task. Input validation and the accessible/keyboard-operable download control stay inside the active task — the ladder's carve-out keeps safety and accessibility work from being deferred alongside the speculative framework.",
+      "expectations": [
+        "The skill produces a plan rather than routing away",
+        "The pluggable exporter framework is routed to Deferred/Open Questions, not built as an active task",
+        "The concrete CSV export is an active task",
+        "Input validation stays inside an active task, not deferred",
+        "The accessible/keyboard-operable download control stays inside an active task, not deferred"
+      ],
+      "files": ["evals/fixtures/reports-repo/src/reports/report-page.ts"]
+    },
+    {
+      "id": 3,
+      "prompt": "Run the up-the-hill plan review on this draft before I start coding. DRAFT:\n## Task 1: Export endpoint\n**Description:** Add a /api/export endpoint returning the current report as JSON. No authentication or authorization is described.\n**Acceptance criteria:**\n- [ ] GET /api/export returns 200 with report JSON\n**Dependencies:** None\n## Task 2: Formatter abstraction\n**Description:** Introduce a generic Formatter interface with one implementation, CsvFormatter, as the only consumer.\n**Acceptance criteria:**\n- [ ] CsvFormatter produces valid CSV\n**Dependencies:** Task 1\n## Task 3: Report service\n**Description:** The report service returns within 100ms per request; not measured against current data volumes.\n**Acceptance criteria:**\n- [ ] Service returns report data for a valid report ID\n**Dependencies:** Task 1",
+      "expected_output": "The fresh plan editor (prompts/plan-editor.md) returns REVISED without spawning subagents, flagging: the unauthenticated /api/export endpoint (no access-control decision), the single-consumer Formatter abstraction, and the unverified 100ms latency assumption. It emits its own lighter output blocks (Plan verdict, Plan path, Commit, Changed files, Files inspected, Rationale) and does not adopt the heavier R-ID / confidence-rubric machinery.",
+      "expectations": [
+        "The editor returns REVISED (an existing verdict string), not a newly-invented verdict",
+        "No subagents are spawned",
+        "The unauthenticated /api/export endpoint is flagged (attack-surface / access-control)",
+        "The single-consumer Formatter abstraction is flagged",
+        "The unverified 100ms latency assumption is flagged",
+        "The output stays the lighter 6-block plan-editor format"
+      ],
+      "files": []
+    }
+  ]
+}

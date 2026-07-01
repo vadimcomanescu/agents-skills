@@ -1,0 +1,31 @@
+{
+  "skill_name": "spec",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write a spec for a 'cancellation' feature for orders in this repo.",
+      "expected_output": "TRIGGER — spec. A root CONTEXT.md defines Cancellation (voiding an order before fulfillment, no money moved) and Refund (returning money after payment) as distinct terms, with Cancellation marked `_Avoid_: refund`. Before locking Success Criteria, the spec runs domain-modeling's challenge/sharpen move, surfaces the cancellation-vs-refund conflict against the glossary, and states each criterion in the canonical term (cancellation = void, not refund). Output is the six-area spec with testable Success Criteria.",
+      "expectations": [
+        "The skill produces a spec rather than routing away",
+        "CONTEXT.md is read and its Cancellation/Refund distinction is applied",
+        "The cancellation-vs-refund conflict is surfaced before Success Criteria are locked",
+        "No success criterion conflates cancellation with refund",
+        "Success Criteria are specific and testable"
+      ],
+      "files": ["evals/fixtures/orders-context-repo/CONTEXT.md", "evals/fixtures/orders-context-repo/src/orders/order.ts"]
+    },
+    {
+      "id": 2,
+      "prompt": "Write a spec for a 'cancellation' feature for orders in this repo.",
+      "expected_output": "TRIGGER — spec. No CONTEXT.md or CONTEXT-MAP.md exists anywhere in the repo. The skill must not block on the missing glossary and must not fabricate a CONTEXT.md. This is an automated run with no live user, so it proceeds normally: it produces the six-area spec, and records the resolved sense of 'cancellation' (void-before-fulfillment, distinct from refund) under an Assumptions heading rather than writing a glossary file.",
+      "expectations": [
+        "The skill produces a spec rather than routing away",
+        "It does not block or halt because no CONTEXT.md/CONTEXT-MAP.md exists",
+        "No CONTEXT.md or CONTEXT-MAP.md file is created or fabricated",
+        "The resolved sense of 'cancellation' is recorded under an Assumptions heading",
+        "The six-area spec is produced with testable Success Criteria"
+      ],
+      "files": ["evals/fixtures/orders-bare-repo/src/orders/order.ts"]
+    }
+  ]
+}

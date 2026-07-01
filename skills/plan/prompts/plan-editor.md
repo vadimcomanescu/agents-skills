@@ -12,7 +12,7 @@ Read:
 
 ## Task
 
-Diagnose the whole plan before deciding. Enumerate the ways execution could fail: wrong problem, missed user intent, false repo assumptions, incorrect contracts, missing edge cases, unsafe sequencing, weak verification, invalid commands, oversized tasks, or architecture that would force rework.
+Diagnose the whole plan before deciding. Enumerate the ways execution could fail: wrong problem, missed user intent, false repo assumptions, incorrect contracts, missing edge cases, unsafe sequencing, weak verification, invalid commands, oversized tasks, architecture that would force rework, a task rebuilding what the codebase / installed deps / platform already provide, an abstraction or config knob with only one consumer, a new endpoint or input with no access-control or data-handling decision, or trust-boundary validation / data-loss / security / accessibility work wrongly deferred to a later task.
 
 Then act proportionately:
 
@@ -20,7 +20,7 @@ Then act proportionately:
 - If execution would fail, drift, miss a constraint, or require rework, edit the plan directly and return `REVISED`.
 - If requirements conflict or there is no safe autonomous path without a user choice, do not edit the plan. Return a report beginning with `USER DECISION REQUIRED:`.
 
-Do not rewrite for polish. Do not repartition tasks just because you prefer a different format. An unnecessary rewrite is a failure. Missing a real problem is a failure.
+Do not rewrite for polish. Do not repartition tasks just because you prefer a different format. An unnecessary rewrite is a failure. Missing a real problem is a failure. Do not return `REVISED` for a speculative concern with no evidence in the plan or codebase — "could be slow at 10x" with no baseline, "users might misuse this" with no stated behavior; note it in the Rationale instead.
 
 When revising:
 

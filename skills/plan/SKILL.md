@@ -32,6 +32,8 @@ Before writing any code, operate in read-only mode:
 - Map dependencies between components
 - Note risks and unknowns
 
+Name the shape you're planning against in `codebase-design` vocabulary — module, interface, seam, adapter — and classify each new dependency (in-process / local-substitutable / remote-but-owned / true-external); the category decides where the test seam goes. A task that is a thin pass-through wrapper fails the deletion test — fold it into what it wraps.
+
 **Do NOT write code during planning.** The output is a plan document, not implementation.
 
 ### Step 2: Identify the Dependency Graph
@@ -104,6 +106,10 @@ Each task follows this structure:
 
 **Estimated scope:** [Small: 1-2 files | Medium: 3-5 files | Large: 5+ files]
 ```
+
+Before a task adds code, run the ladder: does this need to exist (no → drop it); already in the codebase (reuse, don't rewrite); stdlib / platform / installed dependency does it (use it); one line (one line); only then the minimum that works. The test is "is this speculative — for a user or scenario we don't have yet?" not "is it strictly required?" Speculative complexity and tangential cleanups become deferred tasks or Open Questions, never active ones — but the ladder governs code, not craft: the polish and small touches on what you're already building are the build, not scope creep. And never cut for laziness — trust-boundary validation, data-loss handling, security, and accessibility ship every time.
+
+When a task's interface has real competing shapes, run `codebase-design`'s design-it-twice pass before committing its approach. When an architecture decision is hard to reverse, surprising without context, and a real trade-off — all three — record it as an ADR via `domain-modeling` (in `docs/adr/`), not just a bullet.
 
 ### Step 5: Order and Checkpoint
 
@@ -267,3 +273,4 @@ Before starting implementation, confirm:
 ## Prompt Resources
 
 - Use `prompts/plan-editor.md` for each fresh up-the-hill review round.
+- Run `codebase-design` when a task introduces a module at a new seam or its interface has competing shapes; run `domain-modeling` when an architecture decision qualifies for an ADR.

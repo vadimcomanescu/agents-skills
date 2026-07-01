@@ -36,6 +36,8 @@ ASSUMPTIONS I'M MAKING:
 
 Don't silently fill in ambiguous requirements. The spec's entire purpose is to surface misunderstandings *before* code gets written — assumptions are the most dangerous form of misunderstanding.
 
+**Sharpen the vocabulary before you lock terms.** If a root `CONTEXT.md`/`CONTEXT-MAP.md` exists, read it and run `domain-modeling`'s challenge/sharpen moves on every domain term a requirement uses — a term that conflicts with the glossary, or is fuzzier than it resolves, before the criterion is written. No glossary yet — don't block. Create `CONTEXT.md` only when a term resolves through user exchange; in an automated run with no live user, record the resolved term under an `Assumptions` heading instead.
+
 **Write a spec covering these six core areas:**
 
 1. **Confirmed Intent** — Locked input from `interview-me`. Read it from the spec file's first section; do not edit here.
@@ -115,6 +117,8 @@ REFRAMED SUCCESS CRITERIA:
 ```
 
 This lets you loop, retry, and problem-solve toward a clear goal rather than guessing what "faster" means.
+
+**Quality is part of the WHAT.** The warmth, the polish, the small touches on a feature that's in scope belong in Success Criteria — don't drop them as "not strictly required." Defer only what's *speculative*: features for users or scenarios you don't have yet. The scope test is "is this speculative?" — not "is this strictly required?"
 
 ## Downstream consumers
 
